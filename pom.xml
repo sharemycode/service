@@ -21,12 +21,31 @@
 	</repository>
   </repositories>
 
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>3.0.2.Final</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+         <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0</version>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+
   <dependencies>
-	<dependency>
-		<groupId>org.jboss.resteasy</groupId>
-		<artifactId>resteasy-jaxrs</artifactId>
-		<version>3.0.4.Final</version>
-	</dependency>
+
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
 	<!--  Picket Link Security -->
 	<dependency>
 		<groupId>org.picketlink</groupId>
@@ -53,6 +72,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>${project.artifactId}</finalName>
   	<plugins>
   		<plugin>
 	  		<groupId>org.apache.maven.plugins</groupId>
@@ -68,6 +88,16 @@
 	        <artifactId>wildfly-maven-plugin</artifactId>
             <version>1.0.2.Final</version>
         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+               <!-- web.xml is not mandatory since JavaEE 5 -->
+               <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+         </plugin>
+
   	</plugins>
   </build>
 </project>
