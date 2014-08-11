@@ -64,6 +64,28 @@
   		<artifactId>javax.servlet-api</artifactId>
   		<version>3.1.0</version>
 	</dependency>
+	<!-- Import the JPA API, we use provided scope as the API is included 
+            in JBoss EAP 6 -->
+    <dependency>
+        <groupId>org.hibernate.javax.persistence</groupId>
+        <artifactId>hibernate-jpa-2.0-api</artifactId>
+        <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <!--  Required Tools -->
+    <!--  Hibernate Validator  -->
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>5.1.2.Final</version>
+        <scope>provided</scope>
+    </dependency>
+    <!--  Testing  -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
