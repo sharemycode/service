@@ -1,4 +1,4 @@
-package org.jboss.sharemycode;
+package net.sharemycode;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
