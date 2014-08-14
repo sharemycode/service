@@ -1,6 +1,9 @@
-package net.sharemycode;
+package net.sharemycode.service;
 
 import java.util.ArrayList;
+
+import net.sharemycode.service.model.Project;
+import net.sharemycode.service.model.User;
 
 public class Resources {
 	// create structures to store resources used in application
