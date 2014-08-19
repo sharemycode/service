@@ -45,7 +45,7 @@
       <artifactId>javax.ws.rs-api</artifactId>
       <scope>provided</scope>
     </dependency>
-
+	
 	<!--  Picket Link Security -->
 	<dependency>
 		<groupId>org.picketlink</groupId>
@@ -59,11 +59,6 @@
 		<scope>runtime</scope>
 		<version>${picketlink.version}</version>
 	</dependency>
-	<dependency>
-  		<groupId>javax.servlet</groupId>
-  		<artifactId>javax.servlet-api</artifactId>
-  		<version>3.1.0</version>
-	</dependency>
 	<!-- Import the JPA API, we use provided scope as the API is included 
             in JBoss EAP 6 -->
     <dependency>
@@ -71,16 +66,34 @@
         <artifactId>hibernate-jpa-2.0-api</artifactId>
         <scope>provided</scope>
     </dependency>
-
+	 <!-- Import the EJB API, we use provided scope as the API is included in JBoss EAP 6 -->
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
     <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
         <scope>provided</scope>
     </dependency>
     <dependency>
+    	<groupId>org.jboss.resteasy</groupId>
+    	<artifactId>resteasy-jaxrs</artifactId>
+    	<version>3.0.7.Final</version>
+    	<scope>provided</scope>
+	</dependency>
+    <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-multipart-provider</artifactId>
-        <version>2.3.1.GA</version>
+        <version>3.0.7.Final</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+    	<groupId>javax.enterprise</groupId>
+    	<artifactId>cdi-api</artifactId>
+    	<version>1.2</version>
+    	<scope>provided</scope>
     </dependency>
     <!--  Required Tools -->
     <!--  Hibernate Validator  -->
@@ -94,6 +107,7 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>4.3.6.Final</version>
+        <scope>provided</scope>
     </dependency>
     <!--  Testing  -->
     <dependency>

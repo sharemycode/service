@@ -96,7 +96,7 @@ public class Project implements Serializable {
     }
     
     public static String generateURL() {
-    	// define URL alphabet - alphanumeric characters minus 1,i,l and o
+    	// define URL alphabet - alphanumeric characters minus 0,1,i,l and o
     	String alphabet = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ";
     	SecureRandom random = new SecureRandom();
     	String url = "";
