@@ -8,9 +8,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.Consumes;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +24,7 @@ import java.util.Map;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -37,6 +44,7 @@ import net.sharemycode.service.model.User;
 
 @Path("/project")
 public class ProjectServices {
+	public static final String TEMP_PROJECT_PATH = "./projectstorage/";
 	
 	@Inject ProjectController projectController;
 	
@@ -51,14 +59,114 @@ public class ProjectServices {
 	public String returnURL() {
 		return Project.generateURL();
 	}
-	/*
+	
 	@POST
 	@Path("/create")
-	@Consumes("multipart/form-data")
-	public Response createProject(@MultipartForm UserRegForm input){
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response createProject(MultipartFormDataInput input) {
 		
-	}*/
-	
+		Map<String, List<InputPart>> formParts = input.getFormDataMap();
+		
+		// FILE UPLOAD SECTION
+		String fileName = "";
+		List<InputPart> inPart = formParts.get("projectFile");
+		for (InputPart inputPart : inPart) {
+		 try {
+		
+			// Retrieve headers, read the Content-Disposition header to obtain the original name of the file
+			MultivaluedMap<String, String> headers = inputPart.getHeaders();
+			fileName = parseFileName(headers);
+		
+			// Handle the body of that part with an InputStream
+			InputStream istream = inputPart.getBody(InputStream.class,null);
+		
+			fileName = TEMP_PROJECT_PATH + fileName;
+			File path = new File(TEMP_PROJECT_PATH);
+			if(!path.exists()) {	// if path does not exist
+				if(path.mkdirs()) {	// create directory
+					System.out.println("Created directory " + TEMP_PROJECT_PATH);
+					if(!path.canWrite() || !path.canRead()) {
+						// if not writable, change permissions
+						path.setWritable(true);
+						path.setReadable(true);
+					}
+					saveFile(istream,fileName);
+				} else {
+					System.out.println("Failed to create directory " + TEMP_PROJECT_PATH);
+				}
+			} else {
+				// if directory exists but is not writable, change permissions
+				if(!path.canWrite() || !path.canRead()) {
+					path.setWritable(true);
+					path.setReadable(true);
+				}
+				saveFile(istream,fileName);
+			}
+			String uploadResult = "File saved to server location : " + fileName;
+			System.out.println(uploadResult);
+		  } catch (IOException e) {
+			e.printStackTrace();
+		  }
+		}
+		// PROJECT DETAIL SECTION
+
+        Project p = new Project();
+        try {
+			p.setName(formParts.get("pname").get(0).getBodyAsString());
+			p.setVersion(formParts.get("version").get(0).getBodyAsString());
+			p.setDescription(formParts.get("description").get(0).getBodyAsString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+        p.setUrl(Project.generateURL());
+        p.setFilePath(fileName);
+      //projectController.createProject(p);
+        String output = "Project Created: {" + p.getName() + ", " + p.getVersion() 
+        		+ ", " + p.getDescription() + ", " + p.getUrl() + ", " + p.getFilePath() + "}";
+		return Response.status(200).entity(output).build();
+	}
+
+	// Parse Content-Disposition header to get the original file name
+	private String parseFileName(MultivaluedMap<String, String> headers) {
+
+		String[] contentDispositionHeader = headers.getFirst("Content-Disposition").split(";");
+
+		for (String name : contentDispositionHeader) {
+
+			if ((name.trim().startsWith("filename"))) {
+
+				String[] tmp = name.split("=");
+
+				String fileName = tmp[1].trim().replaceAll("\"","");
+
+				return fileName;
+			}
+		}
+		return "unknownFile";
+	}
+
+	// save uploaded file to a defined location on the server
+	private void saveFile(InputStream uploadedInputStream,
+		String serverLocation) {
+
+		try {
+			OutputStream outpuStream = new FileOutputStream(new File(serverLocation));
+			int read = 0;
+			byte[] bytes = new byte[1024];
+
+			outpuStream = new FileOutputStream(new File(serverLocation));
+			while ((read = uploadedInputStream.read(bytes)) != -1) {
+				outpuStream.write(bytes, 0, read);
+			}
+			outpuStream.flush();
+			outpuStream.close();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+	/*
 	@POST
 	@Path("/create")
 	public Response createProject(
@@ -72,7 +180,7 @@ public class ProjectServices {
 			//projectController.createProject(p);
 			return Response.status(200).entity("{" + p.getName() + ", " + p.getVersion() + ", " + p.getDescription() + "}").build();
 
-	}
+	} */
 	
 	 @GET
 	   @Path("/list{searchTerm:(/[^/]+?)?}")

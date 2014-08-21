@@ -47,6 +47,8 @@ public class Project implements Serializable {
 
     private String version;		// version of the project
     
+    private String filePath;	// path to temporary file on server
+    
     public String getId() {
         return projectID;
     }
@@ -93,6 +95,14 @@ public class Project implements Serializable {
     
     public String getVersion() {
     	return version;
+    }
+    
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
     
     public static String generateURL() {
