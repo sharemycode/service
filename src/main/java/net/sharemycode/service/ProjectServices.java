@@ -121,7 +121,7 @@ public class ProjectServices {
     	
         p.setUrl(Project.generateURL());
         p.setFilePath(fileName);
-      //projectController.createProject(p);
+        projectController.createProject(p);
         String output = "Project Created: {" + p.getName() + ", " + p.getVersion() 
         		+ ", " + p.getDescription() + ", " + p.getUrl() + ", " + p.getFilePath() + "}";
 		return Response.status(200).entity(output).build();

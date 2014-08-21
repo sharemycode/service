@@ -19,6 +19,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import net.sharemycode.service.ProjectServices;
 import net.sharemycode.service.events.NewProjectEvent;
 import net.sharemycode.service.events.NewResourceEvent;
 //import net.sharemycode.service.security.annotations.LoggedIn;
@@ -35,6 +36,9 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.model.Partition;
+
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.core.ZipFile;
 
 /**
  * Performs persistence operations for projects
@@ -55,18 +59,22 @@ public class ProjectController
    private Identity identity;
    
   // @LoggedIn
-   public void createProject(Project project)
-   {
-      EntityManager em = entityManager.get();
+   public void createProject(Project project) {
+	   /*
+	  // persist the project data 
+	  EntityManager em = entityManager.get();
       em.persist(project);
-
+      
+      // set the project access
       ProjectAccess pa = new ProjectAccess();
       pa.setProject(project);
       pa.setAccessLevel(AccessLevel.OWNER);
       pa.setOpen(true);
       pa.setUserId(identity.getAccount().getId());
-
       em.persist(pa);
+      */
+      // extract the project temp files
+      unzipProject(project.getFilePath(), ProjectServices.TEMP_PROJECT_PATH + project.getName(), null);
 
       newProjectEvent.fire(new NewProjectEvent(project));
    }
@@ -189,10 +197,29 @@ public class ProjectController
       return parent;
    }
 
-   public ProjectResource createPackage(Project project, ProjectResource folder, String pkgName)
-   {
-
+   public ProjectResource createPackage(Project project, ProjectResource folder, String pkgName) {
       return null;
+   }
+   
+   private static Boolean unzipProject(String sourcePath, String destPath, String password) {
+	   // Takes the path to a project archive, and extracts to destination path using zip4j
+	   try {
+		   ZipFile projectZip = new ZipFile(sourcePath);
+		   if(projectZip.isValidZipFile()) {
+		   		if(projectZip.isEncrypted()) {
+		   			projectZip.setPassword(password);
+		   		}
+		   		projectZip.extractAll(destPath);
+		   } else {
+			   System.err.println("Error: Attempted to process invalid zip file");
+			   return false;
+		   }
+	   } catch(ZipException e) {
+		   System.err.println("Error while processing zip archive");
+		   e.printStackTrace();
+		   return false;
+	   }
+	   return true;
    }
 }
 
