@@ -1,5 +1,10 @@
 package net.sharemycode.service.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,23 +80,36 @@ public class ProjectController
       */
       // extract the project temp files
       unzipProject(project.getFilePath(), ProjectServices.TEMP_PROJECT_PATH + project.getName(), null);
-
+      // create resources from project
+      try {
+		createProjectResources(project, ProjectServices.TEMP_PROJECT_PATH + project.getName());
+	} catch (IOException e) {
+		System.err.println("Error creating project resources");
+		e.printStackTrace();
+	}
       newProjectEvent.fire(new NewProjectEvent(project));
    }
 
  //  @LoggedIn
-   public void createResource(ProjectResource resource)
-   {
-      EntityManager em = entityManager.get();
+   public void createResource(ProjectResource resource) {
+      // persist resource
+	  EntityManager em = entityManager.get();
       em.persist(resource);
-
-      ResourceContent content = new ResourceContent();
-      content.setResource(resource);
-      content.setContent(new byte[0]);
-
-      em.persist(content);
-
+      
       newResourceEvent.fire(new NewResourceEvent(resource));
+   }
+   
+   private void createResourceContent(ProjectResource resource, String dataPath) throws IOException {
+	  EntityManager em = entityManager.get();
+	  // extract data from file
+ 	  Path path = Paths.get(dataPath);
+ 	  byte[] data = Files.readAllBytes(path);
+ 	  // create Resource Content
+ 	  ResourceContent content = new ResourceContent();
+ 	  content.setResource(resource);
+ 	  content.setContent(data);
+ 	  
+ 	  em.persist(content);
    }
 
    public Project lookupProject(Long id)
@@ -165,7 +183,11 @@ public class ProjectController
       q.setParameter("project", project);
       return q.getResultList();
    }
-
+   /*
+    * CREATE DIRECTORY STRUCTURE
+    * Author: Shane Bryzak
+    * Description: Create directory resources, files may not have existing data
+    */
    public ProjectResource createDirStructure(Project project, String directory)
    {
       String[] parts = directory.split(ProjectResource.PATH_SEPARATOR);
@@ -200,7 +222,11 @@ public class ProjectController
    public ProjectResource createPackage(Project project, ProjectResource folder, String pkgName) {
       return null;
    }
-   
+   /*
+    * UNZIP PROJECT
+    * Author: Lachlan Archibald
+    * Description: Extract project files into temp directory
+    */
    private static Boolean unzipProject(String sourcePath, String destPath, String password) {
 	   // Takes the path to a project archive, and extracts to destination path using zip4j
 	   try {
@@ -218,6 +244,37 @@ public class ProjectController
 		   System.err.println("Error while processing zip archive");
 		   e.printStackTrace();
 		   return false;
+	   }
+	   return true;
+   }
+   /*
+    * CREATE PROJECT RESOURCES
+    * Author: Lachlan Archibald
+    * Description: Create resources from EXISTING project (ie. Already has byte data)
+    */
+   private Boolean createProjectResources(Project project, String projectLocation) throws IOException {
+	   File[] files = new File(projectLocation).listFiles();	// return list of files in directory
+	   ProjectResource parent = null;
+	   String dataPath = null;	// used to give path to file for extracting byte array
+	   for(File file : files) {
+		   String name = file.getName();
+		   ProjectResource r = lookupResourceByName(project, parent, name);
+		   if(r == null) { // if current resource does not exist, create it
+			   r = new ProjectResource();
+			   r.setProject(project);
+			   r.setName(name);
+			   r.setParent(parent);
+			   if(file.isDirectory()) {	// if current file is a directory
+				   r.setResourceType(ResourceType.DIRECTORY);
+				   createResource(r);
+			   } else {
+				   r.setResourceType(ResourceType.FILE);
+				   createResource(r);
+				   dataPath = file.getAbsolutePath();
+				   createResourceContent(r, dataPath);
+			   }
+		   }
+		   parent = r;
 	   }
 	   return true;
    }
