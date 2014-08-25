@@ -93,6 +93,7 @@ public class ProjectServices {
 					saveFile(istream,fileName);
 				} else {
 					System.out.println("Failed to create directory " + TEMP_PROJECT_PATH);
+					
 				}
 			} else {
 				// if directory exists but is not writable, change permissions
