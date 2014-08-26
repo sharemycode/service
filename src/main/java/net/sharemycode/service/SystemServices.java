@@ -22,6 +22,7 @@ public class SystemServices {
 		return Response.status(200).entity(response).build();
 	}*/
 	
+	
 	@GET
 	@Path("/client/test")
 	public Response clientTest() {

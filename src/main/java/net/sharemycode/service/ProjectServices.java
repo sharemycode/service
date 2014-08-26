@@ -167,21 +167,7 @@ public class ProjectServices {
 			e.printStackTrace();
 		}
 	}
-	/*
-	@POST
-	@Path("/create")
-	public Response createProject(
-			@FormParam("pname") String projectName,
-			@FormParam("version") String version,
-			@FormParam("description") String description) {
-			Project p = new Project();
-			p.setName(projectName);
-			p.setVersion(version);
-			p.setDescription(description);
-			//projectController.createProject(p);
-			return Response.status(200).entity("{" + p.getName() + ", " + p.getVersion() + ", " + p.getDescription() + "}").build();
 
-	} */
 	
 	 @GET
 	   @Path("/list{searchTerm:(/[^/]+?)?}")
@@ -255,4 +241,12 @@ public class ProjectServices {
 	      projectController.createResource(r);
 	      return r;
 	   }
+	   
+		//TODO update authorisation	- POST
+		//TODO remove authorisation	- GET?
+		//TODO publish resource		- POST
+		//TODO list resources		- GET
+		//TODO list projects
+		//TODO fetch resource		- GET
+		//TODO delete resource		- GET?
 }

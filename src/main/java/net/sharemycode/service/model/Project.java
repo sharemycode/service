@@ -112,10 +112,8 @@ public class Project implements Serializable {
     	String url = "";
     	for(int i = 0; i < 6; i++) {
     		char d = alphabet.charAt(random.nextInt(alphabet.length()));
-    		System.out.println(d);
     		url = url + Character.toString(d);
     	}
     	return url;
     }
-
 }

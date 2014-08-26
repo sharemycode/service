@@ -73,11 +73,18 @@ import net.sharemycode.service.model.User;
 	    public List<User> listAllMembers() {
 	        return repository.findAllOrderedByName();
 	    }*/
-		
+		// TODO user login
 		@GET
 		@Path("/login")
 		public String userLogin() {
 			return "Login - Coming soon";
+		}
+		
+		// TODO user logout
+		@GET
+		@Path("/logout")
+		public String userLogout() {
+			return "Logout - Coming soon";
 		}
 		
 		@GET
@@ -105,11 +112,6 @@ import net.sharemycode.service.model.User;
 					u.setGivenName(givenName);
 					u.setSurname(surname);
 					u.setEmail(email);
-					/*
-					log.info("Registering " + u.getUsername());
-				        em.persist(u);
-				        userEventSrc.fire(u);
-					*/
 					return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
 				} else {
 					return Response.status(400).entity("Error: Password confirmation does not match").build();
@@ -117,13 +119,11 @@ import net.sharemycode.service.model.User;
 			} else {
 				return Response.status(400).entity("Error: Email confirmation does not match").build();
 			}
-		}
-	/*
+		} 
+	
 		@POST
-		@Path("/user/create")
-		@Consumes("application/json")
-		//@Produces(MediaType.APPLICATION_JSON)
-		@Produces("text/plain")
+		@Path("/create")
+		@Consumes(MediaType.APPLICATION_JSON)
 		public Response registerUser(Map<String,String> properties) {
 			if(properties.get("email").equals(properties.get("emailc"))) {	// email check success
 				if(properties.get("password").equals(properties.get("passwordc"))) {	// password check success
@@ -132,7 +132,6 @@ import net.sharemycode.service.model.User;
 					u.setEmail(properties.get("email"));
 					u.setGivenName(properties.get("gname"));
 					u.setSurname(properties.get("sname"));
-					System.out.println("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}");
 					//u.setPassword(properties.get("password"));
 					return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
 				} else {
@@ -141,7 +140,7 @@ import net.sharemycode.service.model.User;
 			} else {
 				return Response.status(400).entity("Error: Email confirmation does not match").build();
 			}
-		}*/
+		}
 		/*
 		 @GET
 	    @Path("/{id:[0-9][0-9]*}")
