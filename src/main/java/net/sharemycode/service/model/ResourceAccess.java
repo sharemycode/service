@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
  * @author Shane Bryzak
  *
  */
-@Entity
+//@Entity
 public class ResourceAccess implements Serializable
 {
    private static final long serialVersionUID = -790604070028430439L;

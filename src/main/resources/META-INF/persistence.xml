@@ -20,8 +20,8 @@
    xsi:schemaLocation="
         http://java.sun.com/xml/ns/persistence
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-   <persistence-unit name="primary" transaction-type="RESOURCE_LOCAL">
-      <non-jta-data-source>java:jboss/datasources/sharemycodeDS</non-jta-data-source>
+   <persistence-unit name="sharemycode-default">
+      <jta-data-source>java:jboss/datasources/sharemycodeDS</jta-data-source>
       <!-- If you are running in a production environment, add a managed 
          data source, this example data source is just for development and testing! -->
       <!-- The datasource is deployed as WEB-INF/sharemycode-ds.xml, you
@@ -34,3 +34,4 @@
       </properties>
    </persistence-unit>
 </persistence>
+

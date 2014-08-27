@@ -21,18 +21,20 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.annotations.GenericGenerator;
 
 @SuppressWarnings("serial")
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "projectID, url"))
+//@Entity
+//@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"PROJECT_ID", "URL"}))
 
 public class Project implements Serializable {
 
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "PROJECT_ID")
     private String projectID;	// unique Project ID
 
     @NotNull
     @Size(min=6)
+    @Column(name = "URL")
     private String url;			// unique project URL (generated using generateURL)
     
     @NotNull

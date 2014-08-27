@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
  *
  * @author Shane Bryzak
  */
-@Entity
+//@Entity
 public class ProjectResource implements Serializable
 {
    private static final long serialVersionUID = -4146308990787564792L;

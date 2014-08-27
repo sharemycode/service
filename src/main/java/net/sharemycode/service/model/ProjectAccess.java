@@ -17,10 +17,10 @@ import javax.persistence.UniqueConstraint;
  * @author Shane Bryzak
  *
  */
-@Entity
+/*@Entity
 @Table(name = "PROJECT_ACCESS", uniqueConstraints = {
          @UniqueConstraint(columnNames={"PROJECT_ID", "userId"})
-})
+})*/
 public class ProjectAccess implements Serializable
 {
    private static final long serialVersionUID = 6539427720605504095L;

@@ -12,7 +12,7 @@ import javax.persistence.OneToOne;
  * 
  * @author Shane Bryzak
  */
-@Entity
+//@Entity
 public class ResourceContent implements Serializable
 {
 

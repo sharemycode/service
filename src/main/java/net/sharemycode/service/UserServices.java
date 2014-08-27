@@ -27,11 +27,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-	import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import net.sharemycode.service.security.model.User;
+
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
-import net.sharemycode.service.model.User;
-//import net.sharemycode.service.data.UserRepository;
 
 	/**
 	 * sharemycode.net UserServices
@@ -109,10 +109,12 @@ import net.sharemycode.service.model.User;
 				if(password.equals(passwordc)) {	// password check success
 					User u = new User();
 					u.setUsername(username);
-					u.setGivenName(givenName);
-					u.setSurname(surname);
-					u.setEmail(email);
-					return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
+					//u.setGivenName(givenName);
+					//u.setSurname(surname);
+					//u.setEmail(email);
+					// FIXME
+					return null;
+					//return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
 				} else {
 					return Response.status(400).entity("Error: Password confirmation does not match").build();
 				}
@@ -129,11 +131,13 @@ import net.sharemycode.service.model.User;
 				if(properties.get("password").equals(properties.get("passwordc"))) {	// password check success
 					User u = new User();
 					u.setUsername(properties.get("username"));
-					u.setEmail(properties.get("email"));
-					u.setGivenName(properties.get("gname"));
-					u.setSurname(properties.get("sname"));
+					//u.setEmail(properties.get("email"));
+					//u.setGivenName(properties.get("gname"));
+					//u.setSurname(properties.get("sname"));
 					//u.setPassword(properties.get("password"));
-					return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
+					//return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getGivenName() + ", " + u.getSurname() + "}").build();
+					// FIXME
+					return null;
 				} else {
 					return Response.status(400).entity("Error: Password confirmation does not match").build();
 				}

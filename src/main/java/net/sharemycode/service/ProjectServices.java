@@ -32,7 +32,6 @@ import net.sharemycode.service.controller.ProjectController;
 import net.sharemycode.service.model.Project;
 import net.sharemycode.service.model.ProjectResource;
 import net.sharemycode.service.model.ProjectResource.ResourceType;
-import net.sharemycode.service.model.User;
 
 /**
  * sharemycode.net ProjectServices

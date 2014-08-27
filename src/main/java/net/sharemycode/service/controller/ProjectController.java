@@ -48,7 +48,8 @@ import net.lingala.zip4j.core.ZipFile;
 /**
  * Performs persistence operations for projects
  *
- * @author Shane Bryzak and Lachlan Archibald
+ * @author Shane Bryzak
+ * @author Lachlan Archibald
  */
 @ApplicationScoped
 public class ProjectController
