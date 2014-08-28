@@ -1,6 +1,7 @@
 package net.sharemycode.service;
 
 import javax.inject.Inject;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -32,6 +33,7 @@ import net.sharemycode.controller.ProjectController;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
+import net.sharemycode.security.model.User;
 
 /**
  * sharemycode.net ProjectService
@@ -41,7 +43,7 @@ import net.sharemycode.model.ProjectResource.ResourceType;
  *
  */
 
-@Path("/project")
+@Path("/projects")
 public class ProjectService {
     public static final String TEMP_PROJECT_PATH = "./projectstorage/";
 
@@ -53,8 +55,13 @@ public class ProjectService {
         return Project.generateURL();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Project> listAllProjects() {
+        return projectController.listAllProjects();
+    }
+
     @POST
-    @Path("/create")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response createProject(MultipartFormDataInput input) {
 
@@ -106,7 +113,7 @@ public class ProjectService {
 
         Project p = new Project();
         try {
-            p.setName(formParts.get("pname").get(0).getBodyAsString());
+            p.setName(formParts.get("name").get(0).getBodyAsString());
             p.setVersion(formParts.get("version").get(0).getBodyAsString());
             p.setDescription(formParts.get("description").get(0).getBodyAsString());
         } catch (IOException e) {
@@ -115,7 +122,7 @@ public class ProjectService {
 
         p.setUrl(Project.generateURL());
         p.setFilePath(fileName);
-        projectController.createProject(p);
+        //projectController.createProject(p);
         String output = "Project Created: {" + p.getName() + ", " + p.getVersion() 
                 + ", " + p.getDescription() + ", " + p.getUrl() + ", " + p.getFilePath() + "}";
         return Response.status(200).entity(output).build();
@@ -194,7 +201,7 @@ public class ProjectService {
 
             if (properties.containsKey("projectId"))
             {
-                Long projectId = Long.valueOf(properties.get("projectId"));
+                String projectId = properties.get("projectId");
                 r.setProject(projectController.lookupProject(projectId));
             }
 
@@ -215,7 +222,7 @@ public class ProjectService {
         r.setName(properties.get("name") + ".java");
         r.setResourceType(ResourceType.FILE);
 
-        Project p = projectController.lookupProject(Long.valueOf(properties.get("projectId")));
+        Project p = projectController.lookupProject(properties.get("projectId"));
         r.setProject(p);
 
         String folder = properties.get("folder");

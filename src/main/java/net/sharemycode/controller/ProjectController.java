@@ -2,49 +2,41 @@ package net.sharemycode.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.sharemycode.Repository;
+//import net.sharemycode.security.annotations.LoggedIn;
 import net.sharemycode.events.NewProjectEvent;
 import net.sharemycode.events.NewResourceEvent;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectAccess;
+import net.sharemycode.model.ProjectAccess.AccessLevel;
 import net.sharemycode.model.ProjectResource;
+import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.Project_;
 import net.sharemycode.model.ResourceContent;
-import net.sharemycode.model.ProjectAccess.AccessLevel;
-import net.sharemycode.model.ProjectResource.ResourceType;
-//import net.sharemycode.security.annotations.LoggedIn;
-
 import net.sharemycode.service.ProjectService;
 
 import org.picketlink.Identity;
-import org.picketlink.common.properties.Property;
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.model.Partition;
-
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.core.ZipFile;
 
 /*
  * Performs persistence operations for projects
@@ -65,6 +57,10 @@ public class ProjectController
     @Inject
     private Identity identity;
 
+    public List<Project> listAllProjects() {
+        return Repository.projectRepo;
+    }
+    
     // @LoggedIn
     public void createProject(Project project) {
         // persist the project data 
@@ -112,7 +108,7 @@ public class ProjectController
         em.persist(content);
     }
 
-    public Project lookupProject(Long id)
+    public Project lookupProject(String id)
     {
         EntityManager em = entityManager.get();
         return em.find(Project.class, id);
