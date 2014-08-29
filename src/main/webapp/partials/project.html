@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+	<h1>sharemycode.net</h1>
+	<div>
+    	<p>sharemycode is....</p>
+	</div>
+    <form id="newproject" ng-submit="create()">
+		<h2>Upload Project</h2>
+		<fieldset>
+			<legend>Upload an Existing Project to sharemycode.net</legend>
+			<div>
+				<label for="name">Project Name:</label>
+				<input type="text" name="name" id="name" ng-model="newProject.name" autofocus required/>
+			</div>
+			<div>
+				<label for="version">Version:</label>
+				<input type="text" name="version" id="version" ng-model="newProject.version" autofocus required/>
+			</div>
+			<div>
+				<label for="Description">Description:</label>
+				<input type="text" name="description" id="description" ng-model="newProject.description" autofocus required/>
+			</div>
+			<div>
+				<label for="projectFile">Project Archive (zip):</label>
+				<input type="file" name="projectFile" id="projectFile" ng-model="newProject.projectFile" autofocus required/>
+			</div>
+			<ul ng-hide="!successMessages" class="success">
+				<li ng-repeat="message in successMessages">{{message}}</li>
+			</ul>
+			<ul ng-hide="!errorMessages" class="error">
+				<li ng-repeat="message in errorMessages">{{message}}</li>
+			</ul>
+
+            <div>
+                <input type="submit" id="submit" value="Submit" />
+                <input type="button" ng-click="reset()" name="cancel"
+                    id="cancel" value="Cancel" />
+            </div>
+        </fieldset>
+    </form>
+ <h2>Projects</h2>
+    <!-- If there are no projects stored, instead of showing the table, we show a simple message. -->
+    <em ng-show="projects.length == 0">No projects are available.</em>
+    <table ng-hide="projects.length == 0" class="simpletablestyle">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Project Name</th>
+                <th>Version</th>
+                <th>Description</th>
+                <th>Project URL</th>
+                <th>REST URL</th>
+            </tr>
+        </thead>
+        <!-- The table is built using the AngularJS repeat function, iterating over the members variable, and ordering by the property specified in the orderBy variable -->
+        <tr ng-repeat="project in projects | orderBy:orderBy">
+            <td>{{project.id}}</td>
+            <td>{{project.name}}</td>
+            <td>{{project.version}}</td>
+            <td>{{project.description}}</td>
+            <td>{{project.URL}}</td>
+            <td><a href="rest/projects/{{project.id}}">/rest/projects/{{project.id}}</a>
+            </td>
+    </table>
+    <div>
+        REST URL for all projects: <a href="rest/projects">/rest/projects</a>
+    </div>
+    <div>
+        <!-- The table has a button to manually refresh the values, in case, for example, someone else adds a member -->
+        <input type="button" ng-click="refresh()" name="refresh"
+            id="refresh" value="Refresh" />
+    </div>
+</div>

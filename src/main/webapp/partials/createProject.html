@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>sharemycode.net Basic Frontend v0.1 - CreateProject</title>
+    </head>
+    <body>
+        <h1>Create Project</h1>
+        <p>Please enter the details below to create a new sharemycode.net project. Ensure that your project is archived in a zip file.</p>
+        <form action="rest/project/create" method="post" id="createproject" enctype="multipart/form-data">
+            <p>Project Name: <input type="text" name="pname" autofocus required/></p>
+            <p>Version: <input type="text" name="version" required/></p>
+            <p>Description: <input type="text" name="description" autocomplete="off"/></p>
+            <p>Project Archive (zip): <input type="file" name="projectFile" size="50" /></p>
+            <p><input type="submit" value="Submit" /></p>
+            </form>
+    </body>
+</html>
