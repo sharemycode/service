@@ -1,51 +1,30 @@
 package net.sharemycode.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.Map;
 
-import javax.persistence.NoResultException;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import javax.validation.Validator;
 import javax.ejb.Stateless;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import net.sharemycode.model.Project;
-import net.sharemycode.model.ProjectAccess;
-import net.sharemycode.model.ProjectResource;
-import net.sharemycode.model.Project_;
-import net.sharemycode.security.model.User;
 import net.sharemycode.Repository;
+import net.sharemycode.security.model.User;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 /**
  * sharemycode.net UserService
  * 
@@ -54,7 +33,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
  *
  */
 @Path("/users")
-@RequestScoped
+@Stateless
 public class UserService {
     @Inject
     private EntityManager em;
