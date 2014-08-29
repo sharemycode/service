@@ -129,8 +129,8 @@ public class UserService {
                 u.setLastName(properties.get("lastName"));
                 Password password = new Password(properties.get("password"));
                 Repository.userRepo.add(u);
-                //im.add(u);
-                //im.updateCredential(u, password);
+                im.add(u);
+                im.updateCredential(u, password);
                 return Response.status(200).entity("User \"" + u.getUsername() + "\" created!").build();
             } else {
                 return Response.status(400).entity("Error: Password confirmation does not match").build();
