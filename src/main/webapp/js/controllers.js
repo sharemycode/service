@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function UsersCtrl($scope, $http, Users) {
+function UserController($scope, $http, Users) {
 
     // Define a refresh function, that updates the data from the REST service
     $scope.refresh = function() {
@@ -67,52 +67,30 @@ function UsersCtrl($scope, $http, Users) {
     $scope.orderBy = 'username';
 }
 
-function ProjectsCtrl($scope, $http, Projects) {
+function ProjectController($scope, $http, Projects) {
 
     // Define a refresh function, that updates the data from the REST service
     $scope.refresh = function() {
         $scope.projects = Projects.query();
     };
 
-    // Define a reset function, that clears the prototype newMember object, and
+    // Define a reset function, that clears the prototype newProject object, and
     // consequently, the form
     $scope.reset = function() {
         // clear input fields
         $scope.newProject = {};
     };
 
-    // Define a register function, which adds the member using the REST service,
+    // Define a create function, which adds the project using the REST service,
     // and displays any error messages
-    $scope.create = function() {
-        $scope.successMessages = '';
-        $scope.errorMessages = '';
-        $scope.errors = {};
-
-        Projects.save($scope.newProject, function(data) {
-
-            // mark success on the registration form
-            $scope.successMessages = [ 'Project Created' ];
-
-            // Update the list of projects
-            $scope.refresh();
-
-            // Clear the form
-            $scope.reset();
-        }, function(result) {
-            if ((result.status == 409) || (result.status == 400)) {
-                $scope.errors = ['Error '] + result.status + [': '] + result.data;
-		} else {
-                $scope.errorMessages = [ 'Unknown  server error' ];
-            }
-            $scope.$apply();
-        });
-
-    };
-
-    // Call the refresh() function, to populate the list of members
+    // AngularJS does not yet have native support for multipart/form-data
+    // Using standard HTML post request with multipart encoding instead
+    //$scope.create = function() {
+    
+    // Call the refresh() function, to populate the list of projects
     $scope.refresh();
 
-    // Initialize newMember here to prevent Angular from sending a request
+    // Initialize newProject here to prevent Angular from sending a request
     // without a proper Content-Type.
     $scope.reset();
 

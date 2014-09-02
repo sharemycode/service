@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Define the REST resource service, allowing us to interact with it as a high level service
-angular.module('usersService', ['ngResource']).
-    factory('Users', function($resource){
-  return $resource('rest/users/:userId', {});
+// Defining the services module, which we will use for RESTful services
+angular.module('sharemycode.services', ['ngResource']);
+
+// define each REST resource
+angular.module('sharemycode.services').factory('Users', function($resource) {
+    return $resource('rest/users/:userId', {});
 });
-angular.module('projectsService', ['ngResource']).
-    factory('Projects', function($resource){
-  return $resource('rest/projects:projectId', {});
+
+angular.module('sharemycode.services').factory('Projects', function($resource) {
+    return $resource('rest/projects/:projectId', {});
 });

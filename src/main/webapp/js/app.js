@@ -16,7 +16,10 @@
  */
 // Define any routes for the app
 // Note that this app is a single page app, and each partial is routed to using the URL fragment. For example, to select the 'home' route, the URL is http://localhost:8080/wildfly-kitchensink-angularjs/#/home
-angular.module('sharemycode', ['usersService']).config(
+// Declare the application level module and dependencies
+angular.module('sharemycode', ['sharemycode.services']);
+
+angular.module('sharemycode').config(
         [ '$routeProvider', function($routeProvider) {
             $routeProvider.
             // if URL fragment is /home, then load the home partial, with the
@@ -26,7 +29,11 @@ angular.module('sharemycode', ['usersService']).config(
             }).
             when('/register', {
                 templateUrl : 'partials/register.html',
-                controller : UsersCtrl
+                controller : UserController
+            }).
+            when('/project', {
+                templateUrl : 'partials/project.html',
+                controller : ProjectController
             }).
             otherwise({ // Add a default route
                 redirectTo : '/home'

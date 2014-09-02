@@ -4,7 +4,7 @@
 	<div>
     	<p>sharemycode is....</p>
 	</div>
-    <form id="newproject" ng-submit="create()">
+    <form id="newproject" method="POST" action="rest/projects" enctype="multipart/form-data">
 		<h2>Upload Project</h2>
 		<fieldset>
 			<legend>Upload an Existing Project to sharemycode.net</legend>
@@ -14,15 +14,15 @@
 			</div>
 			<div>
 				<label for="version">Version:</label>
-				<input type="text" name="version" id="version" ng-model="newProject.version" autofocus required/>
+				<input type="text" name="version" id="version"  ng-model="newProject.version"required/>
 			</div>
 			<div>
 				<label for="Description">Description:</label>
-				<input type="text" name="description" id="description" ng-model="newProject.description" autofocus required/>
+				<input type="text" name="description" id="description"  ng-model="newProject.description"required/>
 			</div>
 			<div>
 				<label for="projectFile">Project Archive (zip):</label>
-				<input type="file" name="projectFile" id="projectFile" ng-model="newProject.projectFile" autofocus required/>
+				<input type="file" id="projectFile"  ng-model="newProject.projectFile"required/>
 			</div>
 			<ul ng-hide="!successMessages" class="success">
 				<li ng-repeat="message in successMessages">{{message}}</li>
@@ -44,7 +44,7 @@
     <table ng-hide="projects.length == 0" class="simpletablestyle">
         <thead>
             <tr>
-                <th>Id</th>
+                <th>ProjectID</th>
                 <th>Project Name</th>
                 <th>Version</th>
                 <th>Description</th>
@@ -54,12 +54,12 @@
         </thead>
         <!-- The table is built using the AngularJS repeat function, iterating over the members variable, and ordering by the property specified in the orderBy variable -->
         <tr ng-repeat="project in projects | orderBy:orderBy">
-            <td>{{project.id}}</td>
+            <td>{{project.projectID}}</td>
             <td>{{project.name}}</td>
             <td>{{project.version}}</td>
             <td>{{project.description}}</td>
-            <td>{{project.URL}}</td>
-            <td><a href="rest/projects/{{project.id}}">/rest/projects/{{project.id}}</a>
+            <td>{{project.url}}</td>
+            <td><a href="rest/projects/{{project.id}}">/rest/projects/{{project.projectID}</a>
             </td>
     </table>
     <div>

@@ -45,7 +45,7 @@ public class Project implements Serializable {
     private String description;	// project description
 
     @NotNull
-    private long owner_id;		// user ID of project owner (referential integrity not enforced)
+    private String owner_id;		// user ID of project owner (referential integrity not enforced)
 
     private String version;		// version of the project
     
@@ -75,11 +75,11 @@ public class Project implements Serializable {
         this.name = name;
     }
 
-    public Long getOwner() {
+    public String getOwner() {
         return owner_id;
     }
 
-    public void setOwner(Long owner_id) {
+    public void setOwner(String owner_id) {
         this.owner_id = owner_id;
     }
 

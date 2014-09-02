@@ -63,7 +63,8 @@ public class ProjectController
     
     // @LoggedIn
     public void createProject(Project project) {
-        // persist the project data 
+        // persist the project data
+    	project.setOwner(identity.getAccount().getId());
         EntityManager em = entityManager.get();
         em.persist(project);
 
