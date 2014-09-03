@@ -21,10 +21,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import net.sharemycode.Repository;
+import net.sharemycode.controller.UserController;
 import net.sharemycode.security.model.User;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.query.IdentityQuery;
 /**
  * sharemycode.net UserService
  * 
@@ -35,34 +37,18 @@ import org.picketlink.idm.credential.Password;
 @Path("/users")
 @Stateless
 public class UserService {
-    @Inject
-    private EntityManager em;
-
-    @Inject
-    private IdentityManager im;
     
-    // TODO user login
-    @GET
-    @Path("/login")
-    public String userLogin() {
-        return "Login - Coming soon";
-    }
-
-    // TODO user logout
-    @GET
-    @Path("/logout")
-    public String userLogout() {
-        return "Logout - Coming soon";
-    }
-
-/*
+    @Inject UserController userController;
+    
+    /* Return full list of users */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> listAllUsers() {
-        TypedQuery<User> q = em.createQuery("SELECT u FROM User u", User.class);
-        return q.getResultList();
+    	System.out.println("ListUsersREST");
+        return userController.listAllUsers();
     }
-*/
+
+    /*
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> listAllUsers() {
@@ -70,6 +56,7 @@ public class UserService {
         System.out.println(list.toString());
         return list;
     }
+    */
 /*    
     @POST
     public Response registerUser(
@@ -99,43 +86,56 @@ public class UserService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response registerUser(Map<String,String> properties) {
-        if(properties.get("email").equals(properties.get("emailc"))) {	// email check success
-            if(properties.get("password").equals(properties.get("passwordc"))) {	// password check success
-                User u = new User();
-                u.setUsername(properties.get("username"));
-                u.setEmail(properties.get("email"));
-                u.setFirstName(properties.get("firstName"));
-                u.setLastName(properties.get("lastName"));
-                Password password = new Password(properties.get("password"));
-                Repository.userRepo.add(u);
-                im.add(u);
-                im.updateCredential(u, password);
-                return Response.status(200).entity("User \"" + u.getUsername() + "\" created!").build();
-            } else {
-                return Response.status(400).entity("Error: Password confirmation does not match").build();
-            }
-        } else {
-            return Response.status(400).entity("Error: Email confirmation does not match").build();
-        }
+    	int result = userController.registerUser(properties);
+    	switch(result){
+    	case 0:
+    		return Response.status(200).entity("Registration successful!").build();
+    	case 1:
+    		return Response.status(400).entity("Username already exists").build();
+    	case 2:
+    		return Response.status(400).entity("Email address already exists").build();
+    	case 3:
+    		return Response.status(400).entity("Email confirmation does not match").build();
+    	case 4:
+    		return Response.status(400).entity("Password confirmation does not match").build();
+    	case -1:
+    	default:
+    		return Response.status(500).entity("Unknown Server Error").build();
+    	}
     }
     
+    
+    /* return specific user by username */
     @GET
-    @Path("/{username:[a-z]*}")
+    @Path("/{username:[a-z0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User lookupMemberByUsername(@PathParam("username") String username) {
-        User user = em.find(User.class, username);
+    public User lookupUserByUsername(@PathParam("username") String username) {
+        User user = userController.lookupUserByUsername(username);
         if (user == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return user;
     }
+    
+    /* Find user by Email */
     @GET
-    @Path("/search")
-    public List<User> listUsers(@DefaultValue("") @QueryParam("q") String searchTerm)
-    {
-        TypedQuery<User> q = em.createQuery("SELECT u FROM User u"
-                + "WHERE LOWER(u.username) LIKE " + searchTerm + "%", User.class);
-        return q.getResultList();
+    @Produces(MediaType.APPLICATION_JSON)
+    public User listUsersByEmail(@QueryParam("email") String email) {
+    	return userController.lookupUserByEmail(email);
+    }
+    
+    // TODO user login
+    @GET
+    @Path("/login")
+    public String userLogin() {
+        return "Login - Coming soon";
+    }
+
+    // TODO user logout
+    @GET
+    @Path("/logout")
+    public String userLogout() {
+        return "Logout - Coming soon";
     }
     
 }
