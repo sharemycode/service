@@ -22,15 +22,15 @@ import org.hibernate.annotations.GenericGenerator;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"PROJECT_ID", "URL"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"ID", "URL"}))
 
 public class Project implements Serializable {
 
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
-    @Column(name = "PROJECT_ID")
-    private String projectID;	// unique Project ID
+    @Column(name = "ID")
+    private String id;	// unique Project ID
 
     @NotNull
     @Size(min=6)
@@ -44,19 +44,18 @@ public class Project implements Serializable {
     @Size(max = 100)
     private String description;	// project description
 
-    @NotNull
     private String owner_id;		// user ID of project owner (referential integrity not enforced)
 
     private String version;		// version of the project
     
-    private String filePath;	// path to temporary file on server
+    //private String filePath;	// path to temporary file on server
 
     public String getId() {
-        return projectID;
+        return id;
     }
 
     public void setId(String id) {
-        this.projectID = id;
+        this.id = id;
     }
 
     public String getUrl() {
@@ -98,7 +97,7 @@ public class Project implements Serializable {
     public String getVersion() {
         return version;
     }
-    
+    /*
     public String getFilePath() {
         return filePath;
     }
@@ -106,7 +105,7 @@ public class Project implements Serializable {
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-
+*/
     public static String generateURL() {
         // define URL alphabet - alphanumeric characters minus 0,1,i,l and o
         String alphabet = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ";
