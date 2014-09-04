@@ -24,12 +24,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.ws.rs.GET;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -44,11 +39,12 @@ import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.Project_;
 import net.sharemycode.model.ResourceContent;
-import net.sharemycode.service.ProjectService;
+import net.sharemycode.security.model.User;
 
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.picketlink.Identity;
+import org.picketlink.idm.query.IdentityQuery;
 
 /*
  * Performs persistence operations for projects
@@ -67,6 +63,7 @@ public class ProjectController
     @Inject Event<NewProjectEvent> newProjectEvent;
 
     @Inject Event<NewResourceEvent> newResourceEvent;
+    @Inject UserController userController;
 
     @Inject
     private Identity identity;
@@ -168,8 +165,7 @@ public class ProjectController
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         // This section requires identities, disabled for now
-        /*
-        predicates.add(cb.equal(from.get("userId"), identity.getAccount().getId()));
+        //predicates.add(cb.equal(from.get("userId"), identity.getAccount().getId()));
 
         if (searchTerm != null && !"".equals(searchTerm))
         {
@@ -177,7 +173,7 @@ public class ProjectController
         }
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
-		*/
+		
         TypedQuery<ProjectAccess> q = em.createQuery(cq);
 
         List<Project> projects = new ArrayList<Project>();
@@ -235,7 +231,12 @@ public class ProjectController
     public ProjectResource createPackage(Project project, ProjectResource folder, String pkgName) {
         return null;
     }
-
+    
+    /*
+     * UPLOAD PROJECT
+     * Author: Lachlan Archibald
+     * Description: Upload an existing project (zip file)
+     */
     public Project uploadProject(MultipartFormDataInput input) {
 
         Map<String, List<InputPart>> formParts = input.getFormDataMap();
@@ -391,7 +392,7 @@ public class ProjectController
                     r.setResourceType(ResourceType.DIRECTORY);
                     createResource(r);
                     //TODO add the children files as well
-                    String childDir = currentDir + "/" + name;
+                    String childDir = currentDir + ProjectResource.PATH_SEPARATOR + name;
                     if(!processFiles(project, childDir, r))
                     	System.err.println("Error processing files in " + childDir);
                 } else {
@@ -404,4 +405,18 @@ public class ProjectController
         }
         return true;
     }
+
+    /*
+     * LIST PROJECTS BY OWNER
+     * Author: Lachlan Archibald
+     * Description: Return list of projects owned by username
+     */
+	public List<Project> listProjectsByOwner(String username) {
+		// TODO Auto-generated method stub
+		EntityManager em = entityManager.get();
+		User user = userController.lookupUserByUsername(username);
+		TypedQuery<Project> q = em.createQuery("SELECT p FROM Project p WHERE p.owner_id = :user", Project.class);
+		q.setParameter("user", user.getId());
+		return q.getResultList();
+	}
 }

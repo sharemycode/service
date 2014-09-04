@@ -24,14 +24,24 @@
     <h2>User Services</h2>
     <ul>
         <li><a href="#/register">User Registration [HTML]</a></li>
-        <li><a href="rest/users">List users [REST]</a></li>
         <li><a href="rest/users/login">Login [REST</a></li>
+        <li><a href="rest/users">List users [REST]</a></li>
+        <li>Lookup user by username - rest/users/{username}</li>
+        <li>Lookup user by email - rest/users/?email={email}</li>
+        
     </ul>
     <h2>Project Services</h2>
     <ul>
         <li><a href="#/project">Create new project [HTML]</a></li>
         <li><a href="rest/projects">List projects [REST]</a></li>
         <li><a href="rest/projects/randomURL">Generate Random URL</a></li>
+        <li>Lookup project by id - rest/projects/{projectid}</li>
+        <li>List project resources - rest/projects/{projectid}/resources</li>
+        <li>List projects by user - rest/projects/user/{username}</li>
     </ul>
-    <h2>Projects</h2>
+    <h2>Resource Services</h2>
+    <ul>
+        <li><a href="rest/resources">List all resources [REST]</a></li>
+        <li>Lookup resource by id - rest/resources/{resourceid}</li>
+    </ul>
 </div>

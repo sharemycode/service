@@ -32,6 +32,8 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import net.sharemycode.controller.ProjectController;
+import net.sharemycode.controller.ResourceController;
+import net.sharemycode.controller.UserController;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
@@ -51,6 +53,7 @@ public class ProjectService {
     
 
     @Inject ProjectController projectController;
+    @Inject ResourceController resourceController;
 
     @GET
     @Path("/randomURL")
@@ -73,6 +76,18 @@ public class ProjectService {
     		throw new WebApplicationException(Response.Status.NOT_FOUND);
     	}
     	return project;
+    }
+    
+    @GET
+    @Path("/{projectid:[0-9a-z]*}/resources")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProjectResource> listProjectResources(@PathParam("projectid") String projectid) {
+    	Project project = projectController.lookupProject(projectid);
+    	if(project == null) {
+    		throw new WebApplicationException(Response.Status.NOT_FOUND);
+    	}
+    	List<ProjectResource> resources = projectController.listResources(project);
+    	return resources;
     }
 
     @POST
@@ -159,11 +174,13 @@ public class ProjectService {
         return r;
     }
 
+    @GET
+    @Path("/user/{username:[0-9a-z]*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Project> listProjectsByOwner(@PathParam("username") String username) {
+    	List<Project> projects = projectController.listProjectsByOwner(username);
+    	return projects;
+    }
     //TODO update authorisation     - POST
     //TODO remove authorisation     - GET?
-    //TODO publish resourcePOST     - POST
-    //TODO list resources           - GET
-    //TODO list projects            - GET
-    //TODO fetch resource           - GET
-    //TODO delete resource          - GET?
 }
