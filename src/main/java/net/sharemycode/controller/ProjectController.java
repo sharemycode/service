@@ -368,8 +368,16 @@ public class ProjectController
      * Description: Create resources from EXISTING project (ie. Already has byte data)
      */
     private Boolean createProjectResources(Project project, String projectLocation) throws IOException {
-        File[] files = new File(projectLocation).listFiles();	// return list of files in directory
+        // return list of files in directory
         ProjectResource parent = null;
+        if(!processFiles(project, projectLocation, parent)) {
+        	return false;
+        } else
+        	return true;
+    }
+    
+    private Boolean processFiles(Project project, String currentDir, ProjectResource parent) throws IOException {
+    	File[] files = new File(currentDir).listFiles();
         String dataPath = null;	// used to give path to file for extracting byte array
         for(File file : files) {
             String name = file.getName();
@@ -382,6 +390,10 @@ public class ProjectController
                 if(file.isDirectory()) {	// if current file is a directory
                     r.setResourceType(ResourceType.DIRECTORY);
                     createResource(r);
+                    //TODO add the children files as well
+                    String childDir = currentDir + "/" + name;
+                    if(!processFiles(project, childDir, r))
+                    	System.err.println("Error processing files in " + childDir);
                 } else {
                     r.setResourceType(ResourceType.FILE);
                     createResource(r);
@@ -389,9 +401,7 @@ public class ProjectController
                     createResourceContent(r, dataPath);
                 }
             }
-            parent = r;
         }
         return true;
     }
 }
-

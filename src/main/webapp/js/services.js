@@ -23,5 +23,5 @@ angular.module('sharemycode.services').factory('Users', function($resource) {
 });
 
 angular.module('sharemycode.services').factory('Projects', function($resource) {
-    return $resource('rest/projects/:projectId', {});
+    return $resource('rest/projects/:id', {});
 });
