@@ -12,8 +12,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<picketlink.version>2.7.0.Beta1</picketlink.version>
-	<xwidgets.version>1.0-SNAPSHOT</xwidgets.version>
+	<version.picketlink>2.7.0.Beta1</version.picketlink>
+	<version.xwidgets>1.0-SNAPSHOT</version.xwidgets>
+    <version.deltaspike>1.0.0</version.deltaspike>
   </properties>
   <repositories>
     <repository>
@@ -48,27 +49,39 @@
 	
 	<!--  Picket Link Security -->
 	<dependency>
-		<groupId>org.picketlink</groupId>
-		<artifactId>picketlink</artifactId>
-		<version>${picketlink.version}</version>
-	</dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-api</artifactId>
+        <version>${version.picketlink}</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-impl</artifactId>
+        <version>${version.picketlink}</version>
+        <scope>compile</scope>
+    </dependency>
     <dependency>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-rest</artifactId>
-        <version>${picketlink.version}</version>
+        <version>${version.picketlink}</version>
         <scope>compile</scope>
         <exclusions>
-            <exclusion>
+           <exclusion>
               <artifactId>resteasy-jaxrs</artifactId>
               <groupId>org.jboss.resteasy</groupId>
-            </exclusion>
-            <exclusion>
+           </exclusion>
+           <exclusion>
               <groupId>org.codehaus.jackson</groupId>
-              <artifactId>jackson-jaxrs</artifactId> 
-            </exclusion>
+              <artifactId>jackson-jaxrs</artifactId>            
+           </exclusion>
         </exclusions>
     </dependency>
-
+    <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-json</artifactId>
+        <version>${version.picketlink}</version>
+        <scope>compile</scope>
+    </dependency>
 	<!-- Import the JPA API, we use provided scope as the API is included 
             in JBoss EAP 6 -->
     <dependency>
@@ -108,12 +121,23 @@
     <dependency>
         <groupId>org.xwidgets</groupId>
         <artifactId>xwidgets</artifactId>
-        <version>${xwidgets.version}</version>
+        <version>${version.xwidgets}</version>
     </dependency>
     <dependency>
         <groupId>org.xwidgets</groupId>
 		<artifactId>xwidgets-picketlink</artifactId>
-		<version>${xwidgets.version}</version>
+		<version>${version.xwidgets}</version>
+    </dependency>
+    <!--  Apache Deltaspike  -->
+    <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-impl</artifactId>
+        <version>${version.deltaspike}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-impl</artifactId>
+        <version>${version.deltaspike}</version>
     </dependency>
     <!--  Required Tools -->
     <!--  Hibernate Validator  -->
