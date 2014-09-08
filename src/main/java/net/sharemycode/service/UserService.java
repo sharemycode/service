@@ -47,63 +47,6 @@ public class UserService {
     	System.out.println("ListUsersREST");
         return userController.listAllUsers();
     }
-
-    /*
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<User> listAllUsers() {
-        List<User> list = Repository.userRepo;
-        System.out.println(list.toString());
-        return list;
-    }
-    */
-/*    
-    @POST
-    public Response registerUser(
-            @FormParam("username") String username,
-            @FormParam("email") String email,
-            @FormParam("password") String password,
-            @FormParam("emailc") String emailc,
-            @FormParam("passwordc") String passwordc,
-            @FormParam("firstName") String firstName,
-            @FormParam("lastName") String lastName) {
-        if(email.equals(emailc)) {  // email check success
-            if(password.equals(passwordc)) {	// password check success
-                User u = new User();
-                u.setUsername(username);
-                u.setFirstName(firstName);
-                u.setLastName(lastName);
-                u.setEmail(email);
-                return Response.status(200).entity("{" + u.getUsername() + ", " + u.getEmail() + ", " + u.getFirstName() + ", " + u.getLastName() + "}").build();
-            } else {
-                return Response.status(400).entity("Error: Password confirmation does not match").build();
-            }
-        } else {
-            return Response.status(400).entity("Error: Email confirmation does not match").build();
-        }
-    } 
-*/
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUser(Map<String,String> properties) {
-    	int result = userController.registerUser(properties);
-    	switch(result){
-    	case 0:
-    		return Response.status(200).entity("Registration successful!").build();
-    	case 1:
-    		return Response.status(400).entity("Username already exists").build();
-    	case 2:
-    		return Response.status(400).entity("Email address already exists").build();
-    	case 3:
-    		return Response.status(400).entity("Email confirmation does not match").build();
-    	case 4:
-    		return Response.status(400).entity("Password confirmation does not match").build();
-    	case -1:
-    	default:
-    		return Response.status(500).entity("Unknown Server Error").build();
-    	}
-    }
-    
     
     /* return specific user by username */
     @GET

@@ -11,7 +11,8 @@ import org.picketlink.event.SecurityConfigurationEvent;
 /**
  * Security Configuration
  * 
- * @author shane
+ * @author Shane Bryzak
+ * @author Lachlan Archibald
  *
  */
 @ApplicationScoped
@@ -22,23 +23,34 @@ public class SecurityConfiguration {
     {
        SecurityConfigurationBuilder builder = event.getBuilder();
 
-       // Http authentication configured here
+       // HTTP authentication configured here
        builder
-         .identity()
-             .stateless()
-         .http()
-             .forPath("/foo/rest/*")
-                 .authenticateWith()
-                     .token();
+           .identity()
+               .stateless()
+           .http()
+               .forPath("/rest/users/*")
+                   .authenticateWith()
+                       .token()
+               .forPath("/rest/projects/*")
+                   .authenticateWith()
+                       .token()
+               .forPath("/rest/resources/*")
+                   .authenticateWith()
+                       .token()
+               .forPath("/rest/authenticate")   // HTTP Basic used for initial login only.
+                   .authenticateWith()
+                       .basic()
+               .forPath("/rest/register")
+                   .unprotected();
 
        // IDM configured here
        builder
-          .identity()
-             .idmConfig()
-                .named("default")
+           .identity()
+               .idmConfig()
+                   .named("default")
                    .stores()
-                      .jpa()
-                         .supportType(User.class)
-                         .supportAllFeatures();
+                       .jpa()
+                           .supportType(User.class)
+                           .supportAllFeatures();
     }
 }

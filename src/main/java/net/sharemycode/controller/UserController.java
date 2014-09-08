@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 
 import net.sharemycode.security.model.User;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.query.IdentityQuery;
@@ -41,6 +42,7 @@ public class UserController {
     private IdentityManager im;
 
     public int registerUser(Map<String,String> properties) {
+        System.out.println("registerController");
     	// First we test if the user entered non-unique username and email
     	if(this.lookupUserByUsername(properties.get("username")) != null){
     		System.err.println("Username already exists");
@@ -67,8 +69,13 @@ public class UserController {
         u.setLastName(properties.get("lastName"));
         Password password = new Password(properties.get("password"));
         //Repository.userRepo.add(u);
+        try {
         im.add(u);
         im.updateCredential(u, password);
+        } catch(IdentityManagementException e) {
+            e.printStackTrace();
+        }
+        
         // sucessful user registration
         return REGSUCCESS;	
     }
