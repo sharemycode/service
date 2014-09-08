@@ -1,4 +1,4 @@
-/* INITIALIZATION */
+/* INITIALIZATION *//*
 xw.Ajax.loadingCallback = function(requests) {
   var ctl = xw.Sys.getObject("ajax");
   if (requests > 0) {
@@ -6,7 +6,7 @@ xw.Ajax.loadingCallback = function(requests) {
   } else {
     ctl.style.display = "none";
   }
-};
+};*/
 
 /* Set the Log level */
 xw.Log.logLevel = "DEBUG";
@@ -27,27 +27,25 @@ var ShareMyCode = {
     var f = xw.Sys.getObejct("failure_response");
     xw.Sys.clearChildren(d);
     var overlay = xw.Sys.getObject("popupOverlay");
-    select(response.status) {
+    switch(response.status) {
       case 200:
         var m = document.createTextNode("Registration successful!");
         d.appendChild(m);
         s.style.display = "block";
         f.style.display = "none";
+        break;
       case 400:
         var m = document.createTextNode(response.message);
         d.appendChild(m);
         s.style.display = "none";
-        f.style.display = "block";      
-      case 500:
-        var m = document.createTextNode(response.message);
-        d.appendChild(m);
-        s.style.display = "none";
-        f.style.display = "block";      
+        f.style.display = "block";
+        break;      
+      case 500:     
       default:
         var m = document.createTextNode(response.message);
         d.appendChild(m);
         s.style.display = "none";
-        f.style.display = "block"; 
+        f.style.display = "block";
     }
     d.style.display = "block";
     overlay.style.display = "block";

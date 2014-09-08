@@ -6,8 +6,8 @@
         	<p>sharemycode is....</p>
 	    </div>
         <xw:formData id="registrationParams"/>
+        <h2>User Registration</h2>
         <xw:form id="registerForm">
-		    <h2>User Registration</h2>
 		    <fieldset>
 			    <legend>Register for sharemycode.net</legend>
 			    <div>
@@ -38,22 +38,22 @@
 				    <label for="lname">Last Name:</label>
 				    <xw:inputText formData="#{registrationParams}" name="lastName"/>
                 </div>
-                <div>
-                    <xw:button id="register" label="Register">
-                        <xw:event type="onclick">
-                            <xw:action type="script">
-                                <![CDATA[ShareMyCode.registerUser(registrationParams.value);]]>
-                            </xw:action>
-                        </xw:event>
-                    </xw:button>
-                    <xw:button id="cancel" label="Cancel">
-                        <xw:event type="onclick">
-                            <xw:action type="script"><![CDATA[registerForm.reset();]]></xw:action>
-                        </xw:event>
-                    </xw:button>
-                </div>
             </fieldset>
         </xw:form>
+        <div>
+            <xw:button id="register" label="Register">
+                <xw:event type="onclick">
+                    <xw:action type="script">
+                        <![CDATA[ShareMyCode.registerUser(registrationParams.value);]]>
+                    </xw:action>
+                </xw:event>
+            </xw:button>
+            <xw:button id="cancel" label="Cancel">
+                <xw:event type="onclick">
+                    <xw:action type="script"><![CDATA[registerForm.reset();]]></xw:action>
+                </xw:event>
+            </xw:button>
+        </div>
         <!-- old AngularJS stuff
         <h2>Users</h2>
         <em ng-show="users.length == 0">No registered members.</em>
