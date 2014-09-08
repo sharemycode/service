@@ -54,6 +54,11 @@
                             </xw:action>
                         </xw:event>
                     </xw:button>
+                    <xw:button styleClass="pure-button" label="Cancel">
+                        <xw:event type="onclick">
+                            <xw:action type="script"><![CDATA[xw.Popup.close();]]></xw:action>
+                        </xw:event>
+                    </xw:button>
                 </div>
             </fieldset>
         </xw:form>

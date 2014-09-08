@@ -52,6 +52,22 @@
 		<artifactId>picketlink</artifactId>
 		<version>${picketlink.version}</version>
 	</dependency>
+    <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-rest</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+        <exclusions>
+            <exclusion>
+              <artifactId>resteasy-jaxrs</artifactId>
+              <groupId>org.jboss.resteasy</groupId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.codehaus.jackson</groupId>
+              <artifactId>jackson-jaxrs</artifactId> 
+            </exclusion>
+        </exclusions>
+    </dependency>
 
 	<!-- Import the JPA API, we use provided scope as the API is included 
             in JBoss EAP 6 -->
