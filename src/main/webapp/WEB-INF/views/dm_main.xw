@@ -10,6 +10,7 @@
     <pl:identity id="identity" basePath="#{servicePath}"/>
     <pl:requestAuthenticator id="requestAuthenticator"/>
     
+    <xw:restEndpoint id="registrationService" url="#{servicePath}/register/" method="POST"/>
     <xw:restEndpoint id="authenticationService" url="#{servicePath}/authenticate/" method="POST"/>
     <xw:restEndpoint id="userService" url="#{servicePath}/users/{" decorator="#{requestAuthenticator}" method="POST"/>
     <xw:restEndpoint id="projectService" url="#{servicePath}/projects/{" decorator="#{requestAuthenticator}" method="POST"/>

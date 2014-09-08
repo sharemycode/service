@@ -200,3 +200,50 @@ input {
   color:#3883ce;
   text-decoration:none; 
 }
+
+/* Popup overlay for status messages */
+
+#popupOverlay {
+  display: none;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: #000;
+  filter: alpha(opacity=80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  color: #fff;
+}
+
+#popupOverlay i {
+  margin-right: 12px;
+}
+
+#popupOverlay div {
+  margin-top: 24px;
+  text-align: center;
+}
+
+#success_response i {
+  color: #33CC33;
+}
+
+#failure_response i {
+  color: #CC0000;
+}
+
+#response_message {
+  color: #fff;
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 48px;
+  top: 48px;
+  text-align: left !important;
+  font-family: Tahoma;
+  font-size: 0.8em;
+  overflow: auto;
+}
+

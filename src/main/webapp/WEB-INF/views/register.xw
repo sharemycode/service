@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
-    <xw:restEndpoint id="registrationService" url="#{servicePath}/register/" method="POST"/>
     <div>
 	    <h1>sharemycode.net</h1>
 	    <div>
         	<p>sharemycode is....</p>
 	    </div>
         <xw:formData id="registrationParams"/>
-        <xw:form>
+        <xw:form id="registerForm">
 		    <h2>User Registration</h2>
 		    <fieldset>
 			    <legend>Register for sharemycode.net</legend>
@@ -39,13 +38,6 @@
 				    <label for="lname">Last Name:</label>
 				    <xw:inputText formData="#{registrationParams}" name="lastName"/>
                 </div>
-			    <!--<ul ng-hide="!successMessages" class="success">
-				    <li ng-repeat="message in successMessages">{{message}}</li>
-			    </ul>
-			    <ul ng-hide="!errorMessages" class="error">
-				    <li ng-repeat="message in errorMessages">{{message}}</li>
-			    </ul>-->
-
                 <div>
                     <xw:button id="register" label="Register">
                         <xw:event type="onclick">
@@ -54,9 +46,9 @@
                             </xw:action>
                         </xw:event>
                     </xw:button>
-                    <xw:button styleClass="pure-button" label="Cancel">
+                    <xw:button id="cancel" label="Cancel">
                         <xw:event type="onclick">
-                            <xw:action type="script"><![CDATA[xw.Popup.close();]]></xw:action>
+                            <xw:action type="script"><![CDATA[registerForm.reset();]]></xw:action>
                         </xw:event>
                     </xw:button>
                 </div>
