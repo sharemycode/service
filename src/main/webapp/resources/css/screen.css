@@ -24,16 +24,6 @@ body {
   color:#363636;
 }
 
-#ajax {
-  position: absolute;
-  text-align: right;
-  top: 2px;
-  right: 3px;
-  width: 20px;
-  height: 20px;
-  display: none;
-}
-
 #container {
   margin: 0 auto;
   padding: 0 20px 10px 20px;
@@ -211,15 +201,12 @@ input {
   text-decoration:none; 
 }
 
-/* Popup overlay for status messages */
+/* Response status messages */
 
-#popupOverlay {
+#serverResponse {
   display: none;
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  width: 200px;
+  position: relative;
   background-color: #000;
   filter: alpha(opacity=80);
   -moz-opacity: 0.8;
@@ -227,20 +214,16 @@ input {
   color: #fff;
 }
 
-#popupOverlay i {
-  margin-right: 12px;
-}
-
-#popupOverlay div {
+#serverResponse div {
   margin-top: 24px;
   text-align: center;
 }
 
-#success_response i {
+#success_response {
   color: #33CC33;
 }
 
-#failure_response i {
+#failure_response {
   color: #CC0000;
 }
 

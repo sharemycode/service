@@ -3,41 +3,37 @@ xw.Log.logLevel = "DEBUG";
 
 var ShareMyCode = {
   registerUser: function(props) {
-    var cb = function(response) {
-      ShareMyCode.registerCallback(JSON.parse(response));
+    var cb = function(message, response) {
+      ShareMyCode.registerCallback(message, response.status);
     };
     xw.Sys.getWidget("registrationService").post({content:JSON.stringify(props), callback: cb});
   },
     createClassCallback: function(response) {
     xw.Popup.close();
   },
-  registerCallback: function(response) {
-    var d = xw.Sys.getObject("response_message");
-    var s = xw.Sys.getObject("success_response");
-    var f = xw.Sys.getObejct("failure_response");
-    xw.Sys.clearChildren(d);
-    var overlay = xw.Sys.getObject("popupOverlay");
-    switch(response.status) {
+  registerCallback: function(message, status) {
+	  var r  = xw.Sys.getObject("serverResponse");
+	  var d = xw.Sys.getObject("responseMessage");
+      xw.Sys.clearChildren(d);
+      var m = document.createTextNode(message);
+      d.appendChild(m);
+      ShareMyCode.updateResponseStatus(status);
+      r.style.display = "block";
+  },
+  updateResponseStatus: function(status) {
+    var s = xw.Sys.getObject("successResponse");
+    var f = xw.Sys.getObject("failureResponse");
+    switch(status) {
       case 200:
-        var m = document.createTextNode("Registration successful!");
-        d.appendChild(m);
         s.style.display = "block";
         f.style.display = "none";
         break;
       case 400:
-        var m = document.createTextNode(response.message);
-        d.appendChild(m);
-        s.style.display = "none";
-        f.style.display = "block";
-        break;      
+      case 404:
       case 500:     
       default:
-        var m = document.createTextNode(response.message);
-        d.appendChild(m);
         s.style.display = "none";
         f.style.display = "block";
     }
-    d.style.display = "block";
-    overlay.style.display = "block";
   }
 };

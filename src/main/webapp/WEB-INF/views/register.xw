@@ -54,6 +54,15 @@
                 </xw:event>
             </xw:button>
         </div>
+        <div id="serverResponse">
+            <div id="successResponse">
+                Registration successful!
+            </div>
+            <div id="failureResponse">
+                Registration unsuccessful..
+                <div id="responseMessage"></div>
+            </div>
+        </div>
         <!-- old AngularJS stuff
         <h2>Users</h2>
         <em ng-show="users.length == 0">No registered members.</em>
