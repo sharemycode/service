@@ -36,11 +36,17 @@
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.0</version>
          </dependency>
+         <dependency>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
+            <version>1.1.5.Final</version>
+            <scope>import</scope>
+            <type>pom</type>
+        </dependency>
       </dependencies>
    </dependencyManagement>
 
   <dependencies>
-
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
@@ -161,10 +167,10 @@
 	</dependency>
     <!--  Testing  -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+        <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
@@ -184,15 +190,53 @@
             <version>1.0.2.Final</version>
         </plugin>
 
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-               <!-- web.xml is not mandatory since JavaEE 5 -->
-               <failOnMissingWebXml>false</failOnMissingWebXml>
-            </configuration>
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-war-plugin</artifactId>
+           <configuration>
+              <!-- web.xml is not mandatory since JavaEE 5 -->
+              <failOnMissingWebXml>false</failOnMissingWebXml>
+           </configuration>
+        </plugin>
+        <plugin>  
+            <artifactId>maven-surefire-plugin</artifactId>  
+            <version>2.9</version>  
          </plugin>
-
   	</plugins>
+  	<pluginManagement>
+  		<plugins>
+  			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+  			<plugin>
+  				<groupId>org.eclipse.m2e</groupId>
+  				<artifactId>lifecycle-mapping</artifactId>
+  				<version>1.0.0</version>
+  				<configuration>
+  					<lifecycleMappingMetadata>
+  						<pluginExecutions>
+  							<pluginExecution>
+  								<pluginExecutionFilter>
+  									<groupId>
+  										org.apache.maven.plugins
+  									</groupId>
+  									<artifactId>
+  										maven-dependency-plugin
+  									</artifactId>
+  									<versionRange>
+  										[2.1,)
+  									</versionRange>
+  									<goals>
+  										<goal>unpack</goal>
+  									</goals>
+  								</pluginExecutionFilter>
+  								<action>
+  									<ignore></ignore>
+  								</action>
+  							</pluginExecution>
+  						</pluginExecutions>
+  					</lifecycleMappingMetadata>
+  				</configuration>
+  			</plugin>
+  		</plugins>
+  	</pluginManagement>
   </build>
 </project>
