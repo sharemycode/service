@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+	    <h1>sharemycode.net</h1>
+	    <div>
+        	<p>sharemycode is....</p>
+	    </div>
+        <xw:formData id="loginParams"/>
+        <h2>Login</h2>
+        <xw:form id="loginForm">
+		    <fieldset>
+			    <legend>Login to your account</legend>
+			    <div>
+				    <label for="username">Username:</label>
+				    <xw:inputText formData="#{loginParams}" name="username"/>
+			    </div>
+			    <div>
+				    <label for="password">Password:</label>
+				    <xw:inputText formData="#{loginParams}" name="password"/>
+			    </div>
+            </fieldset>
+        </xw:form>
+        <div>
+            <xw:button id="login" label="Login">
+                <xw:event type="onclick">
+                    <xw:action type="script">
+                        <![CDATA[ShareMyCode.loginUser(loginParams.value);]]>
+                    </xw:action>
+                </xw:event>
+            </xw:button>
+        </div>
+        <div id="serverResponse">
+            <div id="successResponse">
+                Login successful!
+            </div>
+            <div id="failureResponse">
+                Login failed
+                <div id="responseMessage"></div>
+            </div>
+        </div>
+	</div>
+</xw:view>

@@ -8,7 +8,7 @@
         <h2>User Services</h2>
         <ul>
             <li><xw:link caption="Register"><xw:event type="onclick"><![CDATA[xw.open("register.xw", null, "content")]]></xw:event></xw:link></li>
-            <li><a href="rest/users/login">Login [REST</a></li>
+            <li><xw:link caption="Login"><xw:event type="onclick"><![CDATA[xw.open("login.xw", null, "content")]]></xw:event></xw:link></li>
             <li><a href="rest/users">List users [REST]</a></li>
             <li>Lookup user by username - rest/users/{username}</li>
             <li>Lookup user by email - rest/users/?email={email}</li>
