@@ -1,6 +1,5 @@
 package net.sharemycode.security.jws;
 
-
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,6 +7,8 @@ import javax.inject.Inject;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+
+import net.sharemycode.security.jws.JWSToken;
 
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.idm.IdentityManager;

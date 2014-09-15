@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
-<<<<<<< HEAD
 	<xw:eventObserver event="org.picketlink.identity.loggedIn">
     	<xw:event type="onfire"><![CDATA[xw.Popup.close();]]></xw:event>
 	</xw:eventObserver>
@@ -35,7 +34,6 @@
 		        <div id="responseMessage"></div>
 		    </div>
 		</div>
-=======
     <div>
 	    <h1>sharemycode.net</h1>
 	    <div>
@@ -74,6 +72,5 @@
                 <div id="responseMessage"></div>
             </div>
         </div>
->>>>>>> e71a29d2972c68affa0eb01d82ce4375f74c5f2c
 	</div>
 </xw:view>
