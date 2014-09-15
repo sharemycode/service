@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,8 +19,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import net.sharemycode.model.UserProfile;
 import net.sharemycode.security.model.User;
 
+import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
@@ -29,7 +33,7 @@ import org.picketlink.idm.query.IdentityQuery;
  *
  * @author Lachlan Archibald
  */
-@ApplicationScoped
+@RequestScoped
 public class UserController {
 	// User status codes
 	private static final int REGSUCCESS = 0;
@@ -40,6 +44,11 @@ public class UserController {
 	
 	@Inject
     private IdentityManager im;
+	
+	@Inject
+	private Identity identity;
+	
+	@Inject EntityManager em;
 
     public int registerUser(Map<String,String> properties) {
         System.out.println("registerController");
@@ -70,12 +79,18 @@ public class UserController {
         Password password = new Password(properties.get("password"));
         //Repository.userRepo.add(u);
         try {
-        im.add(u);
-        im.updateCredential(u, password);
+            im.add(u);
+            im.updateCredential(u, password);
         } catch(IdentityManagementException e) {
             e.printStackTrace();
         }
-        
+        // now create the user profile
+        User newUser = lookupUserByUsername(u.getUsername());
+        if(newUser == null)
+            return -1;  // failed to create user, return error
+        else 
+            if(createUserProfile(newUser.getId(), newUser.getUsername()) == null)
+                return -1;  // failed to create profile, return error.
         // sucessful user registration
         return REGSUCCESS;	
     }
@@ -91,7 +106,7 @@ public class UserController {
     /* return specific user by username */
     public User lookupUserByUsername(String username) {
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
-        q.setParameter(User.USERNAME, username);
+        q.setParameter(User.USERNAME, username.toLowerCase());
         if(q.getResultCount() == 0) {
         	return null;
         } else {
@@ -103,7 +118,7 @@ public class UserController {
     /* Find user by Email */
     public User lookupUserByEmail(String email) {
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
-        q.setParameter(User.EMAIL, email);
+        q.setParameter(User.EMAIL, email.toLowerCase());
         if(q.getResultCount() == 0) {
         	return null;
         } else {
@@ -111,5 +126,59 @@ public class UserController {
         	return user;
         }
     }
-
+    /* Find User Profile by username */
+    public UserProfile lookupUserProfile(String username) {
+        User u = this.lookupUserByUsername(username);
+        try {
+            UserProfile profile = em.find(UserProfile.class, u.getId());
+            return profile;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+    
+    public UserProfile createUserProfile(String id, String name) {
+        // profile created on user Registration, default DisplayName is username.
+        UserProfile profile = new UserProfile();
+        profile.setId(id);
+        profile.setDisplayName(name);
+        em.persist(profile);
+        return profile;
+    }
+    //@LoggedIn
+    public UserProfile updateUserProfile(String id, String name, String about, String contact, String interests) {
+        //String id = identity.getAccount().getId();
+        UserProfile profile = em.find(UserProfile.class, id);
+        try {
+            em.getTransaction().begin();
+            profile.setDisplayName(name);
+            profile.setAbout(about);
+            profile.setContact(contact);
+            profile.setInterests(interests);
+            em.getTransaction().commit();   // commit the changes to the existing EntityBean
+            return profile;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+    
+    public User updateUserAccount(String id, String username, String email, String password, String firstName, String lastName) {
+        IdentityQuery<User> q = im.createIdentityQuery(User.class);
+        q.setParameter(User.ID, id);
+        User u = q.getResultList().get(0);
+        if(u == null)
+            return null;
+        em.getTransaction().begin();
+        u.setUsername(username);
+        u.setEmail(email);
+        u.setFirstName(firstName);
+        u.setLastName(lastName);
+        // Password section
+        Password pw = new Password(password);
+        // TODO Remove current credentials when updating password?
+        //im.removeCredential(u, arg1);
+        im.updateCredential(u, pw);
+        em.getTransaction().commit();
+        return u;
+    }
 }

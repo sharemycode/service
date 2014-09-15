@@ -29,8 +29,8 @@ public class SecurityConfiguration {
                .stateless()
            .http()
                .forPath("/rest/users/*")
-                   .authenticateWith()
-                       .token()
+                   //.unprotected() // only for testing!
+                   .authenticateWith().token()
                .forPath("/rest/projects/*")
                    .authenticateWith()
                        .token()

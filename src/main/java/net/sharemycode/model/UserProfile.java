@@ -14,6 +14,8 @@ public class UserProfile {
     @Column(name="id")
     private String id;  // relates to the userId (identity.getAccount().getId();
     
+    private String displayName; // user's custom display name (Real name, nickname, psuedonym, whatever)
+    
     private String aboutContent;
     
     private String contactContent;
@@ -26,6 +28,14 @@ public class UserProfile {
     
     public String getId() {
         return id;
+    }
+    
+    public void setDisplayName(String name) {
+        this.displayName = name;
+    }
+    
+    public String getDisplayName() {
+        return displayName;
     }
     
     public void setAbout(String content) {
