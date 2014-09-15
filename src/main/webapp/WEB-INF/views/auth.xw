@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+
+  <xw:fragment rendered="#{!identity.loggedIn}">
+    <xw:link caption="Login">
+      <xw:event type="onclick"><![CDATA[xw.open("login.xw", null, "content")]]></xw:event>
+    </xw:link>
+    <xw:link caption="Register">
+    	<xw:event type="onclick"><![CDATA[xw.open("register.xw", null, "content")]]></xw:event>
+    </xw:link>
+   
+  </xw:fragment>
+  
+  <xw:fragment rendered="#{identity.loggedIn}">
+    <i class="fa fa-user"></i>
+    <span>#{identity.account.userName}</span> 
+  
+    <xw:link caption="Logout">
+      <xw:event type="onclick">
+        <xw:action type="script"><![CDATA[identity.logout();]]></xw:action>
+      </xw:event>
+    </xw:link>
+  </xw:fragment>
+</xw:view>

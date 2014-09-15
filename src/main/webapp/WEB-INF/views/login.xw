@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+<<<<<<< HEAD
+	<xw:eventObserver event="org.picketlink.identity.loggedIn">
+    	<xw:event type="onfire"><![CDATA[xw.Popup.close();]]></xw:event>
+	</xw:eventObserver>
+    <div>
+        <xw:formData id="loginParams"/>
+        <h2>Login</h2>
+    	<xw:form id="loginForm">
+		    <fieldset>
+			    <div>
+				    <label for="username">Username:</label>
+				    <xw:inputText id="username"/>
+			    </div>
+			    <div>
+				    <label for="password">Password:</label>
+				    <xw:inputSecret id="password"/>
+			    </div>
+            </fieldset>
+        </xw:form>
+		<div>
+		    <xw:button id="login" label="Login">
+		        <xw:event type="onclick">
+		            <xw:action type="script">identity.login(username.getValue(), password.getValue())</xw:action>
+		        </xw:event>
+		    </xw:button>
+		</div>
+		<div id="serverResponse">
+		    <div id="successResponse">
+		        Login successful!
+		    </div>
+		    <div id="failureResponse">
+		        Login failed
+		        <div id="responseMessage"></div>
+		    </div>
+		</div>
+=======
     <div>
 	    <h1>sharemycode.net</h1>
 	    <div>
@@ -38,5 +74,6 @@
                 <div id="responseMessage"></div>
             </div>
         </div>
+>>>>>>> e71a29d2972c68affa0eb01d82ce4375f74c5f2c
 	</div>
 </xw:view>

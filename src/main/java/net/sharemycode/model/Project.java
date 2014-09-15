@@ -22,7 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"ID", "URL"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "ID"))
 
 public class Project implements Serializable {
 
@@ -34,7 +34,7 @@ public class Project implements Serializable {
 
     @NotNull
     @Size(min=6)
-    @Column(name = "URL")
+    @Column(unique=true)
     private String url;			// unique project URL (generated using generateURL)
 
     @NotNull

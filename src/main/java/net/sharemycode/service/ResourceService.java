@@ -87,4 +87,16 @@ public class ResourceService {
 	}*/
 
 	//TODO publishResource(ResourcePath, ResourceContent) - POST
+	/*
+	@POST
+	@Path("/upload")
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	public Response uploadFile(InputStream input) {
+	    String location = projectController.createAttachment(input);
+	    if(location != null) {
+	        return Response.status(200).entity(location).build();
+	    } else {
+	        return Response.status(400).entity("Upload failed!").build();
+	    }
+	}*/
 }

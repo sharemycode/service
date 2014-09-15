@@ -38,10 +38,49 @@ body {
   padding-top: 30px;
   box-shadow: 3px 3px 15px #d5d5d5;
 }
+#navigation {
+  font-size: 0.9em;
+  width: 860px;
+  clear: both;
+  margin: 0px 0px;
+  border: 1px solid #D5D5D5;
+  background: #F1F1F1;
+  padding-bottom: 3px;
+  height: 15px;
+}
+#navigation ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#navigation li {
+  display: inline;
+  padding: 5px;
+  float: left;
+}
+#navigation a {
+  display: block;
+  width: 60px;
+}
+#main-navigation {
+	float: left;
+}
+#user-navigation {
+	float: right;
+}
+
 #content {
+  clear: both;
   float: left;
   width: 500px;
   margin: 20px;
+}
+
+.header {
+  padding: 4px 4px 2px 4px;
+}
+.title {
+	float: left;	
 }
 #aside {
   font-size: 0.9em;
@@ -60,7 +99,19 @@ body {
 }
 .dualbrand {
   float: right;
-  padding-right: 10px;
+  position: relative;
+  padding-right: 0px;
+}
+#auth {
+  float: right;
+  margin-right: 32px;
+  font-size: 75%;
+}
+
+#auth a, #auth a:visited, #auth a:hover {
+  margin-right: 12px;
+  font-family: sans-serif;
+  text-decoration: none;
 }
 #footer {
   clear: both;

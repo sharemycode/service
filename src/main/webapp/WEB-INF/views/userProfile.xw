@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+	    <h2>Profile for "{user}"</h2>
+	    <div>
+		    <p>Username: {Username}</p>
+	    </div>
+	    <div>
+		    <p>First Name: {FirstName}</p>
+	    </div>
+	    <div>
+		    <p>About Me: {aboutMe}</p>
+	    </div>
+	    <div>
+		    <p>Interests: {interests}</p>
+	    </div>
+	    <div>
+		    <p>Contact: {contact}</p>
+	    </div>
+    </div>
+</xw:view>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
     <div>
-        <h1>Welcome to sharemycode!</h1>
         <div>
             <p>This is a simple client application for testing web services</p>
         </div>
@@ -12,11 +11,11 @@
             <li><a href="rest/users">List users [REST]</a></li>
             <li>Lookup user by username - rest/users/{username}</li>
             <li>Lookup user by email - rest/users/?email={email}</li>
-            
+            <li><xw:link caption="Sample User Profile"><xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event></xw:link></li>
         </ul>
         <h2>Project Services</h2>
         <ul>
-            <xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link>
+            <li><xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link></li>
             <li><a href="rest/projects">List projects [REST]</a></li>
             <li><a href="rest/projects/randomURL">Generate Random URL</a></li>
             <li>Lookup project by id - rest/projects/{projectid}</li>

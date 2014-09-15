@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div id="main-navigation">
+        <ul>
+            <li><xw:link caption="Home"><xw:event type="onclick"><![CDATA[xw.open("menu.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Projects"><xw:event type="onclick"><![CDATA[xw.open("listProjects.xw", null, "content")]]></xw:event></xw:link></li>
+        </ul>
+    </div>
+    <!-- Logged in -->
+    <div id="user-navigation">        
+        <ul>
+        	<li><xw:link caption="Account"><xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event></xw:link></li>
+        	<li><xw:link caption="Logout"><xw:event type="onclick"><![CDATA[xw.open("logout.xw", null, "content")]]></xw:event></xw:link></li>
+        </ul>
+    </div>
+</xw:view>

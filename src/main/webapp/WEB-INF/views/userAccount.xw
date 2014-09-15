@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+    	<xw:formData id="userAccountParams"/>
+	    <h2>Edit User Account</h2>
+    	<div>
+    		<p>You can edit your user account settings and profile here</p>
+    	</div>
+	    <xw:form id="userAccountForm">
+		    <fieldset>
+			    <div>
+				    <label for="username">Username:</label>
+				    <xw:inputText formData="#{userAccountParams}" name="username" text="#{identity.getUsername()}"/>
+			    </div>
+			    <div>
+				    <label for="email">Email:</label>
+				    <xw:inputText formData="#{userAccountParams}" name="email" text="#{identity.getEmail()}"/>
+			    </div>
+			    <div>
+				    <label for="password">New Password:</label>
+				    <xw:inputSecret formData="#{userAccountParams}" name="password"/>
+			    </div>
+			    <div>
+				    <label for="passwordc">Confirm Password:</label>
+				    <xw:inputSecret formData="#{userAccountParams}" name="passwordc"/>
+			    </div>
+			    <div>
+				    <label for="fname">First Name:</label>
+				    <xw:inputText formData="#{userAccountParams}" name="firstName" text="#{identity.getFirstName()}"/>
+	            </div>
+	            <div>
+				    <label for="lname">Last Name:</label>
+				    <xw:inputText formData="#{userAccountParams}" name="lastName" text="#{identity.getLastName()"/>
+	            </div>
+	        </fieldset>
+	    </xw:form>
+	    <div>
+	        <xw:button id="submit" label="Update">
+	            <xw:event type="onclick">
+	                <xw:action type="script">
+	                    <![CDATA[ShareMyCode.updateUser(userAcountParams.value);]]>
+	                </xw:action>
+	            </xw:event>
+	        </xw:button>
+	        <xw:button id="cancel" label="Cancel">
+	            <xw:event type="onclick">
+	                <xw:action type="script"><![CDATA[userAccountForm.reset();]]></xw:action>
+	            </xw:event>
+	        </xw:button>
+	    </div>
+	    <div id="serverResponse">
+	        <div id="successResponse">
+	            Update successful!
+	        </div>
+	        <div id="failureResponse">
+	            Update unsuccessful..
+	            <div id="responseMessage"></div>
+	        </div>
+	    </div>
+    </div>
+</xw:view>

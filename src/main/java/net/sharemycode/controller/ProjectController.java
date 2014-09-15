@@ -1,6 +1,7 @@
 package net.sharemycode.controller;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.ws.rs.core.MultivaluedMap;
 
 import net.lingala.zip4j.core.ZipFile;
@@ -44,6 +46,8 @@ import net.sharemycode.security.model.User;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.query.IdentityQuery;
 
 /*
@@ -55,7 +59,10 @@ import org.picketlink.idm.query.IdentityQuery;
 @ApplicationScoped
 public class ProjectController
 {
-	public static final String TEMP_PROJECT_PATH = "./projectstorage/";
+    public static final String TEMP_STORAGE = "./projectStorage/";
+    public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachements/";
+	public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
+	public static final int MAX_UPLOAD = 10485760; // max upload filesize in bytes (10MB)
 	
     @Inject
     private Instance<EntityManager> entityManager;
@@ -75,11 +82,21 @@ public class ProjectController
     }
     
     // @LoggedIn
-    public void createProject(Project project) {
+    public Project createProject(Project project, List<String> attachments) {
         // persist the project data
-    	
     	//project.setOwner(identity.getAccount().getId());
+        project.setOwner("TestingOnly");    // testing project creation only.
+
         EntityManager em = entityManager.get();
+        Boolean uniqueUrl = false;
+        while(!uniqueUrl) {
+            project.setUrl(Project.generateURL());
+            TypedQuery<Project> q = em.createQuery("SELECT p FROM Project p WHERE p.url = :url", Project.class);
+            q.setParameter("url", project.getUrl());
+            if(q.getResultList() == null)
+                uniqueUrl = true;
+        }
+        
         em.persist(project);
 
         // set the project access
@@ -92,12 +109,15 @@ public class ProjectController
 
         // create resources from project
         try {
-            createProjectResources(project, TEMP_PROJECT_PATH + project.getName());
+            for(String attachment : attachments){
+                createProjectResources(project, attachment);
+            }
         } catch (IOException e) {
             System.err.println("Error creating project resources");
             e.printStackTrace();
         }
         newProjectEvent.fire(new NewProjectEvent(project));
+        return project;
     }
     //  @LoggedIn
     public void createResource(ProjectResource resource) {
@@ -237,6 +257,7 @@ public class ProjectController
      * Author: Lachlan Archibald
      * Description: Upload an existing project (zip file)
      */
+/*
     public Project uploadProject(MultipartFormDataInput input) {
 
         Map<String, List<InputPart>> formParts = input.getFormDataMap();
@@ -254,11 +275,11 @@ public class ProjectController
                 // Handle the body of that part with an InputStream
                 InputStream istream = inputPart.getBody(InputStream.class,null);
 
-                fileName = TEMP_PROJECT_PATH + fileName;
-                File path = new File(TEMP_PROJECT_PATH);
+                fileName = PROJECT_PATH + fileName;
+                File path = new File(PROJECT_PATH);
                 if(!path.exists()) {	// if path does not exist
                     if(path.mkdirs()) {	// create directory
-                        System.out.println("Created directory " + TEMP_PROJECT_PATH);
+                        System.out.println("Created directory " + PROJECT_PATH);
                         if(!path.canWrite() || !path.canRead()) {
                             // if not writable, change permissions
                             path.setWritable(true);
@@ -266,7 +287,7 @@ public class ProjectController
                         }
                         saveFile(istream,fileName);
                     } else {
-                        System.out.println("Failed to create directory " + TEMP_PROJECT_PATH);
+                        System.out.println("Failed to create directory " + PROJECT_PATH);
 
                     }
                 } else {
@@ -296,10 +317,23 @@ public class ProjectController
         p.setUrl(Project.generateURL());
         
         // extract the project temp files
-        unzipProject(fileName, TEMP_PROJECT_PATH + p.getName(), null);
+        unzipProject(fileName, PROJECT_PATH + p.getName(), null);
         //p.setFilePath(fileName);
         this.createProject(p);
         return p;
+    }
+*/    
+    public Project submitProject(Map<String,Object> properties) {
+        System.out.println("projectController");
+        // First we test if the user entered non-unique username and email
+        Project p = new Project();
+        p.setName((String) properties.get("name"));
+        p.setVersion((String) properties.get("version"));
+        p.setDescription((String) properties.get("description"));
+        @SuppressWarnings("unchecked")
+        List<String> attachments = (List<String>) properties.get("attachments");
+        Project result = this.createProject(p, attachments);
+        return result;  
     }
 
     // Parse Content-Disposition header to get the original file name
@@ -324,7 +358,7 @@ public class ProjectController
         try {
             OutputStream outpuStream = new FileOutputStream(new File(serverLocation));
             int read = 0;
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[MAX_UPLOAD];
 
             outpuStream = new FileOutputStream(new File(serverLocation));
             while ((read = uploadedInputStream.read(bytes)) != -1) {
@@ -369,15 +403,28 @@ public class ProjectController
      * Description: Create resources from EXISTING project (ie. Already has byte data)
      */
     private Boolean createProjectResources(Project project, String projectLocation) throws IOException {
-        // return list of files in directory
+        File[] files = new File(projectLocation).listFiles();
         ProjectResource parent = null;
-        if(!processFiles(project, projectLocation, parent)) {
-        	return false;
+        String userID = identity.getAccount().getId();
+        String tempProjectPath = PROJECT_PATH + ProjectResource.PATH_SEPARATOR +
+                userID + ProjectResource.PATH_SEPARATOR + project.getName();
+        for(File file : files) {
+            if(file.getName().endsWith(".zip")) {
+                if(!unzipProject(file.getAbsolutePath(), tempProjectPath, null))
+                    System.err.println("Problem extracting file " + file.getName() + " to project directory.");
+            } else {
+                if(!file.renameTo(new File(tempProjectPath + ProjectResource.PATH_SEPARATOR + file.getName())))
+                    System.err.println("Problem moving file " + file.getName() + " to project directory.");
+            }
+        }
+        if(!processFiles(project, tempProjectPath, parent)) {
+            return false;
         } else
-        	return true;
+            return true;
     }
     
     private Boolean processFiles(Project project, String currentDir, ProjectResource parent) throws IOException {
+        // return list of files in directory
     	File[] files = new File(currentDir).listFiles();
         String dataPath = null;	// used to give path to file for extracting byte array
         for(File file : files) {
@@ -418,5 +465,64 @@ public class ProjectController
 		TypedQuery<Project> q = em.createQuery("SELECT p FROM Project p WHERE p.owner_id = :user", Project.class);
 		q.setParameter("user", user.getId());
 		return q.getResultList();
+	}
+	
+	/* 
+	 * CREATE ATTACHMENT
+	 * @Author: Lachlan Archibald
+	 * Returns the path to a file uploaded by a user.
+	 */
+	public String createAttachment(MultipartFormDataInput input) {
+
+        Map<String, List<InputPart>> formParts = input.getFormDataMap();
+
+        // FILE UPLOAD SECTION
+        String fileName = "";
+        //String userID = identity.getAccount().getId();
+        String userID = "TestingOnly";
+        String uploadDirectory = ATTACHMENT_PATH + userID +  ProjectResource.PATH_SEPARATOR +
+                System.currentTimeMillis() + ProjectResource.PATH_SEPARATOR;
+        List<InputPart> inPart = formParts.get("file");
+        for (InputPart inputPart : inPart) {
+            try {
+
+                // Retrieve headers, read the Content-Disposition header to obtain the original name of the file
+                MultivaluedMap<String, String> headers = inputPart.getHeaders();
+                fileName = parseFileName(headers);
+
+                // Handle the body of that part with an InputStream
+                InputStream istream = inputPart.getBody(InputStream.class,null);
+
+                fileName = uploadDirectory + fileName;
+                File path = new File(uploadDirectory);
+                if(!path.exists()) {    // if path does not exist
+                    if(path.mkdirs()) { // create directory
+                        System.out.println("Created directory " + uploadDirectory);
+                        if(!path.canWrite() || !path.canRead()) {
+                            // if not writable, change permissions
+                            path.setWritable(true);
+                            path.setReadable(true);
+                        }
+                        saveFile(istream,fileName);
+                    } else {
+                        System.err.println("Failed to create directory " + uploadDirectory);
+                        return null;
+                    }
+                } else {
+                    // if directory exists but is not writable, change permissions
+                    if(!path.canWrite() || !path.canRead()) {
+                        path.setWritable(true);
+                        path.setReadable(true);
+                    }
+                    saveFile(istream,fileName);
+                }
+                String uploadResult = "File saved to server location : " + fileName;
+                System.out.println(uploadResult);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return uploadDirectory;
 	}
 }

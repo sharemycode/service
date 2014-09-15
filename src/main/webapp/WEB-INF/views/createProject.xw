@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+        <xw:formData id="projectParams"/>
+        <h2>Create New Project</h2>
+        <xw:form id="projectForm">
+		    <fieldset>
+			    <legend>Create a new project</legend>
+			    <div>
+				    <label for="name">Project Name:</label>
+				    <xw:inputText formData="#{projectParams}" name="name"/>
+			    </div>
+			    <div>
+				    <label for="version">Version:</label>
+				    <xw:inputText formData="#{projectParams}" name="version"/>
+			    </div>
+			    <div>
+				    <label for="description">Description:</label>
+				    <xw:inputText formData="#{projectParams}" name="description"/>
+			    </div>
+				<!-- Attach project files -->
+            </fieldset>
+        </xw:form>
+        <div>
+            <xw:button id="submit" label="Submit">
+                <xw:event type="onclick">
+                    <xw:action type="script">
+                        <![CDATA[ShareMyCode.createProject(projectParams.value);]]>
+                    </xw:action>
+                </xw:event>
+            </xw:button>
+            <xw:button id="cancel" label="Cancel">
+                <xw:event type="onclick">
+                    <xw:action type="script"><![CDATA[projectForm.reset();]]></xw:action>
+                </xw:event>
+            </xw:button>
+        </div>
+        <div id="serverResponse">
+            <div id="successResponse">
+                Proejct Creation successful!
+            </div>
+            <div id="failureResponse">
+                Project Creation failed
+                <div id="responseMessage"></div>
+            </div>
+        </div>
+    </div>
+</xw:view>

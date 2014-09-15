@@ -91,14 +91,14 @@ public class ProjectService {
     }
 
     @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadProject(MultipartFormDataInput input) {
-        Project newProject = projectController.uploadProject(input);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response uploadProject(Map<String,Object> properties) {
+        Project newProject = projectController.submitProject(properties);
         if(newProject == null) {
         	return Response.status(400).entity("Failed to create project").build();
         }
-        return Response.status(200).entity(newProject.getUrl()).build();
+        String output = newProject.getUrl();
+        return Response.status(200).entity(output).build();
     }
 
     @GET
