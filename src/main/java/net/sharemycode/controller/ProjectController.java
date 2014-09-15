@@ -71,6 +71,7 @@ public class ProjectController
 
     @Inject Event<NewResourceEvent> newResourceEvent;
     @Inject UserController userController;
+    @Inject ResourceController resourceController;
 
     @Inject
     private Identity identity;
@@ -147,12 +148,6 @@ public class ProjectController
         return em.find(Project.class, id);
     }
 
-    public ProjectResource lookupResource(Long id)
-    {
-        EntityManager em = entityManager.get();
-        return em.find(ProjectResource.class, id);
-    }
-
     public ProjectResource lookupResourceByName(Project project, ProjectResource parent, String name)
     {
         EntityManager em = entityManager.get();
@@ -205,13 +200,6 @@ public class ProjectController
         return projects;
     }
 
-    public List<ProjectResource> listResources(Project project)
-    {
-        TypedQuery<ProjectResource> q = entityManager.get().<ProjectResource>createQuery("select r from ProjectResource r where r.project = :project", 
-                ProjectResource.class);
-        q.setParameter("project", project);
-        return q.getResultList();
-    }
     /*
      * CREATE DIRECTORY STRUCTURE
      * Author: Shane Bryzak
@@ -525,4 +513,30 @@ public class ProjectController
         }
         return uploadDirectory;
 	}
+	//@LoggedIn
+    public int deleteProject(String id) {   // Time complexity: O(n^2)
+        // Delete the project, and all associated resources.
+        EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, id);
+            // TODO Change permission lookup to within ProjectAccess (maybe)
+            if(identity.getAccount().getId() != p.getOwner())
+                return 401; // HTTP NOT AUTHORISED
+            //TODO delete associated ProjectAccess
+            TypedQuery<ProjectAccess> qProjectAccess = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);
+            qProjectAccess.setParameter("project", p);
+            List<ProjectAccess> paList = qProjectAccess.getResultList();
+            for(ProjectAccess pa : paList) {
+                em.remove(pa);  // remove ProjectAccess from datastore 
+            }
+            //TODO delete associated ProjectResources, ResourceAccess and ResourceContent
+            resourceController.deleteAllResources(p);
+            // Finally, remove project.
+            em.remove(p);
+        } catch (NoResultException e) {
+            System.err.println("Project resource not found - id: " + id);
+            return 404;
+        }
+        return 200; // HTTP OK
+    }
 }

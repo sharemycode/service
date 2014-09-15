@@ -68,23 +68,33 @@ public class ResourceService {
 	@Path("/{id:[0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public ProjectResource fetchResource(@PathParam("id") Long id) {
-		ProjectResource resource = projectController.lookupResource(id);
+		ProjectResource resource = resourceController.lookupResource(id);
 		if(resource == null)
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		return resource;
 	}
+	// TODO createResource(ResourcePath, ResourceContent)  // Path to parentResource?
 	
-	//TODO deleteResource(ResourcePath) - DELETE
-	/*
+	// TODO deleteResource(ResourcePath) - DELETE   // path to resource (in relation to project hierarchy), or resourceID?
 	@DELETE
 	@Path("/{id:[0-9]}")
 	public Response deleteResource(@PathParam("id") Long id) {
-		int result = projectController.deleteResource(id);
-		if(result == 0) {
-			return Response.status(200).entity("Resource " + id + "deleted").build();
-		} else
-			return Response.status(400).entity("Error deleting resource").build();
-	}*/
+	    // Delete resource, assuming ResourceID
+		int result = resourceController.deleteResource(id);
+		switch (result) {
+		case 200:
+		    return Response.ok().entity("Resource deleted - id: " + id).build();
+        case 401:
+            return Response.status(401).entity("Not authorised to delete resource or child resource").build();
+        case 404:
+            return Response.status(404).entity("ProjectResource not found").build();
+        case 400:
+            return Response.status(400).entity("Malformed request").build();
+        case 500:
+        default:
+            return Response.status(500).entity("Unexpected server error").build();
+        }
+	}
 
 	//TODO publishResource(ResourcePath, ResourceContent) - POST
 	/*

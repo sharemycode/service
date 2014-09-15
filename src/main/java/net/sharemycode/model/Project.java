@@ -44,7 +44,7 @@ public class Project implements Serializable {
     @Size(max = 100)
     private String description;	// project description
 
-    private String owner_id;		// user ID of project owner (referential integrity not enforced)
+    private String owner_id;	// user ID of project owner (referential integrity not enforced)
 
     private String version;		// version of the project
     

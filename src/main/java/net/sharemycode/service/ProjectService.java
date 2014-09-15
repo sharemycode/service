@@ -3,6 +3,7 @@ package net.sharemycode.service;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -82,11 +83,12 @@ public class ProjectService {
     @Path("/{projectid:[0-9a-z]*}/resources")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectResource> listProjectResources(@PathParam("projectid") String projectid) {
+        // List all resources associated with a project.    May move to ResourceService
     	Project project = projectController.lookupProject(projectid);
     	if(project == null) {
     		throw new WebApplicationException(Response.Status.NOT_FOUND);
     	}
-    	List<ProjectResource> resources = projectController.listResources(project);
+    	List<ProjectResource> resources = resourceController.listResources(project);
     	return resources;
     }
 
@@ -127,7 +129,7 @@ public class ProjectService {
         if (properties.containsKey("parentResourceId"))
         {
             Long resourceId = Long.valueOf(properties.get("parentResourceId"));
-            parent = projectController.lookupResource(resourceId);
+            parent = resourceController.lookupResource(resourceId);
         }
 
         for (String part : parts) 
@@ -183,4 +185,23 @@ public class ProjectService {
     }
     //TODO update authorisation     - POST
     //TODO remove authorisation     - GET?
+    
+    @DELETE
+    @Path("/{id:[0-9a-z]*}")
+    public Response deleteProject(@PathParam("id") String id) {
+        int result = projectController.deleteProject(id);
+        switch (result) {
+        case 200:
+            return Response.ok().entity("Project deleted successfully").build();
+        case 401:
+            return Response.status(401).entity("Not authorised to delete resource or child resource").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        case 400:
+            return Response.status(400).entity("Malformed request").build();
+        case 500:
+        default:
+            return Response.status(500).entity("Unexpected server error").build();
+        }
+    }
 }
