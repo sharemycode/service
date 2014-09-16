@@ -37,9 +37,9 @@ public class SecurityConfiguration {
                .forPath("/rest/resources/*")
                    .authenticateWith()
                        .token()
-               .forPath("/rest/authenticate")   // HTTP Basic used for initial login only.
+               .forPath("/rest/auth/login")
                    .authenticateWith()
-                       .basic()
+                       .token()
                .forPath("/rest/register")
                    .unprotected();
 
