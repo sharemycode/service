@@ -92,7 +92,7 @@ public class UserService {
     public UserProfile lookupUserProfile(@QueryParam("user") String username) {
         return userController.lookupUserProfile(username);
     }
-    
+    /*
     @PUT
     @Path("/profile/{id: [a-zA-z0-9]*}")    // REST endpoint only used for updating profile
     @Consumes(MediaType.APPLICATION_JSON)
@@ -105,17 +105,21 @@ public class UserService {
         else
             return Response.ok().entity(profile).build();
     }
-    
+    */
     @PUT
     @Path("/{id: [a-zA-Z0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUserAccount(@PathParam("id") String id, Map<String, String> properties) {
+        // update User Account information AND User Profile information with the same form.
         User user = userController.updateUserAccount(id, properties.get("username"), properties.get("email"), 
                 properties.get("password"), properties.get("firstName"), properties.get("lastName"));
         if(user == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        else
-            return Response.ok().entity(user).build();
+        UserProfile profile = userController.updateUserProfile(id, properties.get("name"), 
+                properties.get("about"), properties.get("contact"), properties.get("interests"));
+        if(profile == null)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return Response.ok().entity(user).build();
     }
 }
