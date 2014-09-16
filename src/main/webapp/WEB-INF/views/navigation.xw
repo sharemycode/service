@@ -10,7 +10,34 @@
     <div id="user-navigation">        
         <ul>
         	<li><xw:link caption="Account"><xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event></xw:link></li>
-        	<li><xw:link caption="Logout"><xw:event type="onclick"><![CDATA[xw.open("logout.xw", null, "content")]]></xw:event></xw:link></li>
-        </ul>
+        
+          <xw:fragment rendered="#{!identity.loggedIn}">
+            <li>
+              <xw:link caption="Login">
+                <xw:event type="onclick"><![CDATA[xw.Popup.open("login.xw")]]></xw:event>
+              </xw:link>
+            </li>
+            <li>
+              <xw:link caption="Register">
+              	<xw:event type="onclick"><![CDATA[xw.open("register.xw", null, "content")]]></xw:event>
+              </xw:link>
+            </li>
+          </xw:fragment>
+          
+          <xw:fragment rendered="#{identity.loggedIn}">
+            <li>
+              <i class="fa fa-user"></i>
+              <span>#{identity.account.userName}</span> 
+            </li>
+            
+            <li>
+              <xw:link caption="Logout">
+                <xw:event type="onclick">
+                  <xw:action type="script"><![CDATA[identity.logout();]]></xw:action>
+                </xw:event>
+              </xw:link>
+            </li>
+          </xw:fragment>        
+        </ul>        
     </div>
 </xw:view>
