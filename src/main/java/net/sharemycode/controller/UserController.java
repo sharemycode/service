@@ -151,10 +151,14 @@ public class UserController {
         UserProfile profile = em.find(UserProfile.class, id);
         try {
             em.getTransaction().begin();
-            profile.setDisplayName(name);
-            profile.setAbout(about);
-            profile.setContact(contact);
-            profile.setInterests(interests);
+                if (!name.isEmpty())
+                    profile.setDisplayName(name);
+                if (!about.isEmpty())
+                    profile.setAbout(about);
+                if(!contact.isEmpty())
+                    profile.setContact(contact);
+                if(!interests.isEmpty())
+                    profile.setInterests(interests);
             em.getTransaction().commit();   // commit the changes to the existing EntityBean
             return profile;
         } catch (NoResultException e) {
@@ -169,15 +173,21 @@ public class UserController {
         if(u == null)
             return null;
         em.getTransaction().begin();
-        u.setUsername(username);
-        u.setEmail(email);
-        u.setFirstName(firstName);
-        u.setLastName(lastName);
-        // Password section
-        Password pw = new Password(password);
-        // TODO Remove current credentials when updating password?
-        //im.removeCredential(u, arg1);
-        im.updateCredential(u, pw);
+            if(!username.isEmpty())
+                u.setUsername(username);
+            if(!email.isEmpty())
+                u.setEmail(email);
+            if(!firstName.isEmpty())
+                u.setFirstName(firstName);
+            if(!lastName.isEmpty())
+                u.setLastName(lastName);
+            if (!password.isEmpty()) {
+                // Password section
+                Password pw = new Password(password);
+                // TODO Remove current credentials when updating password?
+                //im.removeCredential(u, arg1);
+                im.updateCredential(u, pw);
+            }
         em.getTransaction().commit();
         return u;
     }

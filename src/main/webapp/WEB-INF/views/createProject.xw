@@ -5,7 +5,6 @@
         <h2>Create New Project</h2>
         <xw:form id="projectForm">
 		    <fieldset>
-			    <legend>Create a new project</legend>
 			    <div>
 				    <label for="name">Project Name:</label>
 				    <xw:inputText formData="#{projectParams}" name="name"/>
@@ -21,6 +20,14 @@
 				<!-- Attach project files -->
             </fieldset>
         </xw:form>
+        <h2>Attach project files</h2>
+        <p>Attach your project files in a .zip archive. Press submit when upload complete.</p>
+        <div id="file-uploader">       
+            <noscript>          
+                <p>Please enable JavaScript to use file uploader.</p>
+                <!-- or put a simple form for upload here -->
+            </noscript>         
+        </div>
         <div>
             <xw:button id="submit" label="Submit">
                 <xw:event type="onclick">
@@ -45,4 +52,5 @@
             </div>
         </div>
     </div>
+    <xw:event type="afterRender"><![CDATA[ShareMyCode.createUploader();]]></xw:event>
 </xw:view>

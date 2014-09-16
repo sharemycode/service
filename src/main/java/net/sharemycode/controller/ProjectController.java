@@ -1,7 +1,6 @@
 package net.sharemycode.controller;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,18 +25,17 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.ws.rs.core.MultivaluedMap;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-import net.sharemycode.Repository;
 //import net.sharemycode.security.annotations.LoggedIn;
 import net.sharemycode.events.NewProjectEvent;
 import net.sharemycode.events.NewResourceEvent;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectAccess;
 import net.sharemycode.model.ProjectAccess.AccessLevel;
+import net.sharemycode.model.ProjectAttachment;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.Project_;
@@ -46,9 +45,6 @@ import net.sharemycode.security.model.User;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.query.IdentityQuery;
 
 /*
  * Performs persistence operations for projects
@@ -83,7 +79,7 @@ public class ProjectController
     }
     
     // @LoggedIn
-    public Project createProject(Project project, List<String> attachments) {
+    public Project createProject(Project project) {
         // persist the project data
     	//project.setOwner(identity.getAccount().getId());
         project.setOwner("TestingOnly");    // testing project creation only.
@@ -107,16 +103,7 @@ public class ProjectController
         pa.setOpen(true);
         //pa.setUserId(identity.getAccount().getId());
         em.persist(pa);
-
-        // create resources from project
-        try {
-            for(String attachment : attachments){
-                createProjectResources(project, attachment);
-            }
-        } catch (IOException e) {
-            System.err.println("Error creating project resources");
-            e.printStackTrace();
-        }
+        
         newProjectEvent.fire(new NewProjectEvent(project));
         return project;
     }
@@ -319,8 +306,16 @@ public class ProjectController
         p.setVersion((String) properties.get("version"));
         p.setDescription((String) properties.get("description"));
         @SuppressWarnings("unchecked")
-        List<String> attachments = (List<String>) properties.get("attachments");
-        Project result = this.createProject(p, attachments);
+        List<Long> attachments = (List<Long>) properties.get("attachments");
+        Project result = this.createProject(p);
+        // now create the resources from the attachments
+        if(attachments.size() > 0) {
+            try {
+                this.createProjectResources(result, attachments, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return result;  
     }
 
@@ -390,28 +385,53 @@ public class ProjectController
      * Author: Lachlan Archibald
      * Description: Create resources from EXISTING project (ie. Already has byte data)
      */
-    private Boolean createProjectResources(Project project, String projectLocation) throws IOException {
-        File[] files = new File(projectLocation).listFiles();
-        ProjectResource parent = null;
+    private Boolean createProjectResources(Project project, List<Long> attachments, ProjectResource parent) throws IOException {
+        EntityManager em = entityManager.get();
+        // new method
         String userID = identity.getAccount().getId();
         String tempProjectPath = PROJECT_PATH + ProjectResource.PATH_SEPARATOR +
                 userID + ProjectResource.PATH_SEPARATOR + project.getName();
-        for(File file : files) {
-            if(file.getName().endsWith(".zip")) {
-                if(!unzipProject(file.getAbsolutePath(), tempProjectPath, null))
-                    System.err.println("Problem extracting file " + file.getName() + " to project directory.");
+        for(Long id : attachments) {
+            ProjectAttachment pa = em.find(ProjectAttachment.class, id);
+            if(pa.getUploadPath().endsWith(".zip")) {
+                // attachment is a zip file, unzip it
+                File zipFile = new File(pa.getUploadPath());
+                if(!unzipProject(zipFile.getAbsolutePath(), tempProjectPath, null)) {
+                    System.err.println("Problem extracting file " + zipFile.getName() + " to project directory.");
+                    return false;
+                }
+                if(!processDirectory(project, tempProjectPath, parent))
+                    return false;
             } else {
-                if(!file.renameTo(new File(tempProjectPath + ProjectResource.PATH_SEPARATOR + file.getName())))
-                    System.err.println("Problem moving file " + file.getName() + " to project directory.");
+                // treat as a normal file
+                if(!processFile(project, pa.getUploadPath(), parent))
+                    return false;
             }
         }
-        if(!processFiles(project, tempProjectPath, parent)) {
-            return false;
-        } else
-            return true;
+        return true;
     }
     
-    private Boolean processFiles(Project project, String currentDir, ProjectResource parent) throws IOException {
+    private boolean processFile(Project project, String path,
+            ProjectResource parent) throws IOException {
+        // process individual file
+        File file = new File(path);
+        String name = file.getName();
+        ProjectResource r = lookupResourceByName(project, parent, name);
+        if(r == null) {
+            r = new ProjectResource();
+            r.setProject(project);
+            r.setName(name);
+            r.setParent(parent);
+            r.setResourceType(ResourceType.FILE);
+            createResource(r);
+            String dataPath = file.getAbsolutePath();
+            createResourceContent(r, dataPath);
+            
+        }
+        return false;
+    }
+
+    private Boolean processDirectory(Project project, String currentDir, ProjectResource parent) throws IOException {
         // return list of files in directory
     	File[] files = new File(currentDir).listFiles();
         String dataPath = null;	// used to give path to file for extracting byte array
@@ -428,7 +448,7 @@ public class ProjectController
                     createResource(r);
                     //TODO add the children files as well
                     String childDir = currentDir + ProjectResource.PATH_SEPARATOR + name;
-                    if(!processFiles(project, childDir, r))
+                    if(!processDirectory(project, childDir, r))
                     	System.err.println("Error processing files in " + childDir);
                 } else {
                     r.setResourceType(ResourceType.FILE);
@@ -460,10 +480,10 @@ public class ProjectController
 	 * @Author: Lachlan Archibald
 	 * Returns the path to a file uploaded by a user.
 	 */
-	public String createAttachment(MultipartFormDataInput input) {
-
+	public List<Long> createAttachmentsFromMultipart(MultipartFormDataInput input) {
+	    List<Long> attachments = new ArrayList<Long>();
         Map<String, List<InputPart>> formParts = input.getFormDataMap();
-
+        
         // FILE UPLOAD SECTION
         String fileName = "";
         //String userID = identity.getAccount().getId();
@@ -494,7 +514,7 @@ public class ProjectController
                         saveFile(istream,fileName);
                     } else {
                         System.err.println("Failed to create directory " + uploadDirectory);
-                        return null;
+                        return null; // error occurred
                     }
                 } else {
                     // if directory exists but is not writable, change permissions
@@ -506,13 +526,34 @@ public class ProjectController
                 }
                 String uploadResult = "File saved to server location : " + fileName;
                 System.out.println(uploadResult);
+                
+                // now create the project attachment entity
+                ProjectAttachment pa = createProjectAttachment(fileName);
+                attachments.add(pa.getId());
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
             }
         }
-        return uploadDirectory;
+        return attachments;
 	}
+	
+	public Long createAttachmentFromFile(File file) {
+	    // create a project attachment from an existing file
+	    ProjectAttachment pa = createProjectAttachment(file.getAbsolutePath());
+	    return pa.getId();
+	}
+	
+    private ProjectAttachment createProjectAttachment(String fileName) {    // TEST THIS FUNCTION returns pa with id;
+        // create project attachment entity
+        EntityManager em = entityManager.get();
+        ProjectAttachment pa = new ProjectAttachment();
+        pa.setUploadPath(fileName);
+        pa.setUploadDate(new Date());
+        
+        em.persist(pa);
+        return pa;
+    }
+	
 	//@LoggedIn
     public int deleteProject(String id) {   // Time complexity: O(n^2)
         // Delete the project, and all associated resources.

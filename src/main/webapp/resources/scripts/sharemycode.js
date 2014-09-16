@@ -50,5 +50,15 @@ var ShareMyCode = {
         s.style.display = "none";
         f.style.display = "block";
     }
+  },
+  createUploader: function() {            
+		var uploader = new qq.FileUploader({
+			debug: true,
+		    // pass the dom node (ex. $(selector)[0] for jQuery users)
+		    element: document.getElementById('file-uploader'),
+		    // path to server-side upload script
+		    action: '/servlet/UploadReceiver'
+		});          
   }
 };
+

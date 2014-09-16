@@ -2,15 +2,21 @@
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
     <div id="main-navigation">
         <ul>
-            <li><xw:link caption="Home"><xw:event type="onclick"><![CDATA[xw.open("menu.xw", null, "content")]]></xw:event></xw:link></li>
-            <li><xw:link caption="Projects"><xw:event type="onclick"><![CDATA[xw.open("listProjects.xw", null, "content")]]></xw:event></xw:link></li>
+            <li>
+                <xw:link caption="Home">
+                    <xw:event type="onclick"><![CDATA[xw.open("menu.xw", null, "content")]]></xw:event>
+                </xw:link>
+            </li>
+            <li>
+                <xw:link caption="Projects">
+                    <xw:event type="onclick"><![CDATA[xw.open("listProjects.xw", null, "content")]]></xw:event>
+                </xw:link>
+            </li>
         </ul>
     </div>
     <!-- Logged in -->
     <div id="user-navigation">        
         <ul>
-        	<li><xw:link caption="Account"><xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event></xw:link></li>
-        
           <xw:fragment rendered="#{!identity.loggedIn}">
             <li>
               <xw:link caption="Login">
@@ -29,13 +35,15 @@
               <i class="fa fa-user"></i>
               <span>#{identity.account.userName}</span> 
             </li>
-            
             <li>
-              <xw:link caption="Logout">
-                <xw:event type="onclick">
-                  <xw:action type="script"><![CDATA[identity.logout();]]></xw:action>
-                </xw:event>
-              </xw:link>
+                <xw:link caption="Account">
+                    <xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event>
+                </xw:link>
+            </li>
+            <li>
+                <xw:link caption="Logout">
+                    <xw:event type="onclick"><xw:action type="script"><![CDATA[identity.logout();]]></xw:action></xw:event>
+                </xw:link>
             </li>
           </xw:fragment>        
         </ul>        
