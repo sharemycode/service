@@ -39,6 +39,7 @@ import net.sharemycode.model.ProjectAttachment;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.Project_;
+import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 import net.sharemycode.security.model.User;
 
@@ -56,7 +57,7 @@ import org.picketlink.Identity;
 public class ProjectController
 {
     public static final String TEMP_STORAGE = "./projectStorage/";
-    public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachements/";
+    public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachments/";
 	public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
 	public static final int MAX_UPLOAD = 10485760; // max upload filesize in bytes (10MB)
 	
@@ -86,14 +87,15 @@ public class ProjectController
 
         EntityManager em = entityManager.get();
         Boolean uniqueUrl = false;
+        String newUrl = null;
         while(!uniqueUrl) {
-            project.setUrl(Project.generateURL());
+            newUrl = Project.generateURL();
             TypedQuery<Project> q = em.createQuery("SELECT p FROM Project p WHERE p.url = :url", Project.class);
-            q.setParameter("url", project.getUrl());
-            if(q.getResultList() == null)
+            q.setParameter("url", newUrl);
+            if(q.getResultList().size() == 0)
                 uniqueUrl = true;
         }
-        
+        project.setUrl(newUrl);
         em.persist(project);
 
         // set the project access
@@ -107,16 +109,29 @@ public class ProjectController
         newProjectEvent.fire(new NewProjectEvent(project));
         return project;
     }
+    
     //  @LoggedIn
-    public void createResource(ProjectResource resource) {
+    public ProjectResource createResource(ProjectResource resource) {
         // persist resource
         EntityManager em = entityManager.get();
         em.persist(resource);
 
         newResourceEvent.fire(new NewResourceEvent(resource));
+        return resource;
     }
-
-    private void createResourceContent(ProjectResource resource, String dataPath) throws IOException {
+    /*
+    //@LoggedIn
+    public ResourceAccess createResourceAccess(ProjectResource resource, ResourceAccess.AccessLevel accessLevel) {
+        EntityManager em = entityManager.get();
+        ResourceAccess ra = new ResourceAccess();
+        ra.setResource(resource);
+        ra.setAccessLevel(accessLevel);
+        
+        em.persist(ra);
+        return ra;
+    }
+    */
+    private ResourceContent createResourceContent(ProjectResource resource, String dataPath) throws IOException {
         EntityManager em = entityManager.get();
         // extract data from file
         Path path = Paths.get(dataPath);
@@ -127,6 +142,7 @@ public class ProjectController
         content.setContent(data);
 
         em.persist(content);
+        return content;
     }
 
     public Project lookupProject(String id)
@@ -306,14 +322,16 @@ public class ProjectController
         p.setVersion((String) properties.get("version"));
         p.setDescription((String) properties.get("description"));
         @SuppressWarnings("unchecked")
-        List<Long> attachments = (List<Long>) properties.get("attachments");
+        List<String> attachments = (List<String>) properties.get("attachments");
         Project result = this.createProject(p);
         // now create the resources from the attachments
-        if(attachments.size() > 0) {
-            try {
-                this.createProjectResources(result, attachments, null);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if(attachments != null) {   // if JSON data does not include attachments object, do not fail.
+            if(attachments.size() > 0) {
+                try {
+                    this.createProjectResources(result, attachments, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return result;  
@@ -385,13 +403,15 @@ public class ProjectController
      * Author: Lachlan Archibald
      * Description: Create resources from EXISTING project (ie. Already has byte data)
      */
-    private Boolean createProjectResources(Project project, List<Long> attachments, ProjectResource parent) throws IOException {
+    private Boolean createProjectResources(Project project, List<String> attachments, ProjectResource parent) throws IOException {
         EntityManager em = entityManager.get();
         // new method
-        String userID = identity.getAccount().getId();
+        //String userId = identity.getAccount().getId();
+        String userId = "TestingOnly";
         String tempProjectPath = PROJECT_PATH + ProjectResource.PATH_SEPARATOR +
-                userID + ProjectResource.PATH_SEPARATOR + project.getName();
-        for(Long id : attachments) {
+                userId + ProjectResource.PATH_SEPARATOR + project.getName();
+        for(String attachment : attachments) {
+            Long id = Long.valueOf(attachment); // convert value of String representation to Long object
             ProjectAttachment pa = em.find(ProjectAttachment.class, id);
             if(pa.getUploadPath().endsWith(".zip")) {
                 // attachment is a zip file, unzip it
@@ -424,6 +444,10 @@ public class ProjectController
             r.setParent(parent);
             r.setResourceType(ResourceType.FILE);
             createResource(r);
+            // create resource access
+            // TODO fix useridentity part of resourceaccess
+            //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+            // create resource content
             String dataPath = file.getAbsolutePath();
             createResourceContent(r, dataPath);
             
@@ -445,14 +469,26 @@ public class ProjectController
                 r.setParent(parent);
                 if(file.isDirectory()) {	// if current file is a directory
                     r.setResourceType(ResourceType.DIRECTORY);
+                    // create resource
                     createResource(r);
+                    
+                    // create resource access
+                    // TODO fix useridentity part of resourceaccess
+                    //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+                    
                     //TODO add the children files as well
                     String childDir = currentDir + ProjectResource.PATH_SEPARATOR + name;
                     if(!processDirectory(project, childDir, r))
                     	System.err.println("Error processing files in " + childDir);
                 } else {
                     r.setResourceType(ResourceType.FILE);
+                    // create resource
                     createResource(r);
+                    
+                    // create resource access
+                    // TODO fix useridentity part of resourceaccess
+                    //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+                    // create resource content
                     dataPath = file.getAbsolutePath();
                     createResourceContent(r, dataPath);
                 }
@@ -580,4 +616,5 @@ public class ProjectController
         }
         return 200; // HTTP OK
     }
+    
 }

@@ -32,8 +32,8 @@ public class SecurityConfiguration {
                    //.unprotected() // only for testing!
                    .authenticateWith().token()
                .forPath("/rest/projects/*")
-                   .authenticateWith()
-                       .token()
+                   .unprotected() // only for testing!
+                   //.authenticateWith().token()
                .forPath("/rest/resources/*")
                    .authenticateWith()
                        .token()

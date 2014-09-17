@@ -7,6 +7,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import net.sharemycode.security.schema.IdentityType;
+
 //import net.sharemycode.security.schema.IdentityType;
 
 /**
@@ -28,8 +30,8 @@ public class ResourceAccess implements Serializable
    @ManyToOne
    private ProjectResource resource;
 
-   //@ManyToOne
-   //private IdentityType user;
+   @ManyToOne
+   private IdentityType user;
 
    private AccessLevel accessLevel;
 
@@ -52,7 +54,7 @@ public class ResourceAccess implements Serializable
    {
       this.resource = resource;
    }
-/*
+
    public IdentityType getUser()
    {
       return user;
@@ -62,7 +64,7 @@ public class ResourceAccess implements Serializable
    {
       this.user = user;
    }
-*/
+
    public AccessLevel getAccessLevel()
    {
       return accessLevel;

@@ -113,6 +113,9 @@ body {
   font-family: sans-serif;
   text-decoration: none;
 }
+#attachments {
+	margin: 10px;
+}
 #footer {
   clear: both;
   text-align: center;

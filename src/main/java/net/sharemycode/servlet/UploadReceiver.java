@@ -2,6 +2,7 @@ package net.sharemycode.servlet;
 
 import net.sharemycode.controller.ProjectController;
 import net.sharemycode.model.ProjectAttachment;
+import net.sharemycode.model.ProjectResource;
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
@@ -9,17 +10,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.UserTransaction;
 
 import java.io.*;
 
+@WebServlet(name="UploadResourceServlet", urlPatterns="/upload")
 public class UploadReceiver extends HttpServlet
 {
-    private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH);
+    private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH + ProjectResource.PATH_SEPARATOR + 
+            System.currentTimeMillis());
     private static File TEMP_DIR = new File(ProjectController.TEMP_STORAGE + "temp");
 
     private static String CONTENT_TYPE = "text/plain";
@@ -28,6 +35,9 @@ public class UploadReceiver extends HttpServlet
 
     final Logger log = LoggerFactory.getLogger(UploadReceiver.class);
 
+    @Resource
+    UserTransaction transaction;
+    
     @Inject ProjectController projectController;
     
     @Override
@@ -46,6 +56,7 @@ public class UploadReceiver extends HttpServlet
 
         try
         {
+            transaction.begin();
             resp.setContentType(CONTENT_TYPE);
             resp.setStatus(RESPONSE_CODE);
 
@@ -55,7 +66,7 @@ public class UploadReceiver extends HttpServlet
                 File output = doWriteTempFileForPostRequest(requestParser);
                 // create new attachment here, then return the id
                 attachmentId = projectController.createAttachmentFromFile(output);
-                writeResponse(resp.getWriter(), attachmentId, null);
+                writeResponse(resp.getWriter(), attachmentId.toString(), null);
             }
             else
             {
@@ -63,15 +74,15 @@ public class UploadReceiver extends HttpServlet
                 File output = writeToTempFile(req.getInputStream(), new File(UPLOAD_DIR, requestParser.getFilename()), expectedFileSize);
                 // create new attachment here, then return the id
                 attachmentId = projectController.createAttachmentFromFile(output);
-                writeResponse(resp.getWriter(), attachmentId, null);
+                writeResponse(resp.getWriter(), attachmentId.toString(), null);
             }
+            transaction.commit();
         } catch (Exception e)
         {
             log.error("Problem handling upload request", e);
             writeResponse(resp.getWriter(), null, e.getMessage());
         }
     }
-
 
     private File doWriteTempFileForPostRequest(RequestParser requestParser) throws Exception
     {
@@ -111,11 +122,12 @@ public class UploadReceiver extends HttpServlet
         }
     }
 
-    private void writeResponse(PrintWriter writer, Long id, String failureReason)
+    private void writeResponse(PrintWriter writer, String id, String failureReason)
     {
         if (failureReason == null)
         {
-            writer.print("{\"success\": true},{\"id\": id}");
+            writer.print("{\"success\": true,\"id\": \"" + id +"\"}");
+            //writer.print("{\"success\": true}"); // default success output
         }
         else
         {

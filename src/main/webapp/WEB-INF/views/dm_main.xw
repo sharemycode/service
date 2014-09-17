@@ -13,8 +13,9 @@
     <xw:restEndpoint id="registrationService" url="#{servicePath}/register/" method="POST"/>
     <xw:restEndpoint id="authenticationService" url="#{servicePath}/authenticate/" method="POST"/>
     <xw:restEndpoint id="userService" url="#{servicePath}/users/{" decorator="#{requestAuthenticator}" method="POST"/>
-    <xw:restEndpoint id="projectService" url="#{servicePath}/projects/{" decorator="#{requestAuthenticator}" method="POST"/>
-    <xw:restEndpoint id="projectService" url="#{servicePath}/resources/{" decorator="#{requestAuthenticator}" method="POST"/>
+    <xw:restEndpoint id="projectService" url="#{servicePath}/projects/" method="POST"/>
+    <xw:restEndpoint id="projecteService" url="#{servicePath}/projects/{" decorator="#{requestAuthenticator}" method="POST"/>
+    <xw:restEndpoint id="resourceService" url="#{servicePath}/resources/{" decorator="#{requestAuthenticator}" method="POST"/>
 
 
 </xw:dataModule>
