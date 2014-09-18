@@ -14,6 +14,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.Consumes;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import net.sharemycode.controller.ResourceController;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
+import net.sharemycode.model.ResourceContent;
 import net.sharemycode.security.model.User;
 
 /**
@@ -60,18 +62,26 @@ public class ResourceService {
 		List<ProjectResource> resources = resourceController.listAllResources();
 		return resources;
 	}
-
-    //TODO listResources - GET
 	
     //TODO fetchResource(ResourcePath) - GET
 	@GET
 	@Path("/{id:[0-9]*}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public ProjectResource fetchResource(@PathParam("id") Long id) {
+	//@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response fetchResource(@PathParam("id") Long id) {
+	    // Returns Resource Content
 		ProjectResource resource = resourceController.lookupResource(id);
 		if(resource == null)
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
-		return resource;
+		if(resource.getResourceType() == ResourceType.DIRECTORY)
+		    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+		ResourceContent rc = resourceController.getResourceContent(resource);
+		final byte[] content = rc.getContent();
+		return Response.ok(new StreamingOutput() {
+		    public void write(OutputStream output) throws IOException, WebApplicationException {
+		        output.write(content);
+		    }
+		}).header("Content-Disposition", "attachment; filename=\"" + resource.getName() + "\"").build();
 	}
 	// TODO createResource(ResourcePath, ResourceContent)  // Path to parentResource?
 	

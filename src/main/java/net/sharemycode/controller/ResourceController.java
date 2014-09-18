@@ -1,5 +1,8 @@
 package net.sharemycode.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,6 +26,7 @@ import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 
+import org.apache.commons.io.FileUtils;
 import org.picketlink.Identity;
 
 @ApplicationScoped
@@ -120,15 +124,31 @@ public class ResourceController {
         return 200; // HTTP OK
     }
 
-    public int deleteResourceContent(ProjectResource pr) {
+    public int deleteResourceContent(ProjectResource resource) {
         EntityManager em = entityManager.get();
         try {
-            ResourceContent rc = em.find(ResourceContent.class, pr);
-            em.remove(rc);
+            TypedQuery<ResourceContent> q = em.createQuery("SELECT rc FROM ResourceContent rc WHERE rc.resource = :resource", ResourceContent.class);
+            q.setParameter("resource", resource);
+            ResourceContent content = q.getSingleResult();
+            em.remove(content);
             return 200; // HTTP OK
         } catch (NoResultException e) {
             System.err.println("NoResultException: ResourceContent not found");
             return 404; // HTTP NOT FOUND
         }
+    }
+
+    public ResourceContent getResourceContent(ProjectResource resource) {
+        // TODO Auto-generated method stub
+        EntityManager em = entityManager.get();
+        try {
+            TypedQuery<ResourceContent> q = em.createQuery("SELECT rc FROM ResourceContent rc WHERE rc.resource = :resource", ResourceContent.class);
+            q.setParameter("resource", resource);
+            ResourceContent content = q.getSingleResult();
+            return content;
+        } catch (NoResultException e) {
+            System.err.println("ResourceContent not found " + e);
+        }
+        return null;
     }
 }

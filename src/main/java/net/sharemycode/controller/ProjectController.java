@@ -42,6 +42,8 @@ import net.sharemycode.model.Project_;
 import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 import net.sharemycode.security.model.User;
+import net.sharemycode.security.schema.IdentityType;
+import net.sharemycode.security.schema.UserIdentity;
 
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -56,7 +58,7 @@ import org.picketlink.Identity;
 @ApplicationScoped
 public class ProjectController
 {
-    public static final String TEMP_STORAGE = "./projectStorage/";
+    public static final String TEMP_STORAGE = "projectStorage/";
     public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachments/";
 	public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
 	public static final int MAX_UPLOAD = 10485760; // max upload filesize in bytes (10MB)
@@ -119,18 +121,19 @@ public class ProjectController
         newResourceEvent.fire(new NewResourceEvent(resource));
         return resource;
     }
-    /*
+    
     //@LoggedIn
-    public ResourceAccess createResourceAccess(ProjectResource resource, ResourceAccess.AccessLevel accessLevel) {
+    public ResourceAccess createResourceAccess(ProjectResource resource, String userId, ResourceAccess.AccessLevel accessLevel) {
         EntityManager em = entityManager.get();
         ResourceAccess ra = new ResourceAccess();
         ra.setResource(resource);
         ra.setAccessLevel(accessLevel);
+        ra.setUserId(userId);
         
         em.persist(ra);
         return ra;
     }
-    */
+    
     private ResourceContent createResourceContent(ProjectResource resource, String dataPath) throws IOException {
         EntityManager em = entityManager.get();
         // extract data from file
@@ -444,15 +447,42 @@ public class ProjectController
             r.setParent(parent);
             r.setResourceType(ResourceType.FILE);
             createResource(r);
-            // create resource access
-            // TODO fix useridentity part of resourceaccess
-            //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+            // For each user with access to the project, create ResourceAccess
+            createResourceAccessForAll(project, r);
             // create resource content
             String dataPath = file.getAbsolutePath();
             createResourceContent(r, dataPath);
             
         }
         return false;
+    }
+
+    private void createResourceAccessForAll(Project project, ProjectResource r) {
+        // For each user with access to project, create appropriate ResourceAccess
+        // By default, ResourceAccess.AccessLevel == ProjectAccess.AccessLevel
+        EntityManager em = entityManager.get();
+        TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);
+        q.setParameter("project", project);
+        List<ProjectAccess> paList = q.getResultList();
+        for(ProjectAccess pa : paList) {
+            switch(pa.getAccessLevel()) {
+            case OWNER:
+                createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.OWNER);
+                break;
+            case READ_WRITE:
+                createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.READ_WRITE);
+                break;
+            case READ:
+                createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.READ);
+                break;
+            case RESTRICTED:
+                createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.RESTRICTED);
+                break;
+            default:
+                // do nothing
+            }
+        }
+        
     }
 
     private Boolean processDirectory(Project project, String currentDir, ProjectResource parent) throws IOException {
@@ -472,11 +502,10 @@ public class ProjectController
                     // create resource
                     createResource(r);
                     
-                    // create resource access
-                    // TODO fix useridentity part of resourceaccess
-                    //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+                    // For each user with access to the project, create ResourceAccess
+                    createResourceAccessForAll(project, r);
                     
-                    //TODO add the children files as well
+                    // Also create resource from children files
                     String childDir = currentDir + ProjectResource.PATH_SEPARATOR + name;
                     if(!processDirectory(project, childDir, r))
                     	System.err.println("Error processing files in " + childDir);
@@ -485,9 +514,8 @@ public class ProjectController
                     // create resource
                     createResource(r);
                     
-                    // create resource access
-                    // TODO fix useridentity part of resourceaccess
-                    //createResourceAccess(r, ResourceAccess.AccessLevel.READ_WRITE);
+                    // For each user with access to the project, create ResourceAccess
+                    createResourceAccessForAll(project, r);
                     // create resource content
                     dataPath = file.getAbsolutePath();
                     createResourceContent(r, dataPath);

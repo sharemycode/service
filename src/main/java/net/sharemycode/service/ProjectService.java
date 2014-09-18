@@ -65,6 +65,7 @@ public class ProjectService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> listAllProjects() {
+        // list of all projects -- When authentication is working, it will return only the user's projects.
         return projectController.listAllProjects();
     }
     
@@ -72,6 +73,7 @@ public class ProjectService {
     @Path("/{id:[0-9a-z]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public Project lookupProjectById(@PathParam("id") String id) {
+        // return specific project information
     	Project project = projectController.lookupProject(id);
     	if(project == null) {
     		throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -83,7 +85,7 @@ public class ProjectService {
     @Path("/{projectid:[0-9a-z]*}/resources")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectResource> listProjectResources(@PathParam("projectid") String projectid) {
-        // List all resources associated with a project.    May move to ResourceService
+        // List all resources associated with a project.
     	Project project = projectController.lookupProject(projectid);
     	if(project == null) {
     		throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -95,6 +97,7 @@ public class ProjectService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response uploadProject(Map<String,Object> properties) {
+        // create new project, accepts JSON with project name, version, description, attachmentIDs
         Project newProject = projectController.submitProject(properties);
         if(newProject == null) {
         	return Response.status(400).entity("Failed to create project").build();
@@ -107,6 +110,8 @@ public class ProjectService {
     @Path("/list{searchTerm:(/[^/]+?)?}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> listProjects(@PathParam("searchTerm") String searchTerm)
+    // returns list of projects that match search term.
+    //TODO edit to use QueryParam?
     {
         if (searchTerm.startsWith("/"))
         {
@@ -120,6 +125,7 @@ public class ProjectService {
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON)
     public ProjectResource[] createProjectFolder(Map<String,String> properties)
+    // create a new directory resource under provided parent resource
     {
         String[] parts = properties.get("name").split("/");
         List<ProjectResource> resources = new ArrayList<ProjectResource>();
@@ -157,6 +163,8 @@ public class ProjectService {
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON)
     public ProjectResource createProjectClass(Map<String,String> properties)
+    // create new Java Class?
+    //TODO Re-evaluate this method
     {
         ProjectResource r = new ProjectResource();
         r.setName(properties.get("name") + ".java");
@@ -180,6 +188,8 @@ public class ProjectService {
     @Path("/user/{username:[0-9a-z]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> listProjectsByOwner(@PathParam("username") String username) {
+        // list projects by owner
+        // this may not be necessary, or may need to use a QueryParam if for general searching
     	List<Project> projects = projectController.listProjectsByOwner(username);
     	return projects;
     }
@@ -189,6 +199,7 @@ public class ProjectService {
     @DELETE
     @Path("/{id:[0-9a-z]*}")
     public Response deleteProject(@PathParam("id") String id) {
+        // Delete project resource, and all associated resources
         int result = projectController.deleteProject(id);
         switch (result) {
         case 200:
