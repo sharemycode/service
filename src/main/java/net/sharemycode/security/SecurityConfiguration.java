@@ -30,13 +30,16 @@ public class SecurityConfiguration {
            .http()
                .forPath("/rest/users/*")
                    //.unprotected() // only for testing!
-                   .authenticateWith().token()
-               .forPath("/rest/projects/*")
-                   .unprotected() // only for testing!
-                   //.authenticateWith().token()
-               .forPath("/rest/resources/*")
                    .authenticateWith()
                        .token()
+               .forPath("/rest/projects/*")
+                   .unprotected() // only for testing!
+                   //.authenticateWith()
+                   //   .token()
+               .forPath("/rest/resources/*")
+                   .unprotected() // only for testing!
+                   //.authenticateWith()
+                   //    .token()
                .forPath("/rest/auth/login")
                    .authenticateWith()
                        .token()

@@ -22,7 +22,7 @@ public class ResourceAccess implements Serializable
 {
    private static final long serialVersionUID = -790604070028430439L;
 
-   public enum AccessLevel {READ, WRITE, READ_WRITE};
+   public enum AccessLevel {OWNER, READ, READ_WRITE, RESTRICTED};
 
    @Id @GeneratedValue
    private Long id;
@@ -30,8 +30,7 @@ public class ResourceAccess implements Serializable
    @ManyToOne
    private ProjectResource resource;
 
-   @ManyToOne
-   private IdentityType user;
+   private String userId;
 
    private AccessLevel accessLevel;
 
@@ -55,14 +54,14 @@ public class ResourceAccess implements Serializable
       this.resource = resource;
    }
 
-   public IdentityType getUser()
+   public String getUserId()
    {
-      return user;
+      return userId;
    }
 
-   public void setUser(IdentityType user)
+   public void setUserId(String userId)
    {
-      this.user = user;
+      this.userId = userId;
    }
 
    public AccessLevel getAccessLevel()
