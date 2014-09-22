@@ -2,11 +2,10 @@
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
     <div>
     	<xw:formData id="userAccountParams"/>
+    	<h2>Edit User Account</h2>
+        <p>You can edit your user account settings and profile here</p>
 	    <xw:form id="userAccountForm">
-            <h2>Edit User Account</h2>
-            <p>You can edit your user account settings and profile here</p>
             <fieldset>
-              <legend>User Account Information</legend>
                 <div>
             	    <label for="username">Username:</label>
             	    <xw:inputText formData="#{userAccountParams}" name="username" text="#{identity.getUsername()}"/>
