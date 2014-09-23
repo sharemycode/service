@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                    .unprotected() // only for testing!
                    //.authenticateWith()
                    //    .token()
-               .forPath("/rest/auth/login")
+               .forPath("/rest/auth/*")
                    .authenticateWith()
                        .token()
                .forPath("/rest/register")

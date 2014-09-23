@@ -21,7 +21,7 @@
 		<div>
 		    <xw:button id="login" label="Login">
 		        <xw:event type="onclick">
-		            <xw:action type="script">identity.login(username.getValue(), password.getValue())</xw:action>
+		            <xw:action type="script">identity.login(username.getValue().toLowerCase(), password.getValue())</xw:action>
 		        </xw:event>
 		    </xw:button>
 		</div>
