@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -12,39 +13,39 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<version.picketlink>2.7.0-SNAPSHOT</version.picketlink>
-	<version.xwidgets>1.0-SNAPSHOT</version.xwidgets>
+    <version.picketlink>2.7.0-SNAPSHOT</version.picketlink>
+    <version.xwidgets>1.0-SNAPSHOT</version.xwidgets>
     <version.deltaspike>1.0.0</version.deltaspike>
   </properties>
   <repositories>
     <repository>
-	  <id>JBoss repository</id>
-	  <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-	</repository>
+      <id>JBoss repository</id>
+      <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+    </repository>
   </repositories>
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>org.jboss.spec</groupId>
-            <artifactId>jboss-javaee-6.0</artifactId>
-            <version>3.0.2.Final</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0</version>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.arquillian</groupId>
-            <artifactId>arquillian-bom</artifactId>
-            <version>1.1.5.Final</version>
-            <scope>import</scope>
-            <type>pom</type>
-        </dependency>
-      </dependencies>
-   </dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>3.0.2.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-bom</artifactId>
+        <version>1.1.5.Final</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -52,211 +53,241 @@
       <artifactId>javax.ws.rs-api</artifactId>
       <scope>provided</scope>
     </dependency>
-	
-	<!--  Picket Link Security -->
-	<dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-api</artifactId>
-        <version>${version.picketlink}</version>
-        <scope>compile</scope>
+
+    <!-- Picket Link Security -->
+    <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-api</artifactId>
+      <version>${version.picketlink}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-impl</artifactId>
-        <version>${version.picketlink}</version>
-        <scope>compile</scope>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-impl</artifactId>
+      <version>${version.picketlink}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-rest</artifactId>
-        <version>${version.picketlink}</version>
-        <scope>compile</scope>
-        <exclusions>
-           <exclusion>
-              <artifactId>resteasy-jaxrs</artifactId>
-              <groupId>org.jboss.resteasy</groupId>
-           </exclusion>
-           <exclusion>
-              <groupId>org.codehaus.jackson</groupId>
-              <artifactId>jackson-jaxrs</artifactId>            
-           </exclusion>
-        </exclusions>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-rest</artifactId>
+      <version>${version.picketlink}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>resteasy-jaxrs</artifactId>
+          <groupId>org.jboss.resteasy</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-jaxrs</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-json</artifactId>
-        <version>${version.picketlink}</version>
-        <scope>compile</scope>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-json</artifactId>
+      <version>${version.picketlink}</version>
+      <scope>compile</scope>
     </dependency>
-	<!-- Import the JPA API, we use provided scope as the API is included 
-            in JBoss EAP 6 -->
+    <!-- Import the JPA API, we use provided scope as the API is included 
+      in JBoss EAP 6 -->
     <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.0-api</artifactId>
-        <scope>provided</scope>
+      <groupId>org.hibernate.javax.persistence</groupId>
+      <artifactId>hibernate-jpa-2.0-api</artifactId>
+      <scope>provided</scope>
     </dependency>
-	 <!-- Import the EJB API, we use provided scope as the API is included in JBoss EAP 6 -->
-        <dependency>
-            <groupId>org.jboss.spec.javax.ejb</groupId>
-            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
+    <!-- Import the EJB API, we use provided scope as the API is included 
+      in JBoss EAP 6 -->
     <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <scope>provided</scope>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>org.jboss.resteasy</groupId>
-    	<artifactId>resteasy-jaxrs</artifactId>
-    	<version>3.0.7.Final</version>
-    	<scope>provided</scope>
-	</dependency>
-    <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-multipart-provider</artifactId>
-        <version>3.0.7.Final</version>
-        <scope>provided</scope>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>javax.enterprise</groupId>
-    	<artifactId>cdi-api</artifactId>
-    	<scope>provided</scope>
-    </dependency>
-    <!--  xwidgets -->
-    <dependency>
-        <groupId>org.xwidgets</groupId>
-        <artifactId>xwidgets</artifactId>
-        <version>${version.xwidgets}</version>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxrs</artifactId>
+      <version>3.0.7.Final</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.xwidgets</groupId>
-		<artifactId>xwidgets-picketlink</artifactId>
-		<version>${version.xwidgets}</version>
-    </dependency>
-    <!--  Apache Deltaspike  -->
-    <dependency>
-        <groupId>org.apache.deltaspike.core</groupId>
-        <artifactId>deltaspike-core-impl</artifactId>
-        <version>${version.deltaspike}</version>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-multipart-provider</artifactId>
+      <version>3.0.7.Final</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.deltaspike.modules</groupId>
-        <artifactId>deltaspike-security-module-impl</artifactId>
-        <version>${version.deltaspike}</version>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- xwidgets -->
+    <dependency>
+      <groupId>org.xwidgets</groupId>
+      <artifactId>xwidgets</artifactId>
+      <version>${version.xwidgets}</version>
     </dependency>
     <dependency>
-	    <groupId>javax.json</groupId>
-	    <artifactId>javax.json-api</artifactId>
-	    <version>1.0</version>
+      <groupId>org.xwidgets</groupId>
+      <artifactId>xwidgets-picketlink</artifactId>
+      <version>${version.xwidgets}</version>
+    </dependency>
+    <!-- Apache Deltaspike -->
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+      <version>${version.deltaspike}</version>
     </dependency>
     <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>1.3</version>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-security-module-impl</artifactId>
+      <version>${version.deltaspike}</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.3.2</version>
-    </dependency>
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	    <version>1.7.7</version>
-	</dependency>
-    <!--  Required Tools -->
-    <!--  Hibernate Validator  -->
-    <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>5.1.2.Final</version>
-        <scope>provided</scope>
+      <groupId>javax.json</groupId>
+      <artifactId>javax.json-api</artifactId>
+      <version>1.0</version>
     </dependency>
     <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>4.3.6.Final</version>
-        <scope>provided</scope>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.3</version>
     </dependency>
-    <!--  UnZip Library -->
     <dependency>
-    	<groupId>net.lingala.zip4j</groupId>
-    	<artifactId>zip4j</artifactId>
-    	<version>1.3.2</version>
-	</dependency>
-    <!--  Testing  -->
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.3.2</version>
+    </dependency>
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.11</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+    </dependency>
+    <!-- Required Tools -->
+    <!-- Hibernate Validator -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.1.2.Final</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>4.3.6.Final</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- UnZip Library -->
+    <dependency>
+      <groupId>net.lingala.zip4j</groupId>
+      <artifactId>zip4j</artifactId>
+      <version>1.3.2</version>
+    </dependency>
+    <!-- Testing -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.arquillian.container</groupId>
+        <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
+        <version>1.0.0.CR3</version>
         <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-core</artifactId>
+        <version>1.1.5.Final</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.6.4</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.el</groupId>
+      <artifactId>el-api</artifactId>
+      <version>2.2</version>
     </dependency>
   </dependencies>
   <build>
     <finalName>sharemycode</finalName>
-  	<plugins>
-  		<plugin>
-	  		<groupId>org.apache.maven.plugins</groupId>
-	  		<artifactId>maven-compiler-plugin</artifactId>
-	  		<configuration>
-	   			<source>1.7</source>
-	    		<target>1.7</target>
-	  		</configuration>
-		</plugin>
-  		<plugin>
-	        <groupId>org.wildfly.plugins</groupId>
-	        <artifactId>wildfly-maven-plugin</artifactId>
-            <version>1.0.2.Final</version>
-        </plugin>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.wildfly.plugins</groupId>
+        <artifactId>wildfly-maven-plugin</artifactId>
+        <version>1.0.2.Final</version>
+      </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <!-- web.xml is not mandatory since JavaEE 5 -->
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.9</version>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
         <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-war-plugin</artifactId>
-           <configuration>
-              <!-- web.xml is not mandatory since JavaEE 5 -->
-              <failOnMissingWebXml>false</failOnMissingWebXml>
-           </configuration>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>
+                      org.apache.maven.plugins
+                    </groupId>
+                    <artifactId>
+                      maven-dependency-plugin
+                    </artifactId>
+                    <versionRange>
+                      [2.1,)
+                    </versionRange>
+                    <goals>
+                      <goal>unpack</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
         </plugin>
-        <plugin>  
-            <artifactId>maven-surefire-plugin</artifactId>  
-            <version>2.9</version>  
-         </plugin>
-  	</plugins>
-  	<pluginManagement>
-  		<plugins>
-  			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-  			<plugin>
-  				<groupId>org.eclipse.m2e</groupId>
-  				<artifactId>lifecycle-mapping</artifactId>
-  				<version>1.0.0</version>
-  				<configuration>
-  					<lifecycleMappingMetadata>
-  						<pluginExecutions>
-  							<pluginExecution>
-  								<pluginExecutionFilter>
-  									<groupId>
-  										org.apache.maven.plugins
-  									</groupId>
-  									<artifactId>
-  										maven-dependency-plugin
-  									</artifactId>
-  									<versionRange>
-  										[2.1,)
-  									</versionRange>
-  									<goals>
-  										<goal>unpack</goal>
-  									</goals>
-  								</pluginExecutionFilter>
-  								<action>
-  									<ignore></ignore>
-  								</action>
-  							</pluginExecution>
-  						</pluginExecutions>
-  					</lifecycleMappingMetadata>
-  				</configuration>
-  			</plugin>
-  		</plugins>
-  	</pluginManagement>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>
