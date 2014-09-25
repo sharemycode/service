@@ -1,4 +1,4 @@
-package net.sharemycode;
+package net.sharemycode.system;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

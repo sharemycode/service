@@ -41,6 +41,7 @@ import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.Project_;
 import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
+import net.sharemycode.security.annotations.LoggedIn;
 import net.sharemycode.security.model.User;
 import net.sharemycode.security.schema.IdentityType;
 import net.sharemycode.security.schema.UserIdentity;
@@ -81,11 +82,11 @@ public class ProjectController
         return q.getResultList();
     }
     
-    // @LoggedIn
+    @LoggedIn
     public Project createProject(Project project) {
         // persist the project data
-    	//project.setOwner(identity.getAccount().getId());
-        project.setOwner("TestingOnly");    // testing project creation only.
+    	project.setOwner(identity.getAccount().getId());
+        //project.setOwner("TestingOnly");    // testing project creation only.
 
         EntityManager em = entityManager.get();
         Boolean uniqueUrl = false;
@@ -105,14 +106,14 @@ public class ProjectController
         pa.setProject(project);
         pa.setAccessLevel(AccessLevel.OWNER);
         pa.setOpen(true);
-        //pa.setUserId(identity.getAccount().getId());
+        pa.setUserId(identity.getAccount().getId());
         em.persist(pa);
         
         newProjectEvent.fire(new NewProjectEvent(project));
         return project;
     }
     
-    //  @LoggedIn
+    @LoggedIn
     public ProjectResource createResource(ProjectResource resource) {
         // persist resource
         EntityManager em = entityManager.get();
@@ -122,7 +123,7 @@ public class ProjectController
         return resource;
     }
     
-    //@LoggedIn
+    @LoggedIn
     public ResourceAccess createResourceAccess(ProjectResource resource, String userId, ResourceAccess.AccessLevel accessLevel) {
         EntityManager em = entityManager.get();
         ResourceAccess ra = new ResourceAccess();
@@ -406,11 +407,12 @@ public class ProjectController
      * Author: Lachlan Archibald
      * Description: Create resources from EXISTING project (ie. Already has byte data)
      */
+    @LoggedIn
     private Boolean createProjectResources(Project project, List<String> attachments, ProjectResource parent) throws IOException {
         EntityManager em = entityManager.get();
         // new method
-        //String userId = identity.getAccount().getId();
-        String userId = "TestingOnly";
+        String userId = identity.getAccount().getId();
+        //String userId = "TestingOnly";
         String tempProjectPath = PROJECT_PATH + ProjectResource.PATH_SEPARATOR +
                 userId + ProjectResource.PATH_SEPARATOR + project.getName();
         for(String attachment : attachments) {
@@ -618,7 +620,7 @@ public class ProjectController
         return pa;
     }
 	
-	//@LoggedIn
+	@LoggedIn
     public int deleteProject(String id) {   // Time complexity: O(n^2)
         // Delete the project, and all associated resources.
         EntityManager em = entityManager.get();
