@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+        <h2>List Projects</h2>
+        <p>This is a list of projects for the logged in user</p>
+        <xw:fragment rendered="#{!identity.loggedIn}">
+            <p>You are not logged in! Please login above</p>
+        </xw:fragment>
+        <xw:fragment rendered="#{identity.loggedIn}">
+            <p>You are logged in, loading projects</p>
+        </xw:fragment>
+    </div>
+</xw:view>
