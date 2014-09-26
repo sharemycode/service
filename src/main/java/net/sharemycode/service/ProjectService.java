@@ -7,6 +7,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -21,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,9 @@ import net.sharemycode.controller.ProjectController;
 import net.sharemycode.controller.ResourceController;
 import net.sharemycode.controller.UserController;
 import net.sharemycode.model.Project;
+import net.sharemycode.model.ProjectAccess;
+import net.sharemycode.model.ResourceAccess;
+import net.sharemycode.model.ProjectAccess.AccessLevel;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.security.model.User;
@@ -96,14 +102,14 @@ public class ProjectService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response uploadProject(Map<String,Object> properties) {
+    public Response uploadProject(Map<String,Object> properties) throws URISyntaxException {
         // create new project, accepts JSON with project name, version, description, attachmentIDs
         Project newProject = projectController.submitProject(properties);
         if(newProject == null) {
         	return Response.status(400).entity("Failed to create project").build();
         }
         String output = newProject.getUrl();
-        return Response.status(200).entity(output).build();
+        return Response.status(200).entity(output).location(new URI("rest/projects/" + newProject.getId())).build();
     }
 
     @GET
@@ -215,4 +221,65 @@ public class ProjectService {
             return Response.status(500).entity("Unexpected server error").build();
         }
     }
+    
+    @GET
+    @Path("/{id:[0-9a-z]*}/access")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectAccess(@PathParam("id") String id) {
+        ProjectAccess access = projectController.getProjectAccess(id);
+        if(access != null)
+            return Response.ok().entity(access).build();
+        else
+            return Response.status(404).build();
+    }
+/*    
+    @GET
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    // get resource access for the given user
+    public Response getUserAuthorisation(@PathParam("id") String projectId,
+            @PathParam("userId") String userId) {
+        ProjectAccess access = projectController.getUserAuthorisation(projectId, userId);
+        if(access != null)
+            return Response.ok().entity(access).build();
+        else
+            return Response.status(404).build();
+    }
+    
+    @POST
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    // create resource access for the given user    (include object, or just accessLevel?)
+    public Response createUserAuthorisation(@PathParam("id") String projectId,
+            @PathParam("userId") String userId) {
+        ProjectAccess access = projectController.authoriseUser(projectId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("Project or user not found").build();
+    }
+    @PUT
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    // update resource access for the given user with the provided data
+    public Response updateUserAuthorisation(@PathParam("id") String projectId,
+            @PathParam("userId") String userId) {
+        ProjectAccess access = projectController.updateAuthorisation(projectId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("User Authorisation not found").build();
+    }
+    
+    @DELETE
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    public Response deleteUserAuthorisation(@PathParam("id") String projectId,
+            @PathParam("userId") String userId) {
+        ProjectAccess access = projectController.deleteAuthorisation(projectId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("User Authorisation not found").build();
+    }
+*/
 }

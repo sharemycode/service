@@ -22,9 +22,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import net.sharemycode.events.NewProjectEvent;
 import net.sharemycode.events.NewResourceEvent;
 import net.sharemycode.model.Project;
+import net.sharemycode.model.ProjectAccess;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
+import net.sharemycode.model.ResourceAccess.AccessLevel;
+import net.sharemycode.security.annotations.LoggedIn;
 
 import org.apache.commons.io.FileUtils;
 import org.picketlink.Identity;
@@ -150,5 +153,44 @@ public class ResourceController {
             System.err.println("ResourceContent not found " + e);
         }
         return null;
+    }
+    
+    @LoggedIn
+    public ResourceAccess getResourceAccess(Long id) {
+        // get the access level for the given project
+        EntityManager em = entityManager.get();
+        try {
+            ProjectResource r = em.find(ProjectResource.class, id);
+            String userId = identity.getAccount().getId();
+            TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
+            q.setParameter("resource", r);
+            q.setParameter("userId", userId);
+            ResourceAccess resourceAccess = q.getSingleResult();
+            return resourceAccess;
+        } catch (NoResultException e) {
+            System.err.println("Could not retrieve access level for Resource " + id + "\n" + e);
+            return null;
+        }
+    }
+    
+    @LoggedIn
+    public ResourceAccess getUserAuthorisation(String resourceId, String userId) {
+        // get the access level for the given resource
+        EntityManager em = entityManager.get();
+        try {
+            ProjectResource r = em.find(ProjectResource.class, resourceId);
+            // if current user's access is restricted, return null
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            if(getResourceAccess(r.getId()).getAccessLevel() == AccessLevel.RESTRICTED)
+                return null;
+            TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
+            q.setParameter("resource", r);
+            q.setParameter("userId", userId);
+            ResourceAccess resourceAccess = q.getSingleResult();
+            return resourceAccess;
+        } catch (NoResultException e) {
+            System.err.println("Could not retrieve access level for Resource " + resourceId + "\n" + e);
+            return null;
+        }
     }
 }

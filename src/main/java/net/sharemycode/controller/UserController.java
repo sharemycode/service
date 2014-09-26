@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import net.sharemycode.model.UserProfile;
+import net.sharemycode.security.annotations.LoggedIn;
 import net.sharemycode.security.model.User;
 
 import org.picketlink.Identity;
@@ -97,6 +98,7 @@ public class UserController {
     
     
     /* Return full list of users */
+    @LoggedIn
     public List<User> listAllUsers() {
     	System.out.println("ListUsersCONTROLLER");
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
@@ -104,6 +106,7 @@ public class UserController {
     }
     
     /* return specific user by username */
+    @LoggedIn
     public User lookupUserByUsername(String username) {
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
         q.setParameter(User.USERNAME, username.toLowerCase());
@@ -145,7 +148,7 @@ public class UserController {
         em.persist(profile);
         return profile;
     }
-    //@LoggedIn
+    @LoggedIn
     public UserProfile updateUserProfile(String id, String name, String about, String contact, String interests) {
         //String id = identity.getAccount().getId();
         UserProfile profile = em.find(UserProfile.class, id);
@@ -165,7 +168,7 @@ public class UserController {
             return null;
         }
     }
-    
+    @LoggedIn
     public User updateUserAccount(String id, String username, String email, String password, String firstName, String lastName) {
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
         q.setParameter(User.ID, id);

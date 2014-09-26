@@ -7,6 +7,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -37,6 +38,8 @@ import net.sharemycode.controller.ProjectController;
 import net.sharemycode.controller.ResourceController;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectResource;
+import net.sharemycode.model.ResourceAccess;
+import net.sharemycode.model.ResourceAccess.AccessLevel;
 import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.ResourceContent;
 import net.sharemycode.security.model.User;
@@ -119,4 +122,66 @@ public class ResourceService {
 	        return Response.status(400).entity("Upload failed!").build();
 	    }
 	}*/
+	
+    @GET
+    @Path("/{id:[0-9]*}/access")
+    @Produces(MediaType.APPLICATION_JSON)
+    // Get resource access for the current logged in user
+    public Response getResourceAccess(@PathParam("id") Long id) {
+        ResourceAccess access = resourceController.getResourceAccess(id);
+        if(access != null)
+            return Response.ok().entity(access).build();
+        else
+            return Response.status(404).build();
+    }
+
+    @GET
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    // get resource access for the given user
+    public Response getUserAuthorisation(@PathParam("id") String resourceId,
+            @PathParam("userId") String userId) {
+        ResourceAccess access = resourceController.getUserAuthorisation(resourceId, userId);
+        if(access != null)
+            return Response.ok().entity(access).build();
+        else
+            return Response.status(404).build();
+    }
+ /*   
+    @POST
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    // create resource access for the given user    (include object, or just accessLevel?)
+    public Response createUserAuthorisation(@PathParam("id") String resourceId,
+            @PathParam("userId") String userId) {
+        ResourceAccess access = resourceController.authoriseUser(resourceId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("Resource or user not found").build();
+    }
+    @PUT
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    // update resource access for the given user with the provided data
+    public Response updateUserAuthorisation(@PathParam("id") String resourceId,
+            @PathParam("userId") String userId) {
+        ResourceAccess access = resourceController.updateAuthorisation(resourceId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("User Authorisation not found").build();
+    }
+    
+    @DELETE
+    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    public Response deleteUserAuthorisation(@PathParam("id") String resourceId,
+            @PathParam("userId") String userId) {
+        ResourceAccess access = resourceController.deleteAuthorisation(resourceId, userId);
+        if(access != null)
+            return Response.ok().entity("Success").build();
+        else
+            return Response.status(404).entity("User Authorisation not found").build();
+    }
+*/
 }

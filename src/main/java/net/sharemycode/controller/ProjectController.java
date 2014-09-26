@@ -630,9 +630,9 @@ public class ProjectController
             if(identity.getAccount().getId() != p.getOwner())
                 return 401; // HTTP NOT AUTHORISED
             //TODO delete associated ProjectAccess
-            TypedQuery<ProjectAccess> qProjectAccess = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);
-            qProjectAccess.setParameter("project", p);
-            List<ProjectAccess> paList = qProjectAccess.getResultList();
+            TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);
+            q.setParameter("project", p);
+            List<ProjectAccess> paList = q.getResultList();
             for(ProjectAccess pa : paList) {
                 em.remove(pa);  // remove ProjectAccess from datastore 
             }
@@ -646,5 +646,65 @@ public class ProjectController
         }
         return 200; // HTTP OK
     }
-    
+	
+	@LoggedIn
+	public ProjectAccess getProjectAccess(String id) {
+	    // get the access level for the given project
+	    EntityManager em = entityManager.get();
+	    try {
+	        Project p = em.find(Project.class, id);
+	        String userId = identity.getAccount().getId();
+	        TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
+	        q.setParameter("project", p);
+	        q.setParameter("userId", userId);
+	        ProjectAccess projectAccess = q.getSingleResult();
+	        return projectAccess;
+	    } catch (NoResultException e) {
+	        System.err.println("Could not retrieve access level for Project " + id + "\n" + e);
+	        return null;
+	    }
+	}
+	
+	@LoggedIn
+    public ProjectAccess getUserAuthorisation(String projectId, String userId) {
+        // get the access level for the given project
+        EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, projectId);
+            // if current user's access is restricted, return null
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            if(getProjectAccess(p.getId()).getAccessLevel() == AccessLevel.RESTRICTED)
+                return null;
+            TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
+            q.setParameter("project", p);
+            q.setParameter("userId", userId);
+            ProjectAccess projectAccess = q.getSingleResult();
+            return projectAccess;
+        } catch (NoResultException e) {
+            System.err.println("Could not retrieve access level for Project " + projectId + "\n" + e);
+            return null;
+        }
+    }
+/*	
+	@LoggedIn
+    public ProjectAccess createUserAuthorisation(String projectId, String userId) {
+        // create project access for the given project and user
+        EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, projectId);
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return null;
+            TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
+            q.setParameter("project", p);
+            q.setParameter("userId", userId);
+            ProjectAccess projectAccess = q.getSingleResult();
+            return projectAccess;
+        } catch (NoResultException e) {
+            System.err.println("Could not retrieve access level for Project " + projectId + "\n" + e);
+            return null;
+        }
+    }
+*/
 }
