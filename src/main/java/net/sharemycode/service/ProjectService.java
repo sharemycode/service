@@ -232,7 +232,7 @@ public class ProjectService {
         else
             return Response.status(404).build();
     }
-/*    
+    
     @GET
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -246,40 +246,65 @@ public class ProjectService {
             return Response.status(404).build();
     }
     
+// TODO Must transform into JSON with user and accessLevel as content    
     @POST
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     // create resource access for the given user    (include object, or just accessLevel?)
     public Response createUserAuthorisation(@PathParam("id") String projectId,
-            @PathParam("userId") String userId) {
-        ProjectAccess access = projectController.authoriseUser(projectId, userId);
-        if(access != null)
+            @PathParam("userId") String userId, String accessLevel) {
+        int status = projectController.createUserAuthorisation(projectId, userId, accessLevel);
+        switch(status) {
+        case 201:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("Project or user not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to project").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        case 409:
+            return Response.status(409).entity("UserAuthorisation already exists").build();
+        default:
+            return Response.status(500).build();
+        }
     }
+    
     @PUT
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
-    @Consumes(MediaType.APPLICATION_JSON)
     // update resource access for the given user with the provided data
     public Response updateUserAuthorisation(@PathParam("id") String projectId,
-            @PathParam("userId") String userId) {
-        ProjectAccess access = projectController.updateAuthorisation(projectId, userId);
-        if(access != null)
+            @PathParam("userId") String userId, String accessLevel) {
+        int status = projectController.updateUserAuthorisation(projectId, userId, accessLevel);
+        switch(status) {
+        case 200:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("User Authorisation not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to project").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        default:
+            return Response.status(500).build();
+        }
     }
     
     @DELETE
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
-    public Response deleteUserAuthorisation(@PathParam("id") String projectId,
+    public Response removeUserAuthorisation(@PathParam("id") String projectId,
             @PathParam("userId") String userId) {
-        ProjectAccess access = projectController.deleteAuthorisation(projectId, userId);
-        if(access != null)
+        int status = projectController.removeUserAuthorisation(projectId, userId);
+        switch(status) {
+        case 200:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("User Authorisation not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to project").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        default:
+            return Response.status(500).build();
+        }
     }
-*/
 }

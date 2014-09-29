@@ -174,14 +174,14 @@ public class ResourceController {
     }
     
     @LoggedIn
-    public ResourceAccess getUserAuthorisation(String resourceId, String userId) {
+    public ResourceAccess getUserAuthorisation(Long resourceId, String userId) {
         // get the access level for the given resource
         EntityManager em = entityManager.get();
         try {
             ProjectResource r = em.find(ProjectResource.class, resourceId);
             // if current user's access is restricted, return null
             // TODO is there a way to throw PicketLink UNAUTHORISED
-            if(getResourceAccess(r.getId()).getAccessLevel() == AccessLevel.RESTRICTED)
+            if(getResourceAccess(r.getId()) == null)
                 return null;
             TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
@@ -192,5 +192,117 @@ public class ResourceController {
             System.err.println("Could not retrieve access level for Resource " + resourceId + "\n" + e);
             return null;
         }
+    }
+   
+    @LoggedIn
+    public int createUserAuthorisation(Long resourceId, String userId, String accessLevel) {
+        // create project access for the given project and user
+        EntityManager em = entityManager.get();
+        try {
+            ProjectResource r = em.find(ProjectResource.class, resourceId);
+            
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            /*  // Option 1: Owns project
+            Project p = r.getProject();
+            if(projectController.getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return null;
+            */
+            // Option 2: Owns resource
+            if(getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return 401;
+            TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
+            q.setParameter("resource", r);
+            q.setParameter("userId", userId);
+            if(q.getResultList().size() == 0) {
+                // userAuthorisation does not exist, create new.
+                ResourceAccess ra = new ResourceAccess();
+                ra.setResource(r);
+                ra.setUserId(userId);
+                if(accessLevel.toUpperCase().equals("READ_WRITE"))
+                    ra.setAccessLevel(AccessLevel.READ_WRITE);
+                else if(accessLevel.toUpperCase().equals("READ"))
+                    ra.setAccessLevel(AccessLevel.READ);
+                else {
+                    System.err.println("Invalid AccessLevel entered");
+                    return 400;
+                }
+                em.persist(ra);
+                return 201;
+            } else {
+                // resource already exists, return HTTP Conflict
+                return 409;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 404;
+    }
+    
+    @LoggedIn
+    public int updateUserAuthorisation(Long resourceId, String userId, String accessLevel) {
+        // update project access for the given project and user
+        EntityManager em = entityManager.get();
+        try {
+            ProjectResource r = em.find(ProjectResource.class, resourceId);
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            /*  // Option 1: Owns project
+            Project p = r.getProject();
+            if(projectController.getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return null;
+            */
+            // Option 2: Owns resource
+            if(getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return 401;
+            TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
+            q.setParameter("resource", r);
+            q.setParameter("userId", userId);
+            ResourceAccess ra = q.getSingleResult();
+            // update the AccessLevel and persist.
+            if(accessLevel.toUpperCase().equals("READ_WRITE"))
+                ra.setAccessLevel(AccessLevel.READ_WRITE);
+            else if(accessLevel.toUpperCase().equals("READ"))
+                ra.setAccessLevel(AccessLevel.READ);
+            else {
+                System.err.println("Invalid AccessLevel entered");
+                return 400;
+            }
+            em.persist(ra);
+        } catch (NoResultException e) {
+            System.err.println("Could not find authorisation for user " + userId);
+            e.printStackTrace();
+        }
+        return 404;
+    }
+    
+    @LoggedIn
+    public int removeUserAuthorisation(Long resourceId, String userId) {
+        // update project access for the given project and user
+        EntityManager em = entityManager.get();
+        try {
+            ProjectResource r = em.find(ProjectResource.class, resourceId);
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            /*  // Option 1: Owns project
+            Project p = r.getProject();
+            if(projectController.getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return null;
+            */
+            // Option 2: Owns resource
+            if(getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return 401; // HTTP Unauthorised
+            TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
+            q.setParameter("resource", r);
+            q.setParameter("userId", userId);
+            ResourceAccess ra = q.getSingleResult();
+            // remove the AccessLevel
+            em.remove(ra);
+            return 200; // HTTP OK
+        } catch (NoResultException e) {
+            System.err.println("Could not find authorisation for user " + userId);
+            e.printStackTrace();
+        }
+        return 404; // HTTP NOT FOUND
     }
 }

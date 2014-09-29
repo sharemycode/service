@@ -478,8 +478,7 @@ public class ProjectController
                 createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.READ);
                 break;
             case RESTRICTED:
-                createResourceAccess(r, pa.getUserId(), ResourceAccess.AccessLevel.RESTRICTED);
-                break;
+                // create ResourceAccess for individual files, not bulk
             default:
                 // do nothing
             }
@@ -542,10 +541,13 @@ public class ProjectController
 	}
 	
 	/* 
-	 * CREATE ATTACHMENT
+	 * CREATE ATTACHMENT - Multipart, File, Persistence
 	 * @Author: Lachlan Archibald
-	 * Returns the path to a file uploaded by a user.
+	 * Returns returns the id of an attachment as Long
 	 */
+	
+	/* CREATE ATTACHMENT FROM MULTIPART */ // Not used
+	// returns multiple AttachmentIds in array of Longs.
 	public List<Long> createAttachmentsFromMultipart(MultipartFormDataInput input) {
 	    List<Long> attachments = new ArrayList<Long>();
         Map<String, List<InputPart>> formParts = input.getFormDataMap();
@@ -671,9 +673,9 @@ public class ProjectController
         EntityManager em = entityManager.get();
         try {
             Project p = em.find(Project.class, projectId);
-            // if current user's access is restricted, return null
+            // if current user's access is denied, return null
             // TODO is there a way to throw PicketLink UNAUTHORISED
-            if(getProjectAccess(p.getId()).getAccessLevel() == AccessLevel.RESTRICTED)
+            if(getProjectAccess(p.getId()) == null)
                 return null;
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
@@ -685,26 +687,115 @@ public class ProjectController
             return null;
         }
     }
-/*	
 	@LoggedIn
-    public ProjectAccess createUserAuthorisation(String projectId, String userId) {
+    public int createUserAuthorisation(String projectId, String userId, String accessLevel) {
         // create project access for the given project and user
+	    EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, projectId);
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return 401;
+            TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
+            q.setParameter("project", p);
+            q.setParameter("userId", userId);
+            if(q.getResultList().size() == 0) {
+                // userAuthorisation does not exist, create new.
+                ProjectAccess pa = new ProjectAccess();
+                pa.setProject(p);
+                pa.setOpen(false);
+                pa.setUserId(userId);
+                if(accessLevel.toUpperCase().equals("READ_WRITE"))
+                    pa.setAccessLevel(AccessLevel.READ_WRITE);
+                else if(accessLevel.toUpperCase().equals("READ"))
+                    pa.setAccessLevel(AccessLevel.READ);
+                else if (accessLevel.toUpperCase().equals("RESTRICTED"))
+                    pa.setAccessLevel(AccessLevel.RESTRICTED);
+                else {
+                    System.err.println("Invalid AccessLevel entered");
+                    return 400;
+                }
+                em.persist(pa);
+                return 201; // HTTP Created
+            } else {
+                /*
+                // resource exists, update it instead
+                int status = updateUserAuthorisation(projectId, userId, accessLevel);
+                return status;
+                */
+                return 409; // HTTP Conflict
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 404;
+    }
+	
+	@LoggedIn
+    public int updateUserAuthorisation(String projectId, String userId, String accessLevel) {
+        // update project access for the given project and user
         EntityManager em = entityManager.get();
         try {
             Project p = em.find(Project.class, projectId);
             // if current user's access is not owner, fail
             // TODO is there a way to throw PicketLink UNAUTHORISED
             if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
-                return null;
+                return 401;
+            // now find the userAuthorisation object for the given userId and projectId
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", userId);
-            ProjectAccess projectAccess = q.getSingleResult();
-            return projectAccess;
+            ProjectAccess pa = q.getSingleResult();
+            // update the AccessLevel and persist.
+            if(accessLevel.toUpperCase().equals("READ_WRITE"))
+                pa.setAccessLevel(AccessLevel.READ_WRITE);
+            else if(accessLevel.toUpperCase().equals("READ"))
+                pa.setAccessLevel(AccessLevel.READ);
+            else if (accessLevel.toUpperCase().equals("RESTRICTED"))
+                pa.setAccessLevel(AccessLevel.RESTRICTED);
+            else {
+                System.err.println("Invalid AccessLevel entered");
+                return 400;
+            }
+            em.persist(pa);
+            return 200;
         } catch (NoResultException e) {
-            System.err.println("Could not retrieve access level for Project " + projectId + "\n" + e);
-            return null;
+            System.err.println("Could not find authorisation for user " + userId);
+            e.printStackTrace();
         }
+        return 404;
     }
-*/
+	
+	@LoggedIn
+	public int removeUserAuthorisation(String projectId, String userId) {
+        // update project access for the given project and user
+        EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, projectId);
+            // if current user's access is not owner, fail
+            // TODO is there a way to throw PicketLink UNAUTHORISED
+            if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
+                return 401;
+            // now find the userAuthorisation object for the given userId and projectId
+            TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
+            q.setParameter("project", p);
+            q.setParameter("userId", userId);
+            ProjectAccess pa = q.getSingleResult();
+            // remove the access level
+            em.remove(pa);
+            // now remove access for all associated resources
+            TypedQuery<ProjectResource> qResource = em.createQuery("SELECT r FROM ProjectResource r WHERE r.project = :project", ProjectResource.class);
+            qResource.setParameter("project", p);
+            List<ProjectResource> resources = qResource.getResultList();
+            for(ProjectResource r : resources) {
+                resourceController.removeUserAuthorisation(r.getId(), userId);
+            }
+            return 200; // HTTP OK
+        } catch (NoResultException e) {
+            System.err.println("Could not find authorisation for user " + userId);
+            e.printStackTrace();
+        }
+        return 404;
+    }
 }

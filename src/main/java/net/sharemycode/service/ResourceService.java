@@ -141,47 +141,72 @@ public class ResourceService {
     // get resource access for the given user
     public Response getUserAuthorisation(@PathParam("id") String resourceId,
             @PathParam("userId") String userId) {
-        ResourceAccess access = resourceController.getUserAuthorisation(resourceId, userId);
+        ResourceAccess access = resourceController.getUserAuthorisation(Long.valueOf(resourceId), userId);
         if(access != null)
             return Response.ok().entity(access).build();
         else
             return Response.status(404).build();
     }
- /*   
+
+ // TODO Must transform into JSON with user and accessLevel as content   
     @POST
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
-    @Consumes(MediaType.APPLICATION_JSON)
     // create resource access for the given user    (include object, or just accessLevel?)
     public Response createUserAuthorisation(@PathParam("id") String resourceId,
-            @PathParam("userId") String userId) {
-        ResourceAccess access = resourceController.authoriseUser(resourceId, userId);
-        if(access != null)
+            @PathParam("userId") String userId, String accessLevel) {
+        int status = resourceController.createUserAuthorisation(Long.valueOf(resourceId), userId, accessLevel);
+        switch(status) {
+        case 201:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("Resource or user not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to resource").build();
+        case 404:
+            return Response.status(404).entity("Resource not found").build();
+        case 409:
+            return Response.status(409).entity("UserAuthorisation already exists").build();
+        default:
+            return Response.status(500).build();
+        }
     }
     @PUT
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     // update resource access for the given user with the provided data
     public Response updateUserAuthorisation(@PathParam("id") String resourceId,
-            @PathParam("userId") String userId) {
-        ResourceAccess access = resourceController.updateAuthorisation(resourceId, userId);
-        if(access != null)
+            @PathParam("userId") String userId, String accessLevel) {
+        int status = resourceController.updateUserAuthorisation(Long.valueOf(resourceId), userId, accessLevel);
+        switch(status) {
+        case 200:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("User Authorisation not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to resource").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        default:
+            return Response.status(500).build();
+        }
     }
     
     @DELETE
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
-    public Response deleteUserAuthorisation(@PathParam("id") String resourceId,
+    public Response removeUserAuthorisation(@PathParam("id") String resourceId,
             @PathParam("userId") String userId) {
-        ResourceAccess access = resourceController.deleteAuthorisation(resourceId, userId);
-        if(access != null)
+        int status = resourceController.removeUserAuthorisation(Long.valueOf(resourceId), userId);
+        switch(status) {
+        case 200:
             return Response.ok().entity("Success").build();
-        else
-            return Response.status(404).entity("User Authorisation not found").build();
+        case 400:
+            return Response.status(400).entity("Invalid accessLevel").build();
+        case 401:
+            return Response.status(401).entity("Unauthorised access to project").build();
+        case 404:
+            return Response.status(404).entity("Project not found").build();
+        default:
+            return Response.status(500).build();
+        }
     }
-*/
 }
