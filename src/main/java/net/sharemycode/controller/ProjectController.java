@@ -688,7 +688,7 @@ public class ProjectController
         }
     }
 	@LoggedIn
-    public int createUserAuthorisation(String projectId, String userId, String accessLevel) {
+    public int createUserAuthorisation(String projectId, ProjectAccess access) {
         // create project access for the given project and user
 	    EntityManager em = entityManager.get();
         try {
@@ -699,9 +699,10 @@ public class ProjectController
                 return 401;
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
-            q.setParameter("userId", userId);
+            q.setParameter("userId", access.getUserId());
             if(q.getResultList().size() == 0) {
-                // userAuthorisation does not exist, create new.
+                /*
+            	// userAuthorisation does not exist, create new.
                 ProjectAccess pa = new ProjectAccess();
                 pa.setProject(p);
                 pa.setOpen(false);
@@ -715,8 +716,23 @@ public class ProjectController
                 else {
                     System.err.println("Invalid AccessLevel entered");
                     return 400;
+                }*/
+                em.persist(access);
+                ResourceAccess.AccessLevel resourceAccess = null;
+                switch (access.getAccessLevel()) {
+                case OWNER:
+                	resourceAccess = ResourceAccess.AccessLevel.OWNER;
+                	break;
+                case READ_WRITE:
+                	resourceAccess = ResourceAccess.AccessLevel.READ_WRITE;
+                	break;
+                case READ:
+                	resourceAccess = ResourceAccess.AccessLevel.READ;
+                	break;
+            	default:
+                	// do nothing
                 }
-                em.persist(pa);
+                resourceController.createUserAuthorisationForAll(p, access.getUserId(), resourceAccess);	// generate resourceAccess for all Resources
                 return 201; // HTTP Created
             } else {
                 /*
@@ -731,9 +747,9 @@ public class ProjectController
         }
         return 404;
     }
-	
+
 	@LoggedIn
-    public int updateUserAuthorisation(String projectId, String userId, String accessLevel) {
+    public int updateUserAuthorisation(String projectId, String userId, ProjectAccess access) {
         // update project access for the given project and user
         EntityManager em = entityManager.get();
         try {
@@ -747,19 +763,26 @@ public class ProjectController
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess pa = q.getSingleResult();
+            /*
             // update the AccessLevel and persist.
-            if(accessLevel.toUpperCase().equals("READ_WRITE"))
+            if(access.toUpperCase().equals("READ_WRITE"))
                 pa.setAccessLevel(AccessLevel.READ_WRITE);
-            else if(accessLevel.toUpperCase().equals("READ"))
+            else if(access.toUpperCase().equals("READ"))
                 pa.setAccessLevel(AccessLevel.READ);
-            else if (accessLevel.toUpperCase().equals("RESTRICTED"))
+            else if (access.toUpperCase().equals("RESTRICTED"))
                 pa.setAccessLevel(AccessLevel.RESTRICTED);
             else {
                 System.err.println("Invalid AccessLevel entered");
                 return 400;
-            }
-            em.persist(pa);
-            return 200;
+            }*/
+            // if current userId matches, update the current resource
+            if(pa.getUserId().equals(access.getUserId())) {
+            	pa.setAccessLevel(access.getAccessLevel());
+            	em.persist(pa);
+                return 200;
+            } else	// otherwise, bad request.
+            	return 400;
+            
         } catch (NoResultException e) {
             System.err.println("Could not find authorisation for user " + userId);
             e.printStackTrace();

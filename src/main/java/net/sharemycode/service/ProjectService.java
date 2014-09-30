@@ -109,7 +109,7 @@ public class ProjectService {
         	return Response.status(400).entity("Failed to create project").build();
         }
         String output = newProject.getUrl();
-        return Response.status(200).entity(output).location(new URI("rest/projects/" + newProject.getId())).build();
+        return Response.ok().location(new URI("/projects/" + newProject.getId())).entity(output).build();
     }
 
     @GET
@@ -234,7 +234,7 @@ public class ProjectService {
     }
     
     @GET
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Produces(MediaType.APPLICATION_JSON)
     // get resource access for the given user
     public Response getUserAuthorisation(@PathParam("id") String projectId,
@@ -248,14 +248,14 @@ public class ProjectService {
     
 // TODO Must transform into JSON with user and accessLevel as content    
     @POST
-    @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
+    @Path("/{id:[0-9a-z]*}/access/")
     // create resource access for the given user    (include object, or just accessLevel?)
-    public Response createUserAuthorisation(@PathParam("id") String projectId,
-            @PathParam("userId") String userId, String accessLevel) {
-        int status = projectController.createUserAuthorisation(projectId, userId, accessLevel);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createUserAuthorisation(@PathParam("id") String projectId, ProjectAccess access) throws URISyntaxException {
+        int status = projectController.createUserAuthorisation(projectId, access);
         switch(status) {
         case 201:
-            return Response.ok().entity("Success").build();
+            return Response.created(new URI("/projects/" + projectId + "/access/" + access.getUserId())).entity("Success").build();
         case 400:
             return Response.status(400).entity("Invalid accessLevel").build();
         case 401:
@@ -270,11 +270,12 @@ public class ProjectService {
     }
     
     @PUT
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
+    @Consumes(MediaType.APPLICATION_JSON)
     // update resource access for the given user with the provided data
     public Response updateUserAuthorisation(@PathParam("id") String projectId,
-            @PathParam("userId") String userId, String accessLevel) {
-        int status = projectController.updateUserAuthorisation(projectId, userId, accessLevel);
+            @PathParam("userId") String userId, ProjectAccess access) {
+        int status = projectController.updateUserAuthorisation(projectId, userId, access);
         switch(status) {
         case 200:
             return Response.ok().entity("Success").build();
@@ -290,7 +291,7 @@ public class ProjectService {
     }
     
     @DELETE
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     public Response removeUserAuthorisation(@PathParam("id") String projectId,
             @PathParam("userId") String userId) {
         int status = projectController.removeUserAuthorisation(projectId, userId);

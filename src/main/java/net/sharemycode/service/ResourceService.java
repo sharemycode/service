@@ -151,10 +151,11 @@ public class ResourceService {
  // TODO Must transform into JSON with user and accessLevel as content   
     @POST
     @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
     // create resource access for the given user    (include object, or just accessLevel?)
     public Response createUserAuthorisation(@PathParam("id") String resourceId,
-            @PathParam("userId") String userId, String accessLevel) {
-        int status = resourceController.createUserAuthorisation(Long.valueOf(resourceId), userId, accessLevel);
+            @PathParam("userId") String userId, ResourceAccess resourceAccess) {
+        int status = resourceController.createUserAuthorisation(Long.valueOf(resourceId), userId, resourceAccess);
         switch(status) {
         case 201:
             return Response.ok().entity("Success").build();

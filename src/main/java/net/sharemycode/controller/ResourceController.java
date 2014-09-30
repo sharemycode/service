@@ -195,7 +195,7 @@ public class ResourceController {
     }
    
     @LoggedIn
-    public int createUserAuthorisation(Long resourceId, String userId, String accessLevel) {
+    public int createUserAuthorisation(Long resourceId, String userId, ResourceAccess access) {
         // create project access for the given project and user
         EntityManager em = entityManager.get();
         try {
@@ -216,18 +216,7 @@ public class ResourceController {
             q.setParameter("userId", userId);
             if(q.getResultList().size() == 0) {
                 // userAuthorisation does not exist, create new.
-                ResourceAccess ra = new ResourceAccess();
-                ra.setResource(r);
-                ra.setUserId(userId);
-                if(accessLevel.toUpperCase().equals("READ_WRITE"))
-                    ra.setAccessLevel(AccessLevel.READ_WRITE);
-                else if(accessLevel.toUpperCase().equals("READ"))
-                    ra.setAccessLevel(AccessLevel.READ);
-                else {
-                    System.err.println("Invalid AccessLevel entered");
-                    return 400;
-                }
-                em.persist(ra);
+                em.persist(access);
                 return 201;
             } else {
                 // resource already exists, return HTTP Conflict
@@ -305,4 +294,20 @@ public class ResourceController {
         }
         return 404; // HTTP NOT FOUND
     }
+
+	public Boolean createUserAuthorisationForAll(Project p, String userId,
+			AccessLevel resourceAccess) {
+		if (p == null || userId == null || resourceAccess == null)
+			return false;
+		List<ProjectResource> resources = listResources(p);
+		for(ProjectResource r : resources) {
+			ResourceAccess access = new ResourceAccess();
+			access.setResource(r);
+			access.setUserId(userId);
+			access.setAccessLevel(resourceAccess);
+			createUserAuthorisation(r.getId(), userId, access);
+		}
+		return true;
+		
+	}
 }
