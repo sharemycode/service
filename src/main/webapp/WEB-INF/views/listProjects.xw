@@ -8,6 +8,24 @@
         </xw:fragment>
         <xw:fragment rendered="#{identity.loggedIn}">
             <p>You are logged in, loading projects</p>
+            <div id="projectList">
+                <table>
+                    <tr>
+                        <td>Project Name</td>
+                        <td>Version</td>
+                        <td>Description</td>
+                        <td>Owners</td>
+                    </tr>
+                    <xw:repeat value="#{projectList}" var="project">
+                        <tr>
+                            <td><![CDATA[project.get("name")]]></td>
+                            <td><![CDATA[project.get("version")]]></td>
+                            <td><![CDATA[project.get("description")]]></td>
+                            <td><![CDATA[project.get("owner")]]></td>
+                        </tr>
+                    </xw:repeat>
+                </table>
+            </div>
         </xw:fragment>
     </div>
 </xw:view>

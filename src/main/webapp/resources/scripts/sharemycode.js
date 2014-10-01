@@ -76,4 +76,9 @@ var ShareMyCode = {
 
   }
 };
+var user = {
+    listProjects: function() {
+      return xw.Sys.getWidget("projectService").get(function (data) { return data; });
+    }
+}
 var attachments = [];	// create array for attachment id's
