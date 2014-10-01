@@ -6,9 +6,6 @@
     <xw:eLBinding binding="servicePath">
         <xw:event type="onbind"><![CDATA[return window.location.origin + "/sharemycode/rest";]]></xw:event>
     </xw:eLBinding>
-    <xw:eLBinding binding="projectList">
-        <xw:event type="onbind"><![CDATA[return user.listProjects();]]></xw:event>
-    </xw:eLBinding>
     
     
     <pl:identity id="identity" basePath="#{servicePath}"/>

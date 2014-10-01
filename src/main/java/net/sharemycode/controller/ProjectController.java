@@ -76,10 +76,14 @@ public class ProjectController
     @Inject
     private Identity identity;
 
+    @LoggedIn
     public List<Project> listAllProjects() {
     	EntityManager em = entityManager.get();
-    	TypedQuery<Project> q = em.createQuery("select p from Project p", Project.class);
-        return q.getResultList();
+    	String userId = identity.getAccount().getId();
+    	TypedQuery<Project> q = em.createQuery("select p from Project p, ProjectAccess pa WHERE p = pa.project AND pa.userId = :userId AND pa.accessLevel = :accessLevel", Project.class);
+        q.setParameter("userId", userId);
+        q.setParameter("accessLevel", AccessLevel.OWNER);
+    	return q.getResultList();
     }
     
     @LoggedIn

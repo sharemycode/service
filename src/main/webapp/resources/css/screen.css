@@ -116,6 +116,7 @@ body {
 #attachments {
 	margin: 10px;
 }
+
 #footer {
   clear: both;
   text-align: center;
@@ -183,7 +184,7 @@ input {
 
 /*  = Simple Table style (black header, grey/white stripes  */
 
-.simpletablestyle {
+	.simpletablestyle {
   background-color:#E6E7E8;
   clear:both;
   width: 550px;
