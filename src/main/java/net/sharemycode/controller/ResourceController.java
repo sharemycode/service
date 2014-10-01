@@ -195,7 +195,7 @@ public class ResourceController {
     }
    
     @LoggedIn
-    public int createUserAuthorisation(Long resourceId, String userId, ResourceAccess access) {
+    public int createUserAuthorisation(Long resourceId, ResourceAccess access) {
         // create project access for the given project and user
         EntityManager em = entityManager.get();
         try {
@@ -213,7 +213,7 @@ public class ResourceController {
                 return 401;
             TypedQuery<ResourceAccess> q = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
-            q.setParameter("userId", userId);
+            q.setParameter("userId", access.getUserId());
             if(q.getResultList().size() == 0) {
                 // userAuthorisation does not exist, create new.
                 em.persist(access);
@@ -229,7 +229,7 @@ public class ResourceController {
     }
     
     @LoggedIn
-    public int updateUserAuthorisation(Long resourceId, String userId, String accessLevel) {
+    public int updateUserAuthorisation(Long resourceId, String userId, ResourceAccess access) {
         // update project access for the given project and user
         EntityManager em = entityManager.get();
         try {
@@ -249,15 +249,12 @@ public class ResourceController {
             q.setParameter("userId", userId);
             ResourceAccess ra = q.getSingleResult();
             // update the AccessLevel and persist.
-            if(accessLevel.toUpperCase().equals("READ_WRITE"))
-                ra.setAccessLevel(AccessLevel.READ_WRITE);
-            else if(accessLevel.toUpperCase().equals("READ"))
-                ra.setAccessLevel(AccessLevel.READ);
-            else {
-                System.err.println("Invalid AccessLevel entered");
+            if(ra.getUserId().equals(access.getUserId())) {
+                ra.setAccessLevel(access.getAccessLevel());
+                em.persist(ra);
+                return 200;
+            } else  // otherwise, bad request.
                 return 400;
-            }
-            em.persist(ra);
         } catch (NoResultException e) {
             System.err.println("Could not find authorisation for user " + userId);
             e.printStackTrace();
@@ -305,9 +302,35 @@ public class ResourceController {
 			access.setResource(r);
 			access.setUserId(userId);
 			access.setAccessLevel(resourceAccess);
-			createUserAuthorisation(r.getId(), userId, access);
+			createUserAuthorisation(r.getId(), access);
 		}
 		return true;
-		
 	}
+
+    public Boolean updateUserAuthorisationForAll(Project p, String userId,
+            AccessLevel resourceAccess) {
+        if (p == null || userId == null || resourceAccess == null)
+            return false;
+        List<ProjectResource> resources = listResources(p);
+        for(ProjectResource r : resources) {
+            ResourceAccess access = new ResourceAccess();
+            access.setResource(r);
+            access.setUserId(userId);
+            access.setAccessLevel(resourceAccess);
+            updateUserAuthorisation(r.getId(), userId, access);
+        }
+        return true;
+        
+    }
+    
+    public Boolean removeUserAuthorisationForAll(Project p, String userId) {
+        if (p == null || userId == null)
+            return false;
+        List<ProjectResource> resources = listResources(p);
+        for(ProjectResource r : resources) {
+            removeUserAuthorisation(r.getId(), userId);
+        }
+        return true;
+        
+    }
 }

@@ -701,23 +701,9 @@ public class ProjectController
             q.setParameter("project", p);
             q.setParameter("userId", access.getUserId());
             if(q.getResultList().size() == 0) {
-                /*
             	// userAuthorisation does not exist, create new.
-                ProjectAccess pa = new ProjectAccess();
-                pa.setProject(p);
-                pa.setOpen(false);
-                pa.setUserId(userId);
-                if(accessLevel.toUpperCase().equals("READ_WRITE"))
-                    pa.setAccessLevel(AccessLevel.READ_WRITE);
-                else if(accessLevel.toUpperCase().equals("READ"))
-                    pa.setAccessLevel(AccessLevel.READ);
-                else if (accessLevel.toUpperCase().equals("RESTRICTED"))
-                    pa.setAccessLevel(AccessLevel.RESTRICTED);
-                else {
-                    System.err.println("Invalid AccessLevel entered");
-                    return 400;
-                }*/
                 em.persist(access);
+                // now create resourceAccess authorisation
                 ResourceAccess.AccessLevel resourceAccess = null;
                 switch (access.getAccessLevel()) {
                 case OWNER:
@@ -763,22 +749,26 @@ public class ProjectController
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess pa = q.getSingleResult();
-            /*
-            // update the AccessLevel and persist.
-            if(access.toUpperCase().equals("READ_WRITE"))
-                pa.setAccessLevel(AccessLevel.READ_WRITE);
-            else if(access.toUpperCase().equals("READ"))
-                pa.setAccessLevel(AccessLevel.READ);
-            else if (access.toUpperCase().equals("RESTRICTED"))
-                pa.setAccessLevel(AccessLevel.RESTRICTED);
-            else {
-                System.err.println("Invalid AccessLevel entered");
-                return 400;
-            }*/
             // if current userId matches, update the current resource
             if(pa.getUserId().equals(access.getUserId())) {
             	pa.setAccessLevel(access.getAccessLevel());
             	em.persist(pa);
+            	// now update all resource Authorisation for the user
+            	ResourceAccess.AccessLevel resourceAccess = null;
+                switch (access.getAccessLevel()) {
+                case OWNER:
+                    resourceAccess = ResourceAccess.AccessLevel.OWNER;
+                    break;
+                case READ_WRITE:
+                    resourceAccess = ResourceAccess.AccessLevel.READ_WRITE;
+                    break;
+                case READ:
+                    resourceAccess = ResourceAccess.AccessLevel.READ;
+                    break;
+                default:
+                    // do nothing
+                }
+                resourceController.updateUserAuthorisationForAll(p, access.getUserId(), resourceAccess);    // generate resourceAccess for all Resources
                 return 200;
             } else	// otherwise, bad request.
             	return 400;
@@ -808,12 +798,7 @@ public class ProjectController
             // remove the access level
             em.remove(pa);
             // now remove access for all associated resources
-            TypedQuery<ProjectResource> qResource = em.createQuery("SELECT r FROM ProjectResource r WHERE r.project = :project", ProjectResource.class);
-            qResource.setParameter("project", p);
-            List<ProjectResource> resources = qResource.getResultList();
-            for(ProjectResource r : resources) {
-                resourceController.removeUserAuthorisation(r.getId(), userId);
-            }
+            resourceController.removeUserAuthorisationForAll(p, userId);
             return 200; // HTTP OK
         } catch (NoResultException e) {
             System.err.println("Could not find authorisation for user " + userId);

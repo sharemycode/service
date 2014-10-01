@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +138,7 @@ public class ResourceService {
     }
 
     @GET
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Produces(MediaType.APPLICATION_JSON)
     // get resource access for the given user
     public Response getUserAuthorisation(@PathParam("id") String resourceId,
@@ -150,15 +152,15 @@ public class ResourceService {
 
  // TODO Must transform into JSON with user and accessLevel as content   
     @POST
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9]*}/access/")
     @Consumes(MediaType.APPLICATION_JSON)
     // create resource access for the given user    (include object, or just accessLevel?)
     public Response createUserAuthorisation(@PathParam("id") String resourceId,
-            @PathParam("userId") String userId, ResourceAccess resourceAccess) {
-        int status = resourceController.createUserAuthorisation(Long.valueOf(resourceId), userId, resourceAccess);
+            ResourceAccess access) throws URISyntaxException {
+        int status = resourceController.createUserAuthorisation(Long.valueOf(resourceId), access);
         switch(status) {
         case 201:
-            return Response.ok().entity("Success").build();
+            return Response.created(new URI("/resources/" + resourceId + "/access/" + access.getUserId())).entity("Success").build();
         case 400:
             return Response.status(400).entity("Invalid accessLevel").build();
         case 401:
@@ -172,12 +174,12 @@ public class ResourceService {
         }
     }
     @PUT
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Consumes(MediaType.APPLICATION_JSON)
     // update resource access for the given user with the provided data
     public Response updateUserAuthorisation(@PathParam("id") String resourceId,
-            @PathParam("userId") String userId, String accessLevel) {
-        int status = resourceController.updateUserAuthorisation(Long.valueOf(resourceId), userId, accessLevel);
+            @PathParam("userId") String userId, ResourceAccess access) {
+        int status = resourceController.updateUserAuthorisation(Long.valueOf(resourceId), userId, access);
         switch(status) {
         case 200:
             return Response.ok().entity("Success").build();
@@ -193,7 +195,7 @@ public class ResourceService {
     }
     
     @DELETE
-    @Path("/{id:[0-9]*}/access/{userId:[0-9a-zA-Z]*}")
+    @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     public Response removeUserAuthorisation(@PathParam("id") String resourceId,
             @PathParam("userId") String userId) {
         int status = resourceController.removeUserAuthorisation(Long.valueOf(resourceId), userId);
