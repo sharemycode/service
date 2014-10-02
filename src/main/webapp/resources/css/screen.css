@@ -139,9 +139,10 @@ h1 {
   font-size: 2.25em;
 }
 h2 {
-  font-size: 1em;
+  font-size: 1.5em;
 }
 h3 {
+  font-size: 1.0em;
   color:#243446;
 }
 h4 {
@@ -184,7 +185,7 @@ input {
 
 /*  = Simple Table style (black header, grey/white stripes  */
 
-	.simpletablestyle {
+.simpletablestyle {
   background-color:#E6E7E8;
   clear:both;
   width: 550px;
@@ -199,6 +200,12 @@ input {
   padding-left: 6px;
   font-size:11px;
   padding:5px 5px;
+}
+
+.action ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 .simpletablestyle th {

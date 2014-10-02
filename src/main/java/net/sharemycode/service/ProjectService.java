@@ -71,9 +71,17 @@ public class ProjectService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> listAllProjects() {
-        // list of all projects -- When authentication is working, it will return only the user's projects.
+        // list of all user's projects
         return projectController.listAllProjects();
     }
+    
+    @GET
+    @Path("/shared")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Project> listSharedProjects() {
+        return projectController.listSharedProjects();
+    }
+    
     
     @GET
     @Path("/{id:[0-9a-z]*}")

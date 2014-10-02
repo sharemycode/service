@@ -15,7 +15,7 @@ var ShareMyCode = {
     };
     xw.Sys.getWidget("projectService").post({content: JSON.stringify(props), callback: cb});
   },
-  listProjects: function(result) {
+  parseProjects: function(result) {
     return result;
   },
   loginUser: function(props) {

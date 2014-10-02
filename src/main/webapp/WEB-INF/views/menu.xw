@@ -16,7 +16,8 @@
         <h2>Project Services</h2>
         <ul>
             <li><xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link></li>
-            <li><xw:link caption="List Projects"><xw:event type="onclick"><![CDATA[xw.open("listProjects.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="My Projects"><xw:event type="onclick"><![CDATA[xw.open("projects.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Projects shared with me"><xw:event type="onclick"><![CDATA[xw.open("sharedProjects.xw", null, "content")]]></xw:event></xw:link></li>
             <li><a href="rest/projects">List projects [REST]</a></li>
             <li><a href="rest/projects/randomURL">Generate Random URL</a></li>
             <li>Lookup project by id - rest/projects/{projectid}</li>

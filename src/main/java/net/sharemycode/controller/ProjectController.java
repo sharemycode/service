@@ -87,6 +87,20 @@ public class ProjectController
     }
     
     @LoggedIn
+    public List<Project> listSharedProjects() {
+        // returns a list of projects for which the user has access to
+        EntityManager em = entityManager.get();
+        String userId = identity.getAccount().getId();
+        TypedQuery<Project> q = em.createQuery("select p from Project p, ProjectAccess pa WHERE p = pa.project AND pa.userId = :userId AND " + ""
+                + "pa.accessLevel = :read OR pa.accessLevel = :write OR pa.accessLevel = :restricted", Project.class);
+        q.setParameter("userId", userId);
+        q.setParameter("read", AccessLevel.READ);
+        q.setParameter("write", AccessLevel.READ_WRITE);
+        q.setParameter("restricted", AccessLevel.RESTRICTED);
+        return q.getResultList();
+    }
+    
+    @LoggedIn
     public Project createProject(Project project) {
         // persist the project data
     	project.setOwner(identity.getAccount().getId());

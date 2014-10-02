@@ -9,7 +9,7 @@
             </li>
             <li>
                 <xw:link caption="Projects">
-                    <xw:event type="onclick"><![CDATA[xw.open("listProjects.xw", null, "content")]]></xw:event>
+                    <xw:event type="onclick"><![CDATA[xw.open("projects.xw", null, "content")]]></xw:event>
                 </xw:link>
             </li>
         </ul>
@@ -33,7 +33,12 @@
           <xw:fragment rendered="#{identity.loggedIn}">
             <li>
               <i class="fa fa-user"></i>
-              <span>#{identity.account.userName}</span> 
+              <span>#{identity.account.username}</span> 
+            </li>
+            <li>
+                <xw:link caption="Profile">
+                    <xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event>
+                </xw:link>
             </li>
             <li>
                 <xw:link caption="Account">
