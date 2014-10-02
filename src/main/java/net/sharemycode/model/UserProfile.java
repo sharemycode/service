@@ -1,5 +1,7 @@
 package net.sharemycode.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,7 +10,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
-public class UserProfile {
+public class UserProfile implements Serializable {
 
     @Id
     @Column(name="id")

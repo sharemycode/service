@@ -78,7 +78,6 @@ public class UserController {
         u.setFirstName(properties.get("firstName"));
         u.setLastName(properties.get("lastName"));
         Password password = new Password(properties.get("password"));
-        //Repository.userRepo.add(u);
         try {
             im.add(u);
             im.updateCredential(u, password);
@@ -97,7 +96,7 @@ public class UserController {
     }
     
     
-    /* Return full list of users */
+    /* Return full list of users */ // demonstration only
     @LoggedIn
     public List<User> listAllUsers() {
     	System.out.println("ListUsersCONTROLLER");
@@ -108,6 +107,8 @@ public class UserController {
     /* return specific user by username */
     @LoggedIn
     public User lookupUserByUsername(String username) {
+        // returns user information including email, first name and last name
+        // may need to change for security purposes
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
         q.setParameter(User.USERNAME, username.toLowerCase());
         if(q.getResultCount() == 0) {
@@ -130,6 +131,7 @@ public class UserController {
         }
     }
     /* Find User Profile by username */
+    // TODO Test this function
     public UserProfile lookupUserProfile(String username) {
         User u = this.lookupUserByUsername(username);
         try {
@@ -148,50 +150,60 @@ public class UserController {
         em.persist(profile);
         return profile;
     }
+    
+    /* UPDATE USER PROFILE */
+    // TODO Test this function
     @LoggedIn
-    public UserProfile updateUserProfile(String id, String name, String about, String contact, String interests) {
-        //String id = identity.getAccount().getId();
-        UserProfile profile = em.find(UserProfile.class, id);
-        try {
-            em.getTransaction().begin();
-                if (!name.isEmpty())
-                    profile.setDisplayName(name);
-                if (!about.isEmpty())
-                    profile.setAbout(about);
-                if(!contact.isEmpty())
-                    profile.setContact(contact);
-                if(!interests.isEmpty())
-                    profile.setInterests(interests);
-            em.getTransaction().commit();   // commit the changes to the existing EntityBean
-            return profile;
-        } catch (NoResultException e) {
-            return null;
+    public UserProfile updateUserProfile(User u, UserProfile update) {
+        if(identity.getAccount().getId().equals(u.getId())) {
+            // if current logged in user is editing own user profile
+            // possible admin update support
+            UserProfile profile = em.find(UserProfile.class, u.getId());
+            try {
+                profile.setDisplayName(update.getDisplayName());
+                profile.setAbout(update.getAbout());
+                profile.setContact(update.getContact());
+                profile.setInterests(update.getInterests());
+                em.persist(profile);
+                return profile;
+            } catch (NoResultException e) {
+                return null;
+            }
+        } else {
+            System.err.println("Unauthorised action");
         }
+        return null;
     }
+    
+    /* UPDATE USER ACCOUNT */
+    // TODO Test this function
     @LoggedIn
-    public User updateUserAccount(String id, String username, String email, String password, String firstName, String lastName) {
-        IdentityQuery<User> q = im.createIdentityQuery(User.class);
-        q.setParameter(User.ID, id);
-        User u = q.getResultList().get(0);
+    public User updateUserAccount(User u, String username, String email, String emailc, String password, String passwordc, String firstName, String lastName) {
         if(u == null)
             return null;
-        em.getTransaction().begin();
+        if(identity.getAccount().getId().equals(u.getId())) {
+            // if current logged in user is editing own user account
+            // possible admin update support
+            IdentityQuery<User> q = im.createIdentityQuery(User.class);
             if(!username.isEmpty())
                 u.setUsername(username);
-            if(!email.isEmpty())
+            if(!email.isEmpty() && email.equals(emailc))
                 u.setEmail(email);
             if(!firstName.isEmpty())
                 u.setFirstName(firstName);
             if(!lastName.isEmpty())
                 u.setLastName(lastName);
-            if (!password.isEmpty()) {
+            if (!password.isEmpty() && password.equals(passwordc)) {
                 // Password section
                 Password pw = new Password(password);
                 // TODO Remove current credentials when updating password?
                 //im.removeCredential(u, arg1);
                 im.updateCredential(u, pw);
             }
-        em.getTransaction().commit();
+            im.update(u);
+        } else {
+            System.err.println("Unauthorised action");
+        }
         return u;
     }
 }

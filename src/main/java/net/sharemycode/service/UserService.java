@@ -52,64 +52,67 @@ public class UserService {
         return user;
     }
     
-    /* Find user by Email */
-    /*
+    /* Find user */
     @GET
+    @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
-    public User listUsersByEmail(@QueryParam("email") String email) {
-    	return userController.lookupUserByEmail(email);
-    }*/
-    
-
-    
-    // TODO user login
-    @GET
-    @Path("/login")
-    public String userLogin() {
-        return "Login - Coming soon";
+    public User findUser(@QueryParam("username") String username,
+            @QueryParam("email") String email) {
+        // find a user based on username or email, must be exact
+        User user = null;
+        if(username.length() > 0) {
+            user = userController.lookupUserByUsername(username);
+            if (user != null)
+                return user;
+        }
+        if(email.length() > 0) {
+            user = userController.lookupUserByEmail(email);
+            if (user != null)
+                return user;
+        }
+        // no results
+        return null;
     }
 
-    // TODO user logout
     @GET
-    @Path("/logout")
-    public String userLogout() {
-        return "Logout - Coming soon";
-    }
-    
-    @GET
-    @Path("/profiles")  // a resource is uniquely defined by its path, not query parameters.
+    @Path("/{username:[a-zA-Z0-9]*}/profile")   // return user profile
     @Produces(MediaType.APPLICATION_JSON)
-    public UserProfile lookupUserProfile(@QueryParam("user") String username) {
+    public UserProfile getUserProfile(@PathParam("username") String username) {
         return userController.lookupUserProfile(username);
     }
     
     @PUT
-    @Path("/profile/{id: [a-zA-z0-9]*}")    // REST endpoint only used for updating profile
+    @Path("/{username:[a-zA-Z0-9]*}/profile")   // update user profile
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUserProfile(@PathParam("id") String id, Map<String, String> properties) {
-        UserProfile profile = userController.updateUserProfile(id, properties.get("name"), 
-                properties.get("about"), properties.get("contact"), properties.get("interests"));
-        if(profile == null)
+    public Response updateUserProfile(@PathParam("username") String username, UserProfile profile) {
+        User u = userController.lookupUserByUsername(username);
+        if(u == null)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        //UserProfile profile = userController.updateUserProfile(u, properties.get("name"), 
+        //        properties.get("about"), properties.get("contact"), properties.get("interests"));
+        UserProfile updated = userController.updateUserProfile(u, profile);
+        if(updated == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         else
-            return Response.ok().entity(profile).build();
+            return Response.ok().entity(updated).build();
     }
     
     @PUT
-    @Path("/{id: [a-zA-Z0-9]*}")
+    @Path("/{username:[a-zA-Z0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUserAccount(@PathParam("id") String id, Map<String, String> properties) {
+    public Response updateUserAccount(@PathParam("username") String username, Map<String, String> properties) {
         // update User Account information AND User Profile information with the same form.
-        User user = userController.updateUserAccount(id, properties.get("username"), properties.get("email"), 
-                properties.get("password"), properties.get("firstName"), properties.get("lastName"));
-        if(user == null)
+        User u = userController.lookupUserByUsername(username);
+        if(u == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        /*UserProfile profile = userController.updateUserProfile(id, properties.get("name"), 
-                properties.get("about"), properties.get("contact"), properties.get("interests"));
-        if(profile == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);*/
-        return Response.ok().entity(user).build();
+        User updated = userController.updateUserAccount(u, properties.get("username"),
+                properties.get("email"), properties.get("emailc"),
+                properties.get("password"), properties.get("passwordc"),
+                properties.get("firstName"), properties.get("lastName"));
+        if(updated == null)
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        return Response.ok().entity(updated).build();
     }
 }
