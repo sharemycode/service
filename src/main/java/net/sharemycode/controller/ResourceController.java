@@ -3,6 +3,9 @@ package net.sharemycode.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,9 +29,11 @@ import net.sharemycode.model.ProjectAccess;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
+import net.sharemycode.model.ProjectResource.ResourceType;
 import net.sharemycode.model.ResourceAccess.AccessLevel;
 import net.sharemycode.security.annotations.LoggedIn;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.picketlink.Identity;
 
@@ -196,7 +201,7 @@ public class ResourceController {
    
     @LoggedIn
     public int createUserAuthorisation(Long resourceId, ResourceAccess access) {
-        // create project access for the given project and user
+        // create project access for the given resource and user
         EntityManager em = entityManager.get();
         try {
             ProjectResource r = em.find(ProjectResource.class, resourceId);
@@ -332,5 +337,127 @@ public class ResourceController {
         }
         return true;
         
+    }
+    /*
+    // TODO publishResource via path 
+    @LoggedIn
+    public ProjectResource publishResource(Project p, String resourcePath,
+            String data) {
+        if(p == null)
+            return null; //error
+        String[] parts = resourcePath.split(ProjectResource.PATH_SEPARATOR);
+        ProjectResource r = null;
+        ProjectResource parent = null;
+        int i;
+        // create directory resources
+        for(i = 0; i < parts.length -1; i++) {
+            if(i == 0 && parts[i].equals(p.getName()))
+                continue;   // if first directory is same as project name, ignore
+            r = lookupResourceByName(p, parent, parts[i]);
+            if(r == null) { // create directory
+                r = new ProjectResource();
+                r.setName(parts[i]);
+                r.setParent(parent);
+                r.setProject(p);
+                r.setResourceType(ResourceType.DIRECTORY);
+                createResource(r);
+                parent = r;
+            }
+        }
+        // now create file resource
+        r = lookupResourceByName(p, parent, parts[i]);
+        if(r == null) { // create resource
+            r = new ProjectResource();
+            r.setName(parts[i]);
+            r.setParent(parent);
+            r.setProject(p);
+            r.setResourceType(ResourceType.FILE);
+            createResource(r);
+            
+            // create Resource Content
+            try {
+                createResourceContent(r, data);
+                return r;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+    */
+    public ProjectResource lookupResourceByName(Project project, ProjectResource parent, String name)
+    {
+        EntityManager em = entityManager.get();
+
+        TypedQuery<ProjectResource> q = em.createQuery(
+                "select r from ProjectResource r where r.project = :project and r.parent = :parent and r.name = :name",
+                ProjectResource.class);
+        q.setParameter("project", project);
+        q.setParameter("parent", parent);
+        q.setParameter("name", name);
+
+        try
+        {
+            return q.getSingleResult();
+        }
+        catch (NoResultException ex)
+        {
+            return null;
+        }
+    }
+    
+    @LoggedIn
+    public ProjectResource createResource(ProjectResource resource) {
+        // persist resource
+        EntityManager em = entityManager.get();
+        em.persist(resource);
+
+        newResourceEvent.fire(new NewResourceEvent(resource));
+        return resource;
+    }
+    
+    @LoggedIn
+    public ResourceContent createResourceContent(ProjectResource resource, String data) throws IOException {
+        EntityManager em = entityManager.get();
+        ResourceAccess access = getUserAuthorisation(resource.getId(), identity.getAccount().getId());
+        if(access.getAccessLevel().equals(AccessLevel.OWNER) || access.getAccessLevel().equals(AccessLevel.READ_WRITE)) {
+            // extract data from file
+            //Path path = Paths.get(dataPath);
+            byte[] byteData = Base64.decodeBase64(data);
+            // create Resource Content
+            ResourceContent content = new ResourceContent();
+            content.setResource(resource);
+            content.setContent(byteData);
+    
+            em.persist(content);
+            return content;
+        } else
+            return null;    // unauthorised
+    }
+
+    @LoggedIn
+    public ProjectResource publishResource(ProjectResource r) {
+        String userId = identity.getAccount().getId();
+        createResource(r);
+        // create resource access for current user
+        createResourceAccess(r, userId, AccessLevel.OWNER);
+        // and create resource access for project owner
+        Project p = r.getProject();
+        if(!userId.equals(p.getOwner()))
+            createResourceAccess(r, p.getOwner(), AccessLevel.OWNER);
+        
+        return r;
+    }
+    
+    @LoggedIn
+    public ResourceAccess createResourceAccess(ProjectResource resource, String userId, ResourceAccess.AccessLevel accessLevel) {
+        EntityManager em = entityManager.get();
+        ResourceAccess ra = new ResourceAccess();
+        ra.setResource(resource);
+        ra.setAccessLevel(accessLevel);
+        ra.setUserId(userId);
+        
+        em.persist(ra);
+        return ra;
     }
 }

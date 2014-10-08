@@ -212,4 +212,26 @@ public class ResourceService {
             return Response.status(500).build();
         }
     }
+    
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response publishResource(ProjectResource resource) throws URISyntaxException {
+        ProjectResource r = resourceController.publishResource(resource);
+        return Response.created(new URI("/resources/" + r.getId())).entity(r).build();
+    }
+    
+    @PUT
+    @Path("/{id:[0-9]*}")
+    public Response updateResourceContent(@PathParam("id") Long id, String data) {
+        ProjectResource r = resourceController.lookupResource(id);
+        try {
+            ResourceContent content = resourceController.createResourceContent(r, data);
+            if (content != null)
+                return Response.ok().entity("ResourceUpdated").build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Response.notModified().build();
+    }
 }
