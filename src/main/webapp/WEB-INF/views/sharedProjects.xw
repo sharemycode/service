@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <xw:event type="afterRender"><![CDATA[if (identity.isLoggedIn()) { projectSharedService.get();}]]></xw:event>
+    
+      <xw:restEndpoint id="projectSharedService" url="#{servicePath}/projects/shared" decorator="#{requestAuthenticator}"/>
+    
+    <xw:restELBinding binding="projects" mode="JSON" restEndpoint="#{projectSharedService}">
+        <xw:event type="onresult"><![CDATA[return ShareMyCode.listProjects(result);]]></xw:event>
+    </xw:restELBinding>
+    <div>
+        <h2>Projects Shared With Me</h2>
+        <p>This is a list of projects shared with the logged in user. ie. Projects that the user has READ, READ_WRITE or RESTRICTED access to</p>
+        <xw:fragment rendered="#{!identity.loggedIn}">
+            <p>You are not logged in! Please login above</p>
+        </xw:fragment>
+        <xw:fragment rendered="#{identity.loggedIn}">
+            <p>You are logged in, loading projects</p>
+            <div id="projects">
+                <h3>Project Menu</h3>
+                <ul>
+                    <li><xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link></li>
+                    <li><xw:link caption="My Projects"><xw:event type="onclick"><![CDATA[xw.open("projects.xw", null, "content")]]></xw:event></xw:link></li>
+                </ul>
+                <h3>Projects Shared With Me</h3>
+                <table class="simpletablestyle">
+                    <tr class="header">
+                        <td>Project Name</td>
+                        <td>Version</td>
+                        <td>Description</td>
+                        <td>Owners</td>
+                        <td>Actions</td>
+                    </tr>
+                </table>
+                <table class="simpletablestyle">
+                    <xw:repeat value="#{projects}" var="project">
+                        <tr>
+                            <td>#{project.name}</td>
+                            <td>#{project.version}</td>
+                            <td>#{project.description}</td>
+                            <td>#{project.owner}</td>
+                            <td class="action">
+                                <ul>
+                                    <li><xw:link caption="View"><xw:event type="onclick"><![CDATA[xw.open("projectDetail.xw", null, "content")]]></xw:event></xw:link></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </xw:repeat>
+                </table>
+            </div>
+        </xw:fragment>
+    </div>
+</xw:view>
