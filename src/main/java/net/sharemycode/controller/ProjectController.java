@@ -662,6 +662,34 @@ public class ProjectController
         }
     }
     
+    @LoggedIn
+    public Project changeProjectOwner(String id, String username) {
+        // changes the displayed owner of the project
+        EntityManager em = entityManager.get();
+        // lookup project
+        Project p = em.find(Project.class, id);
+        // lookup userId
+        User u = userController.lookupUserByUsername(username);
+        if (u == null)
+            return null;
+        // get project permissions for current user
+        ProjectAccess ca = getProjectAccess(p.getId());
+        if(!(ca.getAccessLevel().equals(AccessLevel.OWNER)))
+                return null; // unauthorised to modify project
+        p.setOwner(u.getId());
+        em.persist(p);
+        // remove current authorisation for new user, replace with owner
+        removeUserAuthorisation(p.getId(), u.getId());
+        ProjectAccess pa = new ProjectAccess();
+        pa.setOpen(false);
+        pa.setProject(p);
+        pa.setUserId(u.getId());
+        pa.setAccessLevel(AccessLevel.OWNER);
+        createUserAuthorisation(p.getId(), pa);
+        
+        return p;
+    }
+    
 	@LoggedIn
     public int deleteProject(String id) {   // Time complexity: O(n^2)
         // Delete the project, and all associated resources.
@@ -842,7 +870,6 @@ public class ProjectController
             return 200; // HTTP OK
         } catch (NoResultException e) {
             System.err.println("Could not find authorisation for user " + userId);
-            e.printStackTrace();
         }
         return 404;
     }

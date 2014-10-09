@@ -220,6 +220,17 @@ public class ProjectService {
             return Response.notModified().build();
     }
     
+    @PUT
+    @Path("/{id:[0-9a-z]*}/owner")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changeProjectOwner(@PathParam("id") String id, String username) {
+        Project p = projectController.changeProjectOwner(id, username);
+        if (p != null)
+            return Response.ok().entity("Project owner updated").build();
+        else
+            return Response.notModified().entity("Project or userId not found").build();
+    }
+    
     @DELETE
     @Path("/{id:[0-9a-z]*}")
     public Response deleteProject(@PathParam("id") String id) {
@@ -263,11 +274,10 @@ public class ProjectService {
         else
             return Response.status(404).build();
     }
-    
-// TODO Must transform into JSON with user and accessLevel as content    
+      
     @POST
     @Path("/{id:[0-9a-z]*}/access/")
-    // create resource access for the given user    (include object, or just accessLevel?)
+    // create resource access for the given user 
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createUserAuthorisation(@PathParam("id") String projectId, ProjectAccess access) throws URISyntaxException {
         int status = projectController.createUserAuthorisation(projectId, access);
