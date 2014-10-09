@@ -102,7 +102,7 @@ public class ResourceController {
         }
         return 200; // HTTP OK
     }
-
+/*
     public int deleteResourceAccess(Long id) {
         // Delete individual ResourceAccess by id
         EntityManager em = entityManager.get();
@@ -117,11 +117,11 @@ public class ResourceController {
         
         
     }
-    
+*/    
     public int deleteAllResourceAccess(ProjectResource pr) {
         // Delete ALL associated ResourceAccess entities for ProjectResource
         EntityManager em = entityManager.get();
-        TypedQuery<ResourceAccess> qResourceAccess = em.createQuery("SELECT ra FROM ResourceAccess WHERE p.resource = :resource", ResourceAccess.class);
+        TypedQuery<ResourceAccess> qResourceAccess = em.createQuery("SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource", ResourceAccess.class);
         qResourceAccess.setParameter("resource", pr);
         List<ResourceAccess> raList = qResourceAccess.getResultList();
         if(raList.size() == 0)

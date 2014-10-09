@@ -46,6 +46,8 @@ import net.sharemycode.security.model.User;
 import net.sharemycode.security.schema.IdentityType;
 import net.sharemycode.security.schema.UserIdentity;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.picketlink.Identity;
@@ -379,16 +381,16 @@ public class ProjectController
             String serverLocation) {
 
         try {
-            OutputStream outpuStream = new FileOutputStream(new File(serverLocation));
+            OutputStream outputStream = new FileOutputStream(new File(serverLocation));
             int read = 0;
             byte[] bytes = new byte[MAX_UPLOAD];
 
-            outpuStream = new FileOutputStream(new File(serverLocation));
+            outputStream = new FileOutputStream(new File(serverLocation));
             while ((read = uploadedInputStream.read(bytes)) != -1) {
-                outpuStream.write(bytes, 0, read);
+                outputStream.write(bytes, 0, read);
             }
-            outpuStream.flush();
-            outpuStream.close();
+            outputStream.flush();
+            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -472,7 +474,7 @@ public class ProjectController
             // create resource content
             String dataPath = file.getAbsolutePath();
             createResourceContent(r, dataPath);
-            
+            return true;
         }
         return false;
     }
@@ -565,6 +567,7 @@ public class ProjectController
 	 */
 	
 	/* CREATE ATTACHMENT FROM MULTIPART */ // Not used
+/*
 	// returns multiple AttachmentIds in array of Longs.
 	public List<Long> createAttachmentsFromMultipart(MultipartFormDataInput input) {
 	    List<Long> attachments = new ArrayList<Long>();
@@ -621,6 +624,24 @@ public class ProjectController
             }
         }
         return attachments;
+	}
+*/
+	
+	public Long createAttachmentFromService(String name, String data) {
+	    // create project attachment from REST endpoint
+	    String uploadDirectory = ATTACHMENT_PATH + System.currentTimeMillis() + "/";
+	    File tempFile = new File(uploadDirectory + name);
+	    try{
+	        byte[] byteData = Base64.decodeBase64(data);
+	        //FileOutputStream fos = new FileOutputStream(uploadDirectory + name);
+	        //fos.write(byteData);
+	        FileUtils.writeByteArrayToFile(tempFile, byteData);
+	        Long attachmentId = createAttachmentFromFile(tempFile);
+	        return attachmentId;
+	    } catch(IOException e) {
+	        e.printStackTrace();
+	    }
+	    return -1L;    // failure
 	}
 	
 	public Long createAttachmentFromFile(File file) {
@@ -697,7 +718,7 @@ public class ProjectController
         try {
             Project p = em.find(Project.class, id);
             // TODO Change permission lookup to within ProjectAccess (maybe)
-            if(identity.getAccount().getId() != p.getOwner())
+            if(!identity.getAccount().getId().equals(p.getOwner()))
                 return 401; // HTTP NOT AUTHORISED
             //TODO delete associated ProjectAccess
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);

@@ -120,6 +120,15 @@ public class ProjectService {
         return Response.ok().location(new URI("/projects/" + newProject.getId())).entity(output).build();
     }
 
+    @POST
+    @Path("/attachments/{filename}")
+    public Response uploadAttachment(@PathParam("filename") String name, String data) {
+        Long attachment = projectController.createAttachmentFromService(name, data);
+        if (attachment > -1L)
+            return Response.ok().entity(attachment.toString()).build();
+        else
+            return Response.noContent().build();
+    }
     @GET
     @Path("/list{searchTerm:(/[^/]+?)?}")
     @Produces(MediaType.APPLICATION_JSON)
