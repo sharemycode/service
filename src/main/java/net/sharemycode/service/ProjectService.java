@@ -207,8 +207,18 @@ public class ProjectService {
     	List<Project> projects = projectController.listProjectsByOwner(username);
     	return projects;
     }
-    //TODO update authorisation     - POST
-    //TODO remove authorisation     - GET?
+
+    @PUT
+    @Path("/{id:[0-9a-z]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateProject(@PathParam("id") String id, Project update) {
+        Project result = projectController.updateProject(id, update);
+        if(result != null)
+            return Response.ok().entity(result).build();
+        else
+            return Response.notModified().build();
+    }
     
     @DELETE
     @Path("/{id:[0-9a-z]*}")

@@ -425,7 +425,13 @@ public class ResourceController {
             //Path path = Paths.get(dataPath);
             byte[] byteData = Base64.decodeBase64(data);
             // create Resource Content
-            ResourceContent content = new ResourceContent();
+            ResourceContent content = null;
+            TypedQuery<ResourceContent> q = em.createQuery("SELECT c FROM ResourceContent c WHERE c.resource = :resource", ResourceContent.class);
+            q.setParameter("resource", resource);
+            if (q.getResultList().size() == 0) // create if not exists, otherwise update
+                content = new ResourceContent();
+            else
+                content = q.getSingleResult();
             content.setResource(resource);
             content.setContent(byteData);
     

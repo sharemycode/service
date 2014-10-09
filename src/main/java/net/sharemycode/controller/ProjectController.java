@@ -640,6 +640,28 @@ public class ProjectController
         return pa;
     }
 	
+    @LoggedIn
+    public Project updateProject(String id, Project update) {
+        EntityManager em = entityManager.get();
+        try {
+            Project p = em.find(Project.class, id);
+            ProjectAccess pa = getProjectAccess(p.getId());
+            if(!(pa.getAccessLevel().equals(AccessLevel.OWNER) || pa.getAccessLevel().equals(AccessLevel.READ_WRITE)))
+                    return null; // unauthorised to modify project
+            p.setName(update.getName());
+            p.setVersion(update.getVersion());
+            p.setDescription(update.getDescription());
+            
+            // persist changes
+            em.persist(p);
+            return p;
+        } catch (NoResultException e) {
+            System.err.println("No result for project id");
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 	@LoggedIn
     public int deleteProject(String id) {   // Time complexity: O(n^2)
         // Delete the project, and all associated resources.
