@@ -1,7 +1,6 @@
 package net.sharemycode.servlet;
 
 import net.sharemycode.controller.ProjectController;
-import net.sharemycode.model.ProjectAttachment;
 import net.sharemycode.model.ProjectResource;
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,6 +23,11 @@ import java.io.*;
 @WebServlet(name="UploadResourceServlet", urlPatterns="/upload")
 public class UploadReceiver extends HttpServlet
 {
+    /**
+     * Upload Receiver - Based on Valum's File Uploader
+     * @author Lachlan Archibald
+     */
+    private static final long serialVersionUID = -275766874651285460L;
     private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH + ProjectResource.PATH_SEPARATOR + 
             System.currentTimeMillis());
     private static File TEMP_DIR = new File(ProjectController.TEMP_STORAGE + "temp");

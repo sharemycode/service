@@ -1,50 +1,32 @@
 package net.sharemycode.service;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.Consumes;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.io.IOUtils;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import net.sharemycode.controller.ProjectController;
 import net.sharemycode.controller.ResourceController;
-import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectResource;
-import net.sharemycode.model.ResourceAccess;
-import net.sharemycode.model.ResourceAccess.AccessLevel;
 import net.sharemycode.model.ProjectResource.ResourceType;
+import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
-import net.sharemycode.security.model.User;
 
 /**
  * sharemycode.net ResourceService
@@ -68,10 +50,8 @@ public class ResourceService {
 		return resources;
 	}
 	
-    //TODO fetchResource(ResourcePath) - GET
 	@GET
 	@Path("/{id:[0-9]*}")
-	//@Produces(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response fetchResource(@PathParam("id") Long id) {
 	    // Returns Resource Content
@@ -88,9 +68,7 @@ public class ResourceService {
 		    }
 		}).header("Content-Disposition", "attachment; filename=\"" + resource.getName() + "\"").build();
 	}
-	// TODO createResource(ResourcePath, ResourceContent)  // Path to parentResource?
-	
-	// TODO deleteResource(ResourcePath) - DELETE   // path to resource (in relation to project hierarchy), or resourceID?
+
 	@DELETE
 	@Path("/{id:[0-9]}")
 	public Response deleteResource(@PathParam("id") Long id) {
@@ -110,20 +88,6 @@ public class ResourceService {
             return Response.status(500).entity("Unexpected server error").build();
         }
 	}
-
-	//TODO publishResource(ResourcePath, ResourceContent) - POST
-	/*
-	@POST
-	@Path("/upload")
-	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	public Response uploadFile(InputStream input) {
-	    String location = projectController.createAttachment(input);
-	    if(location != null) {
-	        return Response.status(200).entity(location).build();
-	    } else {
-	        return Response.status(400).entity("Upload failed!").build();
-	    }
-	}*/
 	
     @GET
     @Path("/{id:[0-9]*}/access")
@@ -149,8 +113,7 @@ public class ResourceService {
         else
             return Response.status(404).build();
     }
-
- // TODO Must transform into JSON with user and accessLevel as content   
+ 
     @POST
     @Path("/{id:[0-9]*}/access/")
     @Consumes(MediaType.APPLICATION_JSON)

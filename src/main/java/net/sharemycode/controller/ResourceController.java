@@ -63,10 +63,20 @@ public class ResourceController {
     }
     
     public List<ProjectResource> listResources(Project project) {
-        // List ProjectResources associated with a Project 
-        TypedQuery<ProjectResource> q = entityManager.get().<ProjectResource>createQuery("select r from ProjectResource r where r.project = :project", 
+        // List ProjectResources associated with a Project
+        EntityManager em = entityManager.get();
+        TypedQuery<ProjectResource> q = em.createQuery("select r from ProjectResource r where r.project = :project", 
                 ProjectResource.class);
         q.setParameter("project", project);
+        return q.getResultList();
+    }
+    
+    public List<ProjectResource> listChildResources(ProjectResource parent) {
+        // List ProjectResources with parent ProjectResource
+        EntityManager em = entityManager.get();
+        TypedQuery<ProjectResource> q = em.createQuery("select r from ProjectResource r where r.parent = :parent", 
+                ProjectResource.class);
+        q.setParameter("parent", parent);
         return q.getResultList();
     }
     
@@ -102,22 +112,7 @@ public class ResourceController {
         }
         return 200; // HTTP OK
     }
-/*
-    public int deleteResourceAccess(Long id) {
-        // Delete individual ResourceAccess by id
-        EntityManager em = entityManager.get();
-        try {
-            ResourceAccess ra = em.find(ResourceAccess.class, id);
-            em.remove(ra);// remove ResourceAccess from datastore
-            return 200; // HTTP OK
-        } catch (NoResultException e) {
-            System.err.println("Specific ResourceAccess not found");
-            return 404; // HTTP NOT FOUND
-        }
-        
-        
-    }
-*/    
+    
     public int deleteAllResourceAccess(ProjectResource pr) {
         // Delete ALL associated ResourceAccess entities for ProjectResource
         EntityManager em = entityManager.get();

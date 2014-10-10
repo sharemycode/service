@@ -29,7 +29,8 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-//import net.sharemycode.security.annotations.LoggedIn;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 import net.sharemycode.events.NewProjectEvent;
 import net.sharemycode.events.NewResourceEvent;
 import net.sharemycode.model.Project;
@@ -43,13 +44,9 @@ import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 import net.sharemycode.security.annotations.LoggedIn;
 import net.sharemycode.security.model.User;
-import net.sharemycode.security.schema.IdentityType;
-import net.sharemycode.security.schema.UserIdentity;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.picketlink.Identity;
 
 /*
@@ -270,7 +267,7 @@ public class ProjectController
     /*
      * UPLOAD PROJECT
      * Author: Lachlan Archibald
-     * Description: Upload an existing project (zip file)
+     * Description: Upload an existing project (zip file) // Multipart file upload not used.
      */
 /*
     public Project uploadProject(MultipartFormDataInput input) {
@@ -339,7 +336,6 @@ public class ProjectController
     }
 */    
     public Project submitProject(Map<String,Object> properties) {
-        System.out.println("projectController");
         // First we test if the user entered non-unique username and email
         Project p = new Project();
         p.setName((String) properties.get("name"));
@@ -552,7 +548,6 @@ public class ProjectController
      * Description: Return list of projects owned by username
      */
 	public List<Project> listProjectsByOwner(String username) {
-		// TODO Auto-generated method stub
 		EntityManager em = entityManager.get();
 		User user = userController.lookupUserByUsername(username);
 		TypedQuery<Project> q = em.createQuery("SELECT p FROM Project p WHERE p.owner_id = :user", Project.class);
@@ -720,14 +715,14 @@ public class ProjectController
             // TODO Change permission lookup to within ProjectAccess (maybe)
             if(!identity.getAccount().getId().equals(p.getOwner()))
                 return 401; // HTTP NOT AUTHORISED
-            //TODO delete associated ProjectAccess
+            // Remove all associated ProjectAccess
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project", ProjectAccess.class);
             q.setParameter("project", p);
             List<ProjectAccess> paList = q.getResultList();
             for(ProjectAccess pa : paList) {
-                em.remove(pa);  // remove ProjectAccess from datastore 
+                em.remove(pa);
             }
-            //TODO delete associated ProjectResources, ResourceAccess and ResourceContent
+            // delete associated ProjectResources, ResourceAccess and ResourceContent
             resourceController.deleteAllResources(p);
             // Finally, remove project.
             em.remove(p);
@@ -763,7 +758,7 @@ public class ProjectController
         try {
             Project p = em.find(Project.class, projectId);
             // if current user's access is denied, return null
-            // TODO is there a way to throw PicketLink UNAUTHORISED
+            // TODO is there a way to throw PicketLink UNAUTHORISED - not yet
             if(getProjectAccess(p.getId()) == null)
                 return null;
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
@@ -783,7 +778,7 @@ public class ProjectController
         try {
             Project p = em.find(Project.class, projectId);
             // if current user's access is not owner, fail
-            // TODO is there a way to throw PicketLink UNAUTHORISED
+            // TODO is there a way to throw PicketLink UNAUTHORISED - not yet
             if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             TypedQuery<ProjectAccess> q = em.createQuery("SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId", ProjectAccess.class);
@@ -830,7 +825,7 @@ public class ProjectController
         try {
             Project p = em.find(Project.class, projectId);
             // if current user's access is not owner, fail
-            // TODO is there a way to throw PicketLink UNAUTHORISED
+            // TODO is there a way to throw PicketLink UNAUTHORISED - not yet
             if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             // now find the userAuthorisation object for the given userId and projectId
@@ -876,7 +871,7 @@ public class ProjectController
         try {
             Project p = em.find(Project.class, projectId);
             // if current user's access is not owner, fail
-            // TODO is there a way to throw PicketLink UNAUTHORISED
+            // TODO is there a way to throw PicketLink UNAUTHORISED - not yet.
             if(getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             // now find the userAuthorisation object for the given userId and projectId
@@ -894,4 +889,69 @@ public class ProjectController
         }
         return 404;
     }
+	
+	@LoggedIn
+	public byte[] fetchProject(Project p) {
+	    // convert project resources into file, zip and download.
+	    ProjectAccess access = getProjectAccess(p.getId());
+	    if(!(access.getAccessLevel().equals(AccessLevel.OWNER) ||
+	            access.getAccessLevel().equals(AccessLevel.READ_WRITE) ||
+	            access.getAccessLevel().equals(AccessLevel.READ)))
+	            return null;   // unauthorised
+	    List<ProjectResource> resources = resourceController.listResources(p);
+	    // TODO create temp directory
+	    String tempDirectory = PROJECT_PATH + System.currentTimeMillis();
+	    String projectDir = tempDirectory + "/" + p.getName();
+	    File cDir = new File(projectDir);
+	    cDir.mkdirs();
+	    // TODO convert ProjectResources into files/folders
+	    for(ProjectResource r : resources) {
+	        // process rootDirectory elements first
+	        if(r.getParent() == null)
+	            if(r.getResourceType().equals(ResourceType.DIRECTORY))
+	                directoryToFiles(r, projectDir);
+	            else
+	                resourceToFile(r, projectDir);
+	    }
+	    // TODO zip directory
+	    try {
+            ZipFile zip = new ZipFile(projectDir + "/" + p.getName() + "_" + p.getVersion());
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+            zip.addFolder(projectDir, parameters);
+            byte[] data = FileUtils.readFileToByteArray(zip.getFile());
+            return data;
+        } catch (ZipException e) {
+            System.err.println("Exception occured: " + e);
+        } catch (IOException e) {
+            System.err.println("Exception occured: " + e);
+        }
+	    // if we get to this point, a problem occured.
+	    return null;   
+	}
+	
+	private void directoryToFiles(ProjectResource parent, String parentDirectory) {
+	    // convert the current directory's resources to files
+	    String currentDirectory = parentDirectory + "/" + parent.getName();
+	    File directory = new File(currentDirectory);
+	    directory.mkdir();
+	    List<ProjectResource> resources = resourceController.listChildResources(parent);
+	    for(ProjectResource r : resources) {
+	        if(r.getResourceType().equals(ResourceType.DIRECTORY))
+	            directoryToFiles(r, currentDirectory);
+	        else
+	            resourceToFile(r, currentDirectory);
+	    }
+	}
+	
+	private void resourceToFile(ProjectResource r, String directory) {
+	    // convert resource into file
+	    try {
+	        byte[] data = resourceController.getResourceContent(r).getContent();
+	        FileUtils.writeByteArrayToFile(new File(directory + "/" + r.getName()), data);
+	    } catch (IOException e) {
+	        System.err.println("Exception occured: " + e);
+	    }
+	}
 }

@@ -32,6 +32,17 @@ public class UserService {
     
     @Inject UserController userController;
     
+    @GET
+    @Path("/logout")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response logout() {
+        int result = userController.logout();
+        if (result == 200)
+            return Response.ok().build();
+        else
+            return Response.status(result).build();
+    }
+    
     /* Return full list of users */
     @GET
     @Produces(MediaType.APPLICATION_JSON)

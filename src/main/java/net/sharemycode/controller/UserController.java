@@ -3,21 +3,10 @@ package net.sharemycode.controller;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import net.sharemycode.model.UserProfile;
 import net.sharemycode.security.annotations.LoggedIn;
@@ -131,7 +120,6 @@ public class UserController {
         }
     }
     /* Find User Profile by username */
-    // TODO Test this function
     public UserProfile lookupUserProfile(String username) {
         User u = this.lookupUserByUsername(username);
         try {
@@ -152,7 +140,6 @@ public class UserController {
     }
     
     /* UPDATE USER PROFILE */
-    // TODO Test this function
     @LoggedIn
     public UserProfile updateUserProfile(User u, UserProfile update) {
         if(identity.getAccount().getId().equals(u.getId())) {
@@ -176,7 +163,6 @@ public class UserController {
     }
     
     /* UPDATE USER ACCOUNT */
-    // TODO Test this function
     @LoggedIn
     public User updateUserAccount(User u, String username, String email, String emailc, String password, String passwordc, String firstName, String lastName) {
         if(u == null)
@@ -184,7 +170,7 @@ public class UserController {
         if(identity.getAccount().getId().equals(u.getId())) {
             // if current logged in user is editing own user account
             // possible admin update support
-            IdentityQuery<User> q = im.createIdentityQuery(User.class);
+            //IdentityQuery<User> q = im.createIdentityQuery(User.class);
             if(!username.isEmpty())
                 u.setUsername(username);
             if(!email.isEmpty() && email.equals(emailc))
@@ -205,5 +191,20 @@ public class UserController {
             System.err.println("Unauthorised action");
         }
         return u;
+    }
+
+    /* LOGOUT */ // Temporary workaround until PicketLink is fixed
+    @LoggedIn
+    public int logout() {
+        System.out.println("DEBUG: " + identity.getAccount().getId());
+        System.out.println("DEBUG: LOGOUT");
+        identity.logout();
+        if(identity.getAccount() == null) {
+            System.out.println("DEBUG: " + "null");
+            return 200; // HTTP OK
+        } else {
+            System.out.println("DEBUG: " + identity.getAccount().getId());
+            return 202; // HTTP ACCEPTED (Understood, but not processed)
+        }
     }
 }

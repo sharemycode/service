@@ -1,26 +1,6 @@
 package net.sharemycode.service;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.Consumes;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,23 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.io.IOUtils;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import net.sharemycode.controller.ProjectController;
 import net.sharemycode.controller.ResourceController;
-import net.sharemycode.controller.UserController;
 import net.sharemycode.model.Project;
 import net.sharemycode.model.ProjectAccess;
-import net.sharemycode.model.ResourceAccess;
-import net.sharemycode.model.ProjectAccess.AccessLevel;
 import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
-import net.sharemycode.security.model.User;
 
 /**
  * sharemycode.net ProjectService
@@ -96,6 +80,19 @@ public class ProjectService {
     }
     
     @GET
+    @Path("/{id:[0-9a-z]*}/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response fetchProject(@PathParam("id") String id) {
+        Project p = projectController.lookupProject(id);
+        final byte[] data = projectController.fetchProject(p);
+        return Response.ok(new StreamingOutput() {
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                output.write(data);
+            }
+        }).header("Content-Disposition", "attachment; filename=\"" + p.getName() + "_" + p.getVersion() + ".zip" + "\"").build();
+    }
+    
+    @GET
     @Path("/{projectid:[0-9a-z]*}/resources")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectResource> listProjectResources(@PathParam("projectid") String projectid) {
@@ -110,14 +107,15 @@ public class ProjectService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response uploadProject(Map<String,Object> properties) throws URISyntaxException {
         // create new project, accepts JSON with project name, version, description, attachmentIDs
         Project newProject = projectController.submitProject(properties);
         if(newProject == null) {
         	return Response.status(400).entity("Failed to create project").build();
         }
-        String output = newProject.getUrl();
-        return Response.ok().location(new URI("/projects/" + newProject.getId())).entity(output).build();
+        //String output = newProject.getUrl();
+        return Response.created(new URI("/projects/" + newProject.getId())).entity(newProject).build();
     }
 
     @POST
