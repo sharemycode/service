@@ -2,6 +2,35 @@
 xw.Log.logLevel = "DEBUG";
 
 var ShareMyCode = {
+    projects: [],
+    projectExplorer: null,
+    messageHandler: {},
+    selectedProject: function() {
+      var n = ShareMyCode.projectExplorer.selectedNode;
+      while (n.parent != null) {
+        n = n.parent;
+      }
+      return n.userObject;
+    },
+    selectedResource: function() {
+      var n = ShareMyCode.projectExplorer.selectedNode;
+      return n.parent != null ? n.userObject : null;
+    },
+    getProjectById: function(projectId) {
+      for (var i = 0; i < ShareMyCode.projects.length; i++) {
+        if (ShareMyCode.projects[i].id == projectId) {
+          return ShareMyCode.projects[i];
+        }
+      }  
+    },
+    getResourceById: function(projectId, resourceId) {
+      var p = ShareMyCode.getProjectById(projectId);
+      for (var i = 0; i < p.resources.length; i++) {
+        if (p.resources[i].id == resourceId) {
+          return p.resources[i];
+        }
+      }
+    },
   registerUser: function(props) {
     var cb = function(message, response) {
       ShareMyCode.registerCallback(message, response.status);
@@ -50,6 +79,7 @@ var ShareMyCode = {
     var f = xw.Sys.getObject("failureResponse");
     switch(status) {
       case 200:
+      case 201:
         s.style.display = "block";
         f.style.display = "none";
         break;
@@ -77,6 +107,54 @@ var ShareMyCode = {
       }
     });
 
+  },
+  setProjectExplorer: function(tree) {
+    ShareMyCode.projectExplorer = tree;
+  },
+  addProjectNode: function(project, select) {
+    var n = new org.xwidgets.core.TreeNode(project.name, false, project);
+    ShareMyCode.projects.push({
+      id: project.id,
+      name: project.name,
+      node: n,
+      resources: []});
+    ShareMyCode.projectExplorer.model.addRootNode(n); 
+    if (select) {
+      ShareMyCode.projectExplorer.selectNode(n);
+    }
+  },
+  addResourceNode: function(resource, select) {
+    var leaf = resource.resourceType != "DIRECTORY";
+    var n = new org.xwidgets.core.TreeNode(resource.name, leaf, resource);  
+
+    var p = ShareMyCode.getProjectById(resource.project.id);
+    p.resources.push({
+      id: resource.id,
+      name: resource.name,
+      type: resource.type,
+      node: n
+    });
+
+    if (resource.parent != null) {
+      var r = ShareMyCode.getResourceById(resource.project.id, resource.parent.id);
+      r.node.add(n);
+    } else {
+      p.node.add(n);
+    }
+    
+    if (select) {
+      ShareMyCode.projectExplorer.selectNode(n);
+    }
+  },
+  openResource: function(id) {
+    xw.Sys.getWidget("projectListener").send(ShareMyCode.createMessage("resource", "open", {id:(id + "")}));
   }
 };
+ShareMyCode.resourceManager = {
+    openResources: [],
+    openResource: function(id) {
+      ShareMyCode.openResource(id);
+    }
+  };
+
 var attachments = [];	// create array for attachment id's

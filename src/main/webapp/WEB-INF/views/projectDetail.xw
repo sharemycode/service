@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
-    <xw:event type="afterRender"><![CDATA[if (identity.isLoggedIn()) { projectService.get({pathParams: {projectId: params.id}});}]]></xw:event>
+    <xw:event type="afterRender"><![CDATA[if (identity.isLoggedIn()) { projectService.get({pathParams: {projectId: params.id}}); projectResources.get({pathParams: {projectId: params.id}});}]]></xw:event>
     
     <xw:restEndpoint id="projectService" url="#{servicePath}/projects/{projectId}" decorator="#{requestAuthenticator}"/>
+    <xw:restEndpoint id="projectResources" url="#{servicePath}/projects/{projectId}/resources" decorator="#{requestAuthenticator}"/>
     
     <xw:restELBinding binding="project" mode="JSON" restEndpoint="#{projectService}">
         <xw:event type="onresult"><![CDATA[return ShareMyCode.parseProjects(result);]]></xw:event>
     </xw:restELBinding>
+    <xw:restELBinding binding="resources" mode="JSON" restEndpoint="#{projectResources}">
+        <xw:event type="onresult"><![CDATA[return ShareMyCode.parseProjects(result);]]></xw:event>
+    </xw:restELBinding>
+
     <div>
         <xw:fragment rendered="#{!identity.loggedIn}">
             <p>You are not logged in! Please login above</p>
@@ -19,11 +24,21 @@
                 <p>Owners: #{project.owner}</p>
             
                 <h3>Project Resources</h3>
+                List
                 <ul>
                     <xw:repeat value="#{resources}" var="resource">
                         <li><xw:link caption="#{resource.name}"><xw:event type="onclick"><![CDATA[xw.open("resourceDetail.xw", null, "content")]]></xw:event></xw:link></li>
                     </xw:repeat>
                 </ul>
+                Tree
+                <xw:tree id="projectExplorer">
+                  <xw:event type="afterRender"><![CDATA[
+                    ShareMyCode.setProjectExplorer(this);  
+                    ]]></xw:event>
+                  <xw:event type="onDoubleClickNode"><![CDATA[
+                    ShareMyCode.resourceManager.openResource(node.userObject.id);
+                    ]]></xw:event>
+                </xw:tree>
             </div>
         </xw:fragment>
     </div>
