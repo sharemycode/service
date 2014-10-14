@@ -80,20 +80,26 @@ public class ResourceController {
         return q.getResultList();
     }
     
-    //@LoggedIn
-    public int deleteResource(Long id) {
+    @LoggedIn
+    public int deleteResource(ProjectResource pr) {
         // Delete individual ProjectResource by id
         EntityManager em = entityManager.get();
         try {
-            ProjectResource pr = this.lookupResource(id);
             // TODO Lookup permissions
             // Also delete associated ResourceContent and all ResourceAccess
-            this.deleteAllResourceAccess(pr);
-            this.deleteResourceContent(pr);
+            if(pr.getResourceType().equals(ResourceType.DIRECTORY)) {
+            	List<ProjectResource> children = listChildResources(pr);
+            	for(ProjectResource r : children)
+            		deleteResource(r);
+            	deleteAllResourceAccess(pr);
+            } else {
+            	deleteAllResourceAccess(pr);
+                deleteResourceContent(pr);
+            }
             em.remove(pr);  // remove ResourceAccess from datastore
             return 200; // HTTP OK
         } catch (NoResultException e) {
-            System.err.println("Specific ProjectResource not found - id: " + id);
+            System.err.println("Exception occurred: " + e);
             return 404; // HTTP 404 NOT FOUND
         }
     }
@@ -105,10 +111,9 @@ public class ResourceController {
         if(prList.size() == 0)
             return 404; // HTTP 404 resources not found
         for(ProjectResource pr : prList) {
-            // remove all ResourceAccess and ResourceContent
-            this.deleteAllResourceAccess(pr);
-            this.deleteResourceContent(pr);
-            em.remove(pr);  // remove ResourceAccess from datastore
+        	if(pr.getParent() != null)	// child resources should be handled via recursion
+        		continue;
+    		deleteResource(pr);
         }
         return 200; // HTTP OK
     }

@@ -70,10 +70,11 @@ public class ResourceService {
 	}
 
 	@DELETE
-	@Path("/{id:[0-9]}")
+	@Path("/{id:[0-9]*}")
 	public Response deleteResource(@PathParam("id") Long id) {
 	    // Delete resource, assuming ResourceID
-		int result = resourceController.deleteResource(id);
+		ProjectResource r = resourceController.lookupResource(id);
+		int result = resourceController.deleteResource(r);
 		switch (result) {
 		case 200:
 		    return Response.ok().entity("Resource deleted - id: " + id).build();
