@@ -53,6 +53,17 @@ public class ResourceService {
         return resources;
     }
 
+    // TODO Test this function, client library
+    @GET
+    @Path("/{id:[0-9]*}/children")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProjectResource> listChildResources(@PathParam("id") Long id) {
+        // return child resources of directory
+        ProjectResource r = resourceController.lookupResource(id);
+        List<ProjectResource> resources = resourceController.listChildResources(r);
+        return resources;
+    }
+    
     @GET
     @Path("/{id:[0-9]*}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
