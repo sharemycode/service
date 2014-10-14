@@ -17,35 +17,30 @@ import org.picketlink.idm.model.Relationship;
  */
 @IdentityManaged(Relationship.class)
 @Entity
-public class RelationshipType implements Serializable
-{
-   private static final long serialVersionUID = -3127084575080236509L;
+public class RelationshipType implements Serializable {
+    private static final long serialVersionUID = -3127084575080236509L;
 
-   @Id
-   @Identifier
-   private String id;
+    @Id
+    @Identifier
+    private String id;
 
-   public String getId()
-   {
-      return this.id;
-   }
+    public String getId() {
+        return this.id;
+    }
 
-   public void setId(String id)
-   {
-      this.id = id;
-   }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-   @RelationshipClass
-   private String typeName;
+    @RelationshipClass
+    private String typeName;
 
-   public String getTypeName()
-   {
-      return this.typeName;
-   }
+    public String getTypeName() {
+        return this.typeName;
+    }
 
-   public void setTypeName(String typeName)
-   {
-      this.typeName = typeName;
-   }
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
 
 }

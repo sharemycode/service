@@ -13,74 +13,63 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 @Entity
-public class PartitionAttribute
-{
-   @Id
-   @GeneratedValue
-   private Long id;
+public class PartitionAttribute {
+    @Id
+    @GeneratedValue
+    private Long id;
 
-   @OwnerReference
-   @ManyToOne
-   private Partition owner;
+    @OwnerReference
+    @ManyToOne
+    private Partition owner;
 
-   @AttributeClass
-   private String attributeClass;
+    @AttributeClass
+    private String attributeClass;
 
-   @AttributeName
-   private String attributeName;
+    @AttributeName
+    private String attributeName;
 
-   @Lob
-   @AttributeValue
-   @Column(name = "ATTRIBUTE_VALUE", length = 2048)
-   private String attributeValue;
+    @Lob
+    @AttributeValue
+    @Column(name = "ATTRIBUTE_VALUE", length = 2048)
+    private String attributeValue;
 
-   public Long getId()
-   {
-      return id;
-   }
+    public Long getId() {
+        return id;
+    }
 
-   public Partition getOwner()
-   {
-      return owner;
-   }
+    public Partition getOwner() {
+        return owner;
+    }
 
-   public void setOwner(Partition owner)
-   {
-      this.owner = owner;
-   }
+    public void setOwner(Partition owner) {
+        this.owner = owner;
+    }
 
-   public String getAttributeClass()
-   {
-      return attributeClass;
-   }
+    public String getAttributeClass() {
+        return attributeClass;
+    }
 
-   public void setAttributeClass(String attributeClass)
-   {
-      this.attributeClass = attributeClass;
-   }
+    public void setAttributeClass(String attributeClass) {
+        this.attributeClass = attributeClass;
+    }
 
-   public String getAttributeName()
-   {
-      return attributeName;
-   }
+    public String getAttributeName() {
+        return attributeName;
+    }
 
-   public void setAttributeName(String attributeName)
-   {
-      this.attributeName = attributeName;
-   }
-   
-   public String getAttributeValue()
-   {
-      return attributeValue;
-   }
+    public void setAttributeName(String attributeName) {
+        this.attributeName = attributeName;
+    }
 
-   public void setAttributeValue(String attributeValue)
-   {
-      this.attributeValue = attributeValue;
-   }
+    public String getAttributeValue() {
+        return attributeValue;
+    }
 
-   public void setId(Long id)
-   {
-      this.id = id;
-   }
+    public void setAttributeValue(String attributeValue) {
+        this.attributeValue = attributeValue;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

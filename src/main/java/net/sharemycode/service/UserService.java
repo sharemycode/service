@@ -19,19 +19,22 @@ import javax.ws.rs.core.Response;
 import net.sharemycode.controller.UserController;
 import net.sharemycode.model.UserProfile;
 import net.sharemycode.security.model.User;
+
 /**
  * sharemycode.net UserService
  * 
  * Defines all RESTful services relating to user entities
+ * 
  * @author Lachlan Archibald
- *
+ * 
  */
 @Path("/users")
 @Stateless
 public class UserService {
-    
-    @Inject UserController userController;
-    
+
+    @Inject
+    UserController userController;
+
     @GET
     @Path("/logout")
     @Produces(MediaType.TEXT_PLAIN)
@@ -42,15 +45,15 @@ public class UserService {
         else
             return Response.status(result).build();
     }
-    
+
     /* Return full list of users */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> listUsers() {
-    	System.out.println("ListUsersREST");
+        System.out.println("ListUsersREST");
         return userController.listAllUsers();
     }
-    
+
     /* return specific user by username */
     @GET
     @Path("/{username:[a-zA-Z0-9]*}")
@@ -62,7 +65,7 @@ public class UserService {
         }
         return user;
     }
-    
+
     /* Find user */
     @GET
     @Path("/search")
@@ -71,12 +74,12 @@ public class UserService {
             @QueryParam("email") String email) {
         // find a user based on username or email, must be exact
         User user = null;
-        if(username.length() > 0) {
+        if (username.length() > 0) {
             user = userController.lookupUserByUsername(username);
             if (user != null)
                 return user;
         }
-        if(email.length() > 0) {
+        if (email.length() > 0) {
             user = userController.lookupUserByEmail(email);
             if (user != null)
                 return user;
@@ -86,43 +89,51 @@ public class UserService {
     }
 
     @GET
-    @Path("/{username:[a-zA-Z0-9]*}/profile")   // return user profile
+    @Path("/{username:[a-zA-Z0-9]*}/profile")
+    // return user profile
     @Produces(MediaType.APPLICATION_JSON)
     public UserProfile getUserProfile(@PathParam("username") String username) {
         return userController.lookupUserProfile(username);
     }
-    
+
     @PUT
-    @Path("/{username:[a-zA-Z0-9]*}/profile")   // update user profile
+    @Path("/{username:[a-zA-Z0-9]*}/profile")
+    // update user profile
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUserProfile(@PathParam("username") String username, UserProfile profile) {
+    public Response updateUserProfile(@PathParam("username") String username,
+            UserProfile profile) {
         User u = userController.lookupUserByUsername(username);
-        if(u == null)
+        if (u == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        //UserProfile profile = userController.updateUserProfile(u, properties.get("name"), 
-        //        properties.get("about"), properties.get("contact"), properties.get("interests"));
+        // UserProfile profile = userController.updateUserProfile(u,
+        // properties.get("name"),
+        // properties.get("about"), properties.get("contact"),
+        // properties.get("interests"));
         UserProfile updated = userController.updateUserProfile(u, profile);
-        if(updated == null)
+        if (updated == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         else
             return Response.ok().entity(updated).build();
     }
-    
+
     @PUT
     @Path("/{username:[a-zA-Z0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUserAccount(@PathParam("username") String username, Map<String, String> properties) {
-        // update User Account information AND User Profile information with the same form.
+    public Response updateUserAccount(@PathParam("username") String username,
+            Map<String, String> properties) {
+        // update User Account information AND User Profile information with the
+        // same form.
         User u = userController.lookupUserByUsername(username);
-        if(u == null)
+        if (u == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        User updated = userController.updateUserAccount(u, properties.get("username"),
-                properties.get("email"), properties.get("emailc"),
-                properties.get("password"), properties.get("passwordc"),
-                properties.get("firstName"), properties.get("lastName"));
-        if(updated == null)
+        User updated = userController.updateUserAccount(u,
+                properties.get("username"), properties.get("email"),
+                properties.get("emailc"), properties.get("password"),
+                properties.get("passwordc"), properties.get("firstName"),
+                properties.get("lastName"));
+        if (updated == null)
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         return Response.ok().entity(updated).build();
     }

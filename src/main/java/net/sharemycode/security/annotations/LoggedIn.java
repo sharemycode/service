@@ -10,15 +10,14 @@ import org.apache.deltaspike.security.api.authorization.SecurityBindingType;
 
 /**
  * Typesafe security binding
- *
+ * 
  * @author Shane Bryzak
- *
+ * 
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @SecurityBindingType
-public @interface LoggedIn
-{
+public @interface LoggedIn {
 
 }

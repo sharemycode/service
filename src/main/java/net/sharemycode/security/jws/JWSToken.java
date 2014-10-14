@@ -6,21 +6,20 @@ import org.picketlink.json.jose.JWSBuilder;
 
 /**
  * Basic JWS token implementation
- *
+ * 
  * @author shane
- *
+ * 
  */
-public class JWSToken extends AbstractToken 
-{
-   private final JWS jws;
+public class JWSToken extends AbstractToken {
+    private final JWS jws;
 
-   public JWSToken(String encodedToken) {
-       super(encodedToken);
-       this.jws = new JWSBuilder().build(encodedToken);
-   }
+    public JWSToken(String encodedToken) {
+        super(encodedToken);
+        this.jws = new JWSBuilder().build(encodedToken);
+    }
 
-   @Override
-   public String getSubject() {
-       return this.jws.getSubject();
-   }
+    @Override
+    public String getSubject() {
+        return this.jws.getSubject();
+    }
 }

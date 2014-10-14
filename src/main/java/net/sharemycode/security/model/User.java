@@ -12,69 +12,61 @@ import org.picketlink.idm.query.QueryParameter;
 
 /**
  * Represents the user object
- *
+ * 
  * @author Shane Bryzak
  */
 @IdentityStereotype(Stereotype.USER)
-public class User extends AbstractIdentityType implements Account
-{
-   private static final long serialVersionUID = 8790565692762081434L;
-   
-   /* Define the query parameters for users */
-   public static final QueryParameter USERNAME = QUERY_ATTRIBUTE.byName("username");
-   public static final QueryParameter EMAIL = QUERY_ATTRIBUTE.byName("email");
-   
-   @Unique
-   @AttributeProperty
-   @StereotypeProperty(Property.IDENTITY_USER_NAME)
-   private String username;
+public class User extends AbstractIdentityType implements Account {
+    private static final long serialVersionUID = 8790565692762081434L;
 
-   @AttributeProperty
-   private String email;
+    /* Define the query parameters for users */
+    public static final QueryParameter USERNAME = QUERY_ATTRIBUTE
+            .byName("username");
+    public static final QueryParameter EMAIL = QUERY_ATTRIBUTE.byName("email");
 
-   @AttributeProperty
-   private String firstName;
+    @Unique
+    @AttributeProperty
+    @StereotypeProperty(Property.IDENTITY_USER_NAME)
+    private String username;
 
-   @AttributeProperty
-   private String lastName;
+    @AttributeProperty
+    private String email;
 
-   public String getUsername()
-   {
-      return username;
-   }
+    @AttributeProperty
+    private String firstName;
 
-   public void setUsername(String username)
-   {
-      this.username = username;
-   }
+    @AttributeProperty
+    private String lastName;
 
-   public String getEmail()
-   {
-     return email;
-   }
+    public String getUsername() {
+        return username;
+    }
 
-   public void setEmail(String email)
-   {
-       this.email = email;
-   }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-   public String getFirstName()
-   {
-      return firstName;
-   }
+    public String getEmail() {
+        return email;
+    }
 
-   public void setFirstName(String firstName)
-   {
-      this.firstName = firstName;
-   }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-   public String getLastName()
-   {
-      return lastName;
-   }
+    public String getFirstName() {
+        return firstName;
+    }
 
-   public void setLastName(String lastName)
-   {
-      this.lastName = lastName;
-   }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 }

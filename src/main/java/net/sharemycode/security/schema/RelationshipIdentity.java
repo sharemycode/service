@@ -14,57 +14,56 @@ import org.picketlink.idm.jpa.annotations.RelationshipMember;
 /**
  * 
  * @author Shane Bryzak
- *
+ * 
  */
 @Entity
-public class RelationshipIdentity implements Serializable
-{
-   private static final long serialVersionUID = -7939098158655476688L;
+public class RelationshipIdentity implements Serializable {
+    private static final long serialVersionUID = -7939098158655476688L;
 
-   @Id
-   @GeneratedValue
-   private Long identifier;
+    @Id
+    @GeneratedValue
+    private Long identifier;
 
-   @RelationshipDescriptor
-   private String descriptor;
+    @RelationshipDescriptor
+    private String descriptor;
 
-   @RelationshipMember
-   @ManyToOne
-   private IdentityType identityType;
+    @RelationshipMember
+    @ManyToOne
+    private IdentityType identityType;
 
-   @OwnerReference
-   @ManyToOne
-   private RelationshipType owner;
+    @OwnerReference
+    @ManyToOne
+    private RelationshipType owner;
 
-   public Long getIdentifier() {
-       return identifier;
-   }
+    public Long getIdentifier() {
+        return identifier;
+    }
 
-   public void setIdentifier(Long identifier) {
-       this.identifier = identifier;
-   }
+    public void setIdentifier(Long identifier) {
+        this.identifier = identifier;
+    }
 
-   public String getDescriptor() {
-       return descriptor;
-   }
+    public String getDescriptor() {
+        return descriptor;
+    }
 
-   public void setDescriptor(String descriptor) {
-       this.descriptor = descriptor;
-   }
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
 
-   public IdentityType getIdentityType() {
-       return identityType;
-   }
+    public IdentityType getIdentityType() {
+        return identityType;
+    }
 
-   public void setIdentityType(IdentityType identityType) {
-       this.identityType = identityType;
-   }
+    public void setIdentityType(IdentityType identityType) {
+        this.identityType = identityType;
+    }
 
-   public RelationshipType getOwner() {
-       return owner;
-   }
+    public RelationshipType getOwner() {
+        return owner;
+    }
 
-   public void setOwner(RelationshipType owner) {
-       this.owner = owner;
-   }
+    public void setOwner(RelationshipType owner) {
+        this.owner = owner;
+    }
 }

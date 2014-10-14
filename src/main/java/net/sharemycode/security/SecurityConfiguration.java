@@ -13,52 +13,35 @@ import org.picketlink.event.SecurityConfigurationEvent;
  * 
  * @author Shane Bryzak
  * @author Lachlan Archibald
- *
+ * 
  */
 @ApplicationScoped
 public class SecurityConfiguration {
 
     @SuppressWarnings("unchecked")
-    public void initConfig(@Observes SecurityConfigurationEvent event)
-    {
-       SecurityConfigurationBuilder builder = event.getBuilder();
+    public void initConfig(@Observes SecurityConfigurationEvent event) {
+        SecurityConfigurationBuilder builder = event.getBuilder();
 
-       // HTTP authentication configured here
-       builder
-           .identity()
-               .stateless()
-           .http()
-               .forPath("/rest/users/*")
-                   //.unprotected() // only for testing!
-                   .authenticateWith()
-                       .token()
-               .forPath("/rest/projects/*")
-                   //.unprotected() // only for testing!
-                   .authenticateWith()
-                      .token()
-               .forPath("/rest/resources/*")
-                   //.unprotected() // only for testing!
-                   .authenticateWith()
-                       .token()
-                .forPath("/rest/auth/login")
-                    .authenticateWith()
-                        .token()
-                .forPath("/rest/auth/status")
-                    .authenticateWith()
-                        .token()
-                .forPath("/rest/auth/logout")
-                    .logout()
-               .forPath("/rest/register")
-                   .unprotected();
+        // HTTP authentication configured here
+        builder.identity().stateless()
+                .http()
+                .forPath("/rest/users/*")
+                // .unprotected() // only for testing!
+                .authenticateWith()
+                .token()
+                .forPath("/rest/projects/*")
+                // .unprotected() // only for testing!
+                .authenticateWith()
+                .token()
+                .forPath("/rest/resources/*")
+                // .unprotected() // only for testing!
+                .authenticateWith().token().forPath("/rest/auth/login")
+                .authenticateWith().token().forPath("/rest/auth/status")
+                .authenticateWith().token().forPath("/rest/auth/logout")
+                .logout().forPath("/rest/register").unprotected();
 
-       // IDM configured here
-       builder
-           .identity()
-               .idmConfig()
-                   .named("default")
-                   .stores()
-                       .jpa()
-                           .supportType(User.class)
-                           .supportAllFeatures();
+        // IDM configured here
+        builder.identity().idmConfig().named("default").stores().jpa()
+                .supportType(User.class).supportAllFeatures();
     }
 }

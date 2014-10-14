@@ -9,80 +9,71 @@ import javax.persistence.ManyToOne;
 
 /**
  * Represents a single project resource, such as a source file
- *
+ * 
  * @author Shane Bryzak
  */
 @Entity
-public class ProjectResource implements Serializable
-{
-   private static final long serialVersionUID = -4146308990787564792L;
+public class ProjectResource implements Serializable {
+    private static final long serialVersionUID = -4146308990787564792L;
 
-   public static final String PATH_SEPARATOR = "/";
+    public static final String PATH_SEPARATOR = "/";
 
-   public enum ResourceType {DIRECTORY, FILE};
+    public enum ResourceType {
+        DIRECTORY, FILE
+    };
 
-   @Id
-   @GeneratedValue
-   private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-   @ManyToOne
-   private Project project;
+    @ManyToOne
+    private Project project;
 
-   @ManyToOne
-   private ProjectResource parent;
+    @ManyToOne
+    private ProjectResource parent;
 
-   private String name;
+    private String name;
 
-   private ResourceType resourceType;
+    private ResourceType resourceType;
 
-   public Long getId()
-   {
-      return id;
-   }
+    public Long getId() {
+        return id;
+    }
 
-   public void setId(Long id)
-   {
-      this.id = id;
-   }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-   public Project getProject()
-   {
-      return project;
-   }
+    public Project getProject() {
+        return project;
+    }
 
-   public void setProject(Project project)
-   {
-      this.project = project;
-   }
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
-   public ProjectResource getParent()
-   {
-      return parent;
-   }
+    public ProjectResource getParent() {
+        return parent;
+    }
 
-   public void setParent(ProjectResource parent)
-   {
-      this.parent = parent;
-   }
+    public void setParent(ProjectResource parent) {
+        this.parent = parent;
+    }
 
-   public String getName()
-   {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 
-   public void setName(String name)
-   {
-      this.name = name;
-   }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   public ResourceType getResourceType()
-   {
-      return resourceType;
-   }
+    public ResourceType getResourceType() {
+        return resourceType;
+    }
 
-   public void setResourceType(ResourceType resourceType)
-   {
-      this.resourceType = resourceType;
-   }
+    public void setResourceType(ResourceType resourceType) {
+        this.resourceType = resourceType;
+    }
 
 }

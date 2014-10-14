@@ -24,14 +24,6 @@ package net.sharemycode.security.schema;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.picketlink.idm.credential.storage.TokenCredentialStorage;
-import org.picketlink.idm.jpa.annotations.CredentialClass;
-import org.picketlink.idm.jpa.annotations.CredentialProperty;
-import org.picketlink.idm.jpa.annotations.EffectiveDate;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,57 +32,60 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.picketlink.idm.credential.storage.TokenCredentialStorage;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.CredentialProperty;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
+
 @ManagedCredential(TokenCredentialStorage.class)
 @Entity
-public class UserTokenCredential implements Serializable
-{
+public class UserTokenCredential implements Serializable {
 
-   private static final long serialVersionUID = -6626899276420737288L;
+    private static final long serialVersionUID = -6626899276420737288L;
 
-   @Id
-   @GeneratedValue
-   private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-   @OwnerReference
-   @ManyToOne
-   private IdentityType owner;
+    @OwnerReference
+    @ManyToOne
+    private IdentityType owner;
 
-   @CredentialClass
-   private String typeName;
+    @CredentialClass
+    private String typeName;
 
-   @Temporal(TemporalType.TIMESTAMP)
-   @EffectiveDate
-   private Date effectiveDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @EffectiveDate
+    private Date effectiveDate;
 
-   @Temporal(TemporalType.TIMESTAMP)
-   @ExpiryDate
-   private Date expiryDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @ExpiryDate
+    private Date expiryDate;
 
-   @CredentialProperty
-   @Column
-   private String type;
+    @CredentialProperty
+    @Column
+    private String type;
 
-   @CredentialProperty
-   @Column(columnDefinition = "TEXT")
-   private String token;
+    @CredentialProperty
+    @Column(columnDefinition = "TEXT")
+    private String token;
 
-   public String getType()
-   {
-      return this.type;
-   }
+    public String getType() {
+        return this.type;
+    }
 
-   public void setType(String type)
-   {
-      this.type = type;
-   }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-   public String getToken()
-   {
-      return this.token;
-   }
+    public String getToken() {
+        return this.token;
+    }
 
-   public void setToken(String token)
-   {
-      this.token = token;
-   }
+    public void setToken(String token) {
+        this.token = token;
+    }
 }
