@@ -106,10 +106,6 @@ public class UserService {
         User u = userController.lookupUserByUsername(username);
         if (u == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
-        // UserProfile profile = userController.updateUserProfile(u,
-        // properties.get("name"),
-        // properties.get("about"), properties.get("contact"),
-        // properties.get("interests"));
         UserProfile updated = userController.updateUserProfile(u, profile);
         if (updated == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -123,8 +119,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUserAccount(@PathParam("username") String username,
             Map<String, String> properties) {
-        // update User Account information AND User Profile information with the
-        // same form.
         User u = userController.lookupUserByUsername(username);
         if (u == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);

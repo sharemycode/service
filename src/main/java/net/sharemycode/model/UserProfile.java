@@ -8,6 +8,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+/**
+ * User profile information
+ * 
+ * @author Lachlan Archibald
+ */
+
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 public class UserProfile implements Serializable {
@@ -16,8 +22,7 @@ public class UserProfile implements Serializable {
     @Column(name = "id")
     private String id; // relates to the userId (identity.getAccount().getId();
 
-    private String displayName; // user's custom display name (Real name,
-                                // nickname, psuedonym, whatever)
+    private String displayName; // user's custom display name
 
     private String aboutContent;
 

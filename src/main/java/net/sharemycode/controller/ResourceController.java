@@ -102,8 +102,7 @@ public class ResourceController {
         if (prList.size() == 0)
             return 404; // HTTP 404 resources not found
         for (ProjectResource pr : prList) {
-            if (pr.getParent() != null) // child resources should be handled via
-                                        // recursion
+            if (pr.getParent() != null) // child resources should be handled via recursion
                 continue;
             deleteResource(pr);
         }
@@ -429,8 +428,7 @@ public class ResourceController {
                             "SELECT c FROM ResourceContent c WHERE c.resource = :resource",
                             ResourceContent.class);
             q.setParameter("resource", resource);
-            if (q.getResultList().size() == 0) // create if not exists,
-                                               // otherwise update
+            if (q.getResultList().size() == 0) // create if not exists, otherwise update
                 content = new ResourceContent();
             else
                 content = q.getSingleResult();

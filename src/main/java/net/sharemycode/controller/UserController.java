@@ -131,8 +131,7 @@ public class UserController {
     }
 
     public UserProfile createUserProfile(String id, String name) {
-        // profile created on user Registration, default DisplayName is
-        // username.
+        // profile created on user Registration, default DisplayName is username.
         UserProfile profile = new UserProfile();
         profile.setId(id);
         profile.setDisplayName(name);

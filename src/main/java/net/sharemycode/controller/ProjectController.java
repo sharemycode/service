@@ -60,8 +60,7 @@ public class ProjectController {
     public static final String TEMP_STORAGE = "projectStorage/";
     public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachments/";
     public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
-    public static final int MAX_UPLOAD = 10485760; // max upload filesize in
-                                                   // bytes (10MB)
+    public static final int MAX_UPLOAD = 10485760; // max upload filesize in bytes (10MB)
 
     @Inject
     private Instance<EntityManager> entityManager;
@@ -521,8 +520,7 @@ public class ProjectController {
             ProjectResource parent) throws IOException {
         // return list of files in directory
         File[] files = new File(currentDir).listFiles();
-        String dataPath = null; // used to give path to file for extracting byte
-                                // array
+        String dataPath = null; // used to give path to file for extracting byte array
         for (File file : files) {
             String name = file.getName();
             ProjectResource r = lookupResourceByName(project, parent, name);
@@ -564,8 +562,9 @@ public class ProjectController {
     }
 
     /*
-     * LIST PROJECTS BY OWNER Author: Lachlan Archibald Description: Return list
-     * of projects owned by username
+     * LIST PROJECTS BY OWNER 
+     * Author: Lachlan Archibald
+     * Description: Return list of projects owned by username
      */
     public List<Project> listProjectsByOwner(String username) {
         EntityManager em = entityManager.get();
@@ -650,13 +649,7 @@ public class ProjectController {
         return pa.getId();
     }
 
-    private ProjectAttachment createProjectAttachment(String fileName) { // TEST
-                                                                         // THIS
-                                                                         // FUNCTION
-                                                                         // returns
-                                                                         // pa
-                                                                         // with
-                                                                         // id;
+    private ProjectAttachment createProjectAttachment(String fileName) {
         // create project attachment entity
         EntityManager em = entityManager.get();
         ProjectAttachment pa = new ProjectAttachment();
@@ -831,10 +824,7 @@ public class ProjectController {
                     // do nothing
                 }
                 resourceController.createUserAuthorisationForAll(p,
-                        access.getUserId(), resourceAccess); // generate
-                                                             // resourceAccess
-                                                             // for all
-                                                             // Resources
+                        access.getUserId(), resourceAccess); // generate resourceAccess for all Resources
                 return 201; // HTTP Created
             } else {
                 /*
@@ -890,10 +880,7 @@ public class ProjectController {
                     // do nothing
                 }
                 resourceController.updateUserAuthorisationForAll(p,
-                        access.getUserId(), resourceAccess); // generate
-                                                             // resourceAccess
-                                                             // for all
-                                                             // Resources
+                        access.getUserId(), resourceAccess); // generate resourceAccess for all Resources
                 return 200;
             } else
                 // otherwise, bad request.

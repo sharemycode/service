@@ -23,22 +23,21 @@ public class SecurityConfiguration {
         SecurityConfigurationBuilder builder = event.getBuilder();
 
         // HTTP authentication configured here
-        builder.identity().stateless()
-                .http()
+        builder.identity().stateless().http()
                 .forPath("/rest/users/*")
-                // .unprotected() // only for testing!
-                .authenticateWith()
-                .token()
+                    .authenticateWith().token()
                 .forPath("/rest/projects/*")
-                // .unprotected() // only for testing!
-                .authenticateWith()
-                .token()
+                    .authenticateWith().token()
                 .forPath("/rest/resources/*")
-                // .unprotected() // only for testing!
-                .authenticateWith().token().forPath("/rest/auth/login")
-                .authenticateWith().token().forPath("/rest/auth/status")
-                .authenticateWith().token().forPath("/rest/auth/logout")
-                .logout().forPath("/rest/register").unprotected();
+                    .authenticateWith().token()
+                .forPath("/rest/auth/login")
+                    .authenticateWith().token()
+                .forPath("/rest/auth/status")
+                    .authenticateWith().token()
+                .forPath("/rest/auth/logout")
+                    .logout()
+                .forPath("/rest/register")
+                    .unprotected();
 
         // IDM configured here
         builder.identity().idmConfig().named("default").stores().jpa()

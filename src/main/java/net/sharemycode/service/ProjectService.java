@@ -100,7 +100,7 @@ public class ProjectService {
 
     @GET
     @Path("/{id:[0-9a-z]*}/download")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces("application/zip")
     public Response fetchProject(@PathParam("id") String id) {
         Project p = projectController.lookupProject(id);
         final byte[] data = projectController.fetchProject(p);
