@@ -1,6 +1,7 @@
 package net.sharemycode.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -51,14 +52,23 @@ public class ResourceController {
         return q.getResultList();
     }
 
-    public List<ProjectResource> listResources(Project project) {
+    public List<ProjectResource> listResources(Project project, int root) {
         // List ProjectResources associated with a Project
         EntityManager em = entityManager.get();
         TypedQuery<ProjectResource> q = em.createQuery(
                 "select r from ProjectResource r where r.project = :project",
                 ProjectResource.class);
         q.setParameter("project", project);
-        return q.getResultList();
+        if (root == 0)  // if not only root directory
+                return q.getResultList();
+        // if root is non-zero, return only root resources
+        List<ProjectResource> queryResult = q.getResultList();
+        List<ProjectResource> resources = new ArrayList<ProjectResource>();
+        for(ProjectResource r : queryResult) {
+            if (r.getParent() == null)
+                resources.add(r);
+        }
+        return resources;
     }
 
     public List<ProjectResource> listChildResources(ProjectResource parent) {
@@ -98,7 +108,7 @@ public class ResourceController {
     public int deleteAllResources(Project p) {
         // Delete ALL resoruces associated with a project
         EntityManager em = entityManager.get();
-        List<ProjectResource> prList = this.listResources(p);
+        List<ProjectResource> prList = this.listResources(p, 1);
         if (prList.size() == 0)
             return 404; // HTTP 404 resources not found
         for (ProjectResource pr : prList) {
@@ -322,7 +332,7 @@ public class ResourceController {
             AccessLevel resourceAccess) {
         if (p == null || userId == null || resourceAccess == null)
             return false;
-        List<ProjectResource> resources = listResources(p);
+        List<ProjectResource> resources = listResources(p, 1);
         for (ProjectResource r : resources) {
             ResourceAccess access = new ResourceAccess();
             access.setResource(r);
@@ -337,7 +347,7 @@ public class ResourceController {
             AccessLevel resourceAccess) {
         if (p == null || userId == null || resourceAccess == null)
             return false;
-        List<ProjectResource> resources = listResources(p);
+        List<ProjectResource> resources = listResources(p, 0);
         for (ProjectResource r : resources) {
             ResourceAccess access = new ResourceAccess();
             access.setResource(r);
@@ -352,7 +362,7 @@ public class ResourceController {
     public Boolean removeUserAuthorisationForAll(Project p, String userId) {
         if (p == null || userId == null)
             return false;
-        List<ProjectResource> resources = listResources(p);
+        List<ProjectResource> resources = listResources(p, 0);
         for (ProjectResource r : resources) {
             removeUserAuthorisation(r.getId(), userId);
         }

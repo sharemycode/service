@@ -213,9 +213,9 @@ public class ProjectController {
         Join<ProjectAccess, Project> project = from.join("project");
 
         List<Predicate> predicates = new ArrayList<Predicate>();
-        // This section requires identities, disabled for now
-        // predicates.add(cb.equal(from.get("userId"),
-        // identity.getAccount().getId()));
+        // TODO test this function after enabling identity
+        predicates.add(cb.equal(from.get("userId"),
+                identity.getAccount().getId()));
 
         if (searchTerm != null && !"".equals(searchTerm)) {
             predicates.add(cb.like(cb.lower(project.get(Project_.name)), "%"
@@ -566,6 +566,7 @@ public class ProjectController {
      * Author: Lachlan Archibald
      * Description: Return list of projects owned by username
      */
+    // TODO test function
     public List<Project> listProjectsByOwner(String username) {
         EntityManager em = entityManager.get();
         User user = userController.lookupUserByUsername(username);
@@ -933,16 +934,15 @@ public class ProjectController {
                 || access.getAccessLevel().equals(AccessLevel.READ_WRITE) || access
                 .getAccessLevel().equals(AccessLevel.READ)))
             return null; // unauthorised
-        List<ProjectResource> resources = resourceController.listResources(p);
-        // TODO create temp directory
+        List<ProjectResource> resources = resourceController.listResources(p, 1);
+        // create temp directory
         String tempDirectory = PROJECT_PATH + System.currentTimeMillis();
         String projectDir = tempDirectory + "/" + p.getName();
         File cDir = new File(projectDir);
         cDir.mkdirs();
-        // TODO convert ProjectResources into files/folders
+        // convert project resources into files
         for (ProjectResource r : resources) {
-            // process rootDirectory elements first
-            if (r.getParent() == null)
+            if (r.getParent() == null)  // (listResources should have returned only root resources)
                 if (r.getResourceType().equals(ResourceType.DIRECTORY))
                     directoryToFiles(r, projectDir);
                 else

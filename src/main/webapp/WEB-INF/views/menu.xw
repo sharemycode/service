@@ -4,27 +4,32 @@
         <div>
             <p>This is a simple client application for testing web services</p>
         </div>
-        <h2>User Services</h2>
+        <h2>Application Views</h2>
         <ul>
-            <!--li><xw:link caption="Register"><xw:event type="onclick"><![CDATA[xw.open("register.xw", null, "content")]]></xw:event></xw:link></li>
-            <li><xw:link caption="Login"><xw:event type="onclick"><![CDATA[xw.open("login.xw", null, "content")]]></xw:event></xw:link></li-->
-            <li><a href="rest/users">List users [REST]</a></li>
-            <li>Lookup user by username - rest/users/{username}</li>
-            <li>Lookup user by email - rest/users/?email={email}</li>
-            <li><xw:link caption="Sample User Profile"><xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event></xw:link></li>
-        </ul>
-        <h2>Project Services</h2>
-        <ul>
+            <li><xw:link caption="Register"><xw:event type="onclick"><![CDATA[xw.open("register.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Login"><xw:event type="onclick"><![CDATA[xw.Popup.open("login.xw")]]></xw:event></xw:link></li>
             <li><xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link></li>
             <li><xw:link caption="My Projects"><xw:event type="onclick"><![CDATA[xw.open("projects.xw", null, "content")]]></xw:event></xw:link></li>
             <li><xw:link caption="Projects shared with me"><xw:event type="onclick"><![CDATA[xw.open("sharedProjects.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Sample User Profile"><xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Edit User Account"><xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event></xw:link></li>
+        </ul>
+        <h2>RESTful Services</h2>
+        <h3>User Services</h3>
+        <ul>
+            <li><a href="rest/users">List users [REST]</a></li>
+            <li>Lookup user by username - rest/users/{username}</li>
+            <li>Lookup user by email - rest/users/?email={email}</li>
+        </ul>
+        <h3>Project Services</h3>
+        <ul>
             <li><a href="rest/projects">List projects [REST]</a></li>
             <li><a href="rest/projects/randomURL">Generate Random URL</a></li>
             <li>Lookup project by id - rest/projects/{projectid}</li>
             <li>List project resources - rest/projects/{projectid}/resources</li>
             <li>List projects by user - rest/projects/user/{username}</li>
         </ul>
-        <h2>Resource Services</h2>
+        <h3>Resource Services</h3>
         <ul>
             <li><a href="rest/resources">List all resources [REST]</a></li>
             <li>Lookup resource by id - rest/resources/{resourceid}</li>

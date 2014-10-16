@@ -18,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -121,14 +122,15 @@ public class ProjectService {
     @Path("/{projectid:[0-9a-z]*}/resources")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectResource> listProjectResources(
-            @PathParam("projectid") String projectid) {
+            @PathParam("projectid") String projectid,
+            @QueryParam("root") int root) {
         // List all resources associated with a project.
         Project project = projectController.lookupProject(projectid);
         if (project == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         List<ProjectResource> resources = resourceController
-                .listResources(project);
+                .listResources(project, root);  // if root is non-zero, return only root resources
         return resources;
     }
 

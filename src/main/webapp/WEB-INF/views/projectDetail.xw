@@ -6,7 +6,7 @@
       }]]></xw:event>
     
     <xw:restEndpoint id="projectService" url="#{servicePath}/projects/{projectId}" decorator="#{requestAuthenticator}"/>
-    <xw:restEndpoint id="projectResources" url="#{servicePath}/projects/{projectId}/resources" decorator="#{requestAuthenticator}"/>
+    <xw:restEndpoint id="projectResources" url="#{servicePath}/projects/{projectId}/resources?root=1" decorator="#{requestAuthenticator}"/>
     <xw:restEndpoint id="fetchProject" url="#{servicePath}/projects/{projectId}/download" decorator="#{requestAuthenticator}"/>
     
     <xw:restELBinding binding="project" mode="JSON" restEndpoint="#{projectService}">
@@ -42,7 +42,7 @@
                 List
                 <ul>
                     <xw:repeat value="#{resources}" var="resource">
-                        <li><xw:link caption="#{resource.name}"><xw:event type="onclick"><![CDATA[xw.open("resourceDetail.xw", null, "content")]]></xw:event></xw:link></li>
+                        <li><xw:link caption="#{resource.name}"><xw:event type="onclick"><![CDATA[xw.open("resourceDetail.xw", {resource: evaluate("#{resource}")}, "content")]]></xw:event></xw:link></li>
                     </xw:repeat>
                 </ul>
                 Tree
