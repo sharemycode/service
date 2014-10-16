@@ -47,16 +47,17 @@ import net.sharemycode.security.model.User;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+
 import org.picketlink.Identity;
 
-/*
- * Performs persistence operations for projects
- *
+/** Performs persistence operations for projects
+ * 
  * @author Shane Bryzak
  * @author Lachlan Archibald
  */
 @ApplicationScoped
 public class ProjectController {
+    /** Temporary storage location on disk  - in the directory where the WildFly server is executed */
     public static final String TEMP_STORAGE = "projectStorage/";
     public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachments/";
     public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
@@ -78,6 +79,10 @@ public class ProjectController {
     @Inject
     private Identity identity;
 
+    /** List all projects for the logged in user
+     * 
+     * @return List of Projects
+     */
     @LoggedIn
     public List<Project> listAllProjects() {
         EntityManager em = entityManager.get();
@@ -90,7 +95,12 @@ public class ProjectController {
         q.setParameter("accessLevel", AccessLevel.OWNER);
         return q.getResultList();
     }
-
+    
+    /** List all projects shared with the current user
+     * ie. current user has READ, READ_WRITE or RESTRICTED access
+     * 
+     * @return List of Projects
+     */
     @LoggedIn
     public List<Project> listSharedProjects() {
         // returns a list of projects for which the user has access to
@@ -109,12 +119,16 @@ public class ProjectController {
         return q.getResultList();
     }
 
+    /** Create a new project with unqique URL and persist
+     * 
+     * @param project Takes the project information from submitProject()
+     * and adds server-defined attributes for persistence
+     * @return Project
+     */
     @LoggedIn
     public Project createProject(Project project) {
         // persist the project data
         project.setOwner(identity.getAccount().getId());
-        // project.setOwner("TestingOnly"); // testing project creation only.
-
         EntityManager em = entityManager.get();
         Boolean uniqueUrl = false;
         String newUrl = null;
@@ -141,7 +155,12 @@ public class ProjectController {
         newProjectEvent.fire(new NewProjectEvent(project));
         return project;
     }
-
+    
+    /** 
+     * Persist a new ProjectResource
+     * @param resource  ProjectResource to be persisted
+     * @return ProjectResource
+     */
     @LoggedIn
     public ProjectResource createResource(ProjectResource resource) {
         // persist resource
@@ -152,6 +171,13 @@ public class ProjectController {
         return resource;
     }
 
+    /** 
+     * Create a new ResourceAccess object
+     * @param resource      ProjectResource to be associated
+     * @param userId        User to be given access
+     * @param accessLevel   Project AccessLevel to use
+     * @return ResourceAccess
+     */
     @LoggedIn
     public ResourceAccess createResourceAccess(ProjectResource resource,
             String userId, ResourceAccess.AccessLevel accessLevel) {
@@ -165,6 +191,12 @@ public class ProjectController {
         return ra;
     }
 
+    /** 
+     * Persist a new ProjectResource
+     * @param resource  ProjectResource to be persisted
+     * @return ProjectResource
+     * @throws IOException
+     */
     private ResourceContent createResourceContent(ProjectResource resource,
             String dataPath) throws IOException {
         EntityManager em = entityManager.get();
@@ -180,11 +212,23 @@ public class ProjectController {
         return content;
     }
 
+    /**
+     * Lookup Project By Id
+     * @param id String id
+     * @return Project
+     */
     public Project lookupProject(String id) {
         EntityManager em = entityManager.get();
         return em.find(Project.class, id);
     }
 
+    /**
+     * Lookup ProjectResource By Name
+     * @param project   assocaiated project
+     * @param parent    parentResource
+     * @param name      name of the resource
+     * @return          ProjectResource
+     */
     public ProjectResource lookupResourceByName(Project project,
             ProjectResource parent, String name) {
         EntityManager em = entityManager.get();
@@ -203,7 +247,12 @@ public class ProjectController {
             return null;
         }
     }
-
+    /**
+     * List projects from a search
+     * Relates to current user
+     * @param searchTerm String
+     * @return List of Projects
+     */
     public List<Project> listProjects(String searchTerm) {
         EntityManager em = entityManager.get();
 
@@ -234,9 +283,12 @@ public class ProjectController {
         return projects;
     }
 
-    /*
-     * CREATE DIRECTORY STRUCTURE Author: Shane Bryzak Description: Create
-     * directory resources, files may not have existing data
+    /**
+     * Create directory resources, files may not have existing data
+     * @author Shane Bryzak
+     * @param project Project to create directories for
+     * @param directory Path to process
+     * @return ProjectResource
      */
     public ProjectResource createDirStructure(Project project, String directory) {
         String[] parts = directory.split(ProjectResource.PATH_SEPARATOR);
@@ -265,55 +317,24 @@ public class ProjectController {
         return parent;
     }
 
+    /**
+     * Creates a new package, not implemented
+     * @author Shane Bryzak
+     * @param project
+     * @param folder
+     * @param pkgName
+     * @return ProjectResource
+     */
     public ProjectResource createPackage(Project project,
             ProjectResource folder, String pkgName) {
         return null;
     }
 
-    /*
-     * UPLOAD PROJECT Author: Lachlan Archibald Description: Upload an existing
-     * project (zip file) // Multipart file upload not used.
-     */
-    /*
-     * public Project uploadProject(MultipartFormDataInput input) {
-     * 
-     * Map<String, List<InputPart>> formParts = input.getFormDataMap();
-     * 
-     * // FILE UPLOAD SECTION String fileName = ""; List<InputPart> inPart =
-     * formParts.get("projectFile"); for (InputPart inputPart : inPart) { try {
-     * 
-     * // Retrieve headers, read the Content-Disposition header to obtain the
-     * original name of the file MultivaluedMap<String, String> headers =
-     * inputPart.getHeaders(); fileName = parseFileName(headers);
-     * 
-     * // Handle the body of that part with an InputStream InputStream istream =
-     * inputPart.getBody(InputStream.class,null);
-     * 
-     * fileName = PROJECT_PATH + fileName; File path = new File(PROJECT_PATH);
-     * if(!path.exists()) { // if path does not exist if(path.mkdirs()) { //
-     * create directory System.out.println("Created directory " + PROJECT_PATH);
-     * if(!path.canWrite() || !path.canRead()) { // if not writable, change
-     * permissions path.setWritable(true); path.setReadable(true); }
-     * saveFile(istream,fileName); } else {
-     * System.out.println("Failed to create directory " + PROJECT_PATH);
-     * 
-     * } } else { // if directory exists but is not writable, change permissions
-     * if(!path.canWrite() || !path.canRead()) { path.setWritable(true);
-     * path.setReadable(true); } saveFile(istream,fileName); } String
-     * uploadResult = "File saved to server location : " + fileName;
-     * System.out.println(uploadResult); } catch (IOException e) {
-     * e.printStackTrace(); } } // PROJECT DETAIL SECTION
-     * 
-     * Project p = new Project(); try {
-     * p.setName(formParts.get("name").get(0).getBodyAsString());
-     * p.setVersion(formParts.get("version").get(0).getBodyAsString());
-     * p.setDescription(formParts.get("description").get(0).getBodyAsString());
-     * } catch (IOException e) { e.printStackTrace(); }
-     * p.setUrl(Project.generateURL());
-     * 
-     * // extract the project temp files unzipProject(fileName, PROJECT_PATH +
-     * p.getName(), null); //p.setFilePath(fileName); this.createProject(p);
-     * return p; }
+    /**
+     * Submit a new project JSON with attachments for creation
+     * @author Lachlan Archibald
+     * @param properties JSON Object data: name, version, description, attachments[]
+     * @return Project
      */
     public Project submitProject(Map<String, Object> properties) {
         // First we test if the user entered non-unique username and email
@@ -338,6 +359,12 @@ public class ProjectController {
         return result;
     }
 
+    /**
+     * Add attachments to existing project, generate ProjectResources
+     * @param p Project to add attachments to
+     * @param attachments List of attachmentId Strings
+     * @return Boolean, if an error occurred
+     */
     public Boolean addAttachmentsToProject(Project p, List<String> attachments) {
         // add list of attachments to existing project's root
         if (attachments == null || attachments.size() > 0) {
@@ -351,7 +378,14 @@ public class ProjectController {
         return false;
     }
 
-    // Parse Content-Disposition header to get the original file name
+    /** 
+     * Parse Content-Disposition header to get the original file name 
+     * Used in old multipart file upload
+     * @deprecated
+     * @param headers
+     * @return String fileName
+     */
+    // 
     private String parseFileName(MultivaluedMap<String, String> headers) {
         String[] contentDispositionHeader = headers.getFirst(
                 "Content-Disposition").split(";");
@@ -367,7 +401,12 @@ public class ProjectController {
         return "unknownFile";
     }
 
-    // save uploaded file to a defined location on the server
+    /** 
+     * Save uploaded file to a defined location on the server
+     * @deprecated Used in old multipart file upload
+     * @param uploadedInputStream
+     * @param serverLocation
+     */
     private void saveFile(InputStream uploadedInputStream, String serverLocation) {
 
         try {
@@ -387,9 +426,13 @@ public class ProjectController {
         }
     }
 
-    /*
-     * UNZIP PROJECT Author: Lachlan Archibald Description: Extract project
-     * files into temp directory
+    /**
+     * Extract project files into temporary project directory
+     * @author Lachlan Archibald
+     * @param sourcePath    path to the zip file to be extracted
+     * @param destPath      path to the destination folder to extract
+     * @param password      password needed to extract zip (unused)
+     * @return Boolean, if error occured returns false
      */
     private static Boolean unzipProject(String sourcePath, String destPath,
             String password) {
@@ -415,9 +458,15 @@ public class ProjectController {
         return true;
     }
 
-    /*
-     * CREATE PROJECT RESOURCES Author: Lachlan Archibald Description: Create
-     * resources from EXISTING project (ie. Already has byte data)
+    /**
+     * Create resources from EXISTING project (ie. Already has byte data)
+     * Removes temporary files from disk after operations
+     * @author Lachlan Archibald
+     * @param project       Project to create resources for
+     * @param attachments   List<String> of attachments (Long, encoded as String)
+     * @param parent        parent ProjectResource to create resources under
+     * @return Boolean, returns false if error occured
+     * @throws IOException
      */
     @LoggedIn
     private Boolean createProjectResources(Project project,
@@ -460,6 +509,14 @@ public class ProjectController {
         return true;
     }
 
+    /**
+     * Process an individual file, convert from file to ProjectResource
+     * @param project   Project the resource belongs to
+     * @param path      Path to the File
+     * @param parent    ProjectResource parent
+     * @return  Boolean, true if resource created successfully
+     * @throws IOException
+     */
     private boolean processFile(Project project, String path,
             ProjectResource parent) throws IOException {
         // process individual file
@@ -483,6 +540,13 @@ public class ProjectController {
         return false;
     }
 
+    /**
+     * Create ResourceAccess permissions for resource,
+     * for all users with ProjectAccess.
+     * AccessLevel is determined by project accessLevel
+     * @param project   Project to create permissions for
+     * @param r         Resource to create permissions for
+     */
     private void createResourceAccessForAll(Project project, ProjectResource r) {
         // For each user with access to project, create appropriate
         // ResourceAccess
@@ -516,6 +580,14 @@ public class ProjectController {
 
     }
 
+    /** 
+     * Process the directory into ProjectResources
+     * @param project       Project to generate ProjectResources for
+     * @param currentDir    Current directory we are processing
+     * @param parent        ProjectResource of parent directory
+     * @return Boolean      true if successfully processed directory
+     * @throws IOException
+     */
     private Boolean processDirectory(Project project, String currentDir,
             ProjectResource parent) throws IOException {
         // return list of files in directory
@@ -561,10 +633,11 @@ public class ProjectController {
         return true;
     }
 
-    /*
-     * LIST PROJECTS BY OWNER 
-     * Author: Lachlan Archibald
-     * Description: Return list of projects owned by username
+    /**
+     * Return projects owned by a given username
+     * Uses the project owner attribute
+     * @param username String
+     * @return List of Projects
      */
     // TODO test function
     public List<Project> listProjectsByOwner(String username) {
@@ -577,64 +650,17 @@ public class ProjectController {
         return q.getResultList();
     }
 
-    /*
-     * CREATE ATTACHMENT - Multipart, File, Persistence
-     * 
-     * @Author: Lachlan Archibald Returns returns the id of an attachment as
-     * Long
+    /** 
+     * Create attachment from REST endpoint method
+     * @param name  name of the resource file to create
+     * @param data  Base64encoded String data
+     * @return Long attachmentId
      */
-
-    /* CREATE ATTACHMENT FROM MULTIPART */// Not used
-    /*
-     * // returns multiple AttachmentIds in array of Longs. public List<Long>
-     * createAttachmentsFromMultipart(MultipartFormDataInput input) { List<Long>
-     * attachments = new ArrayList<Long>(); Map<String, List<InputPart>>
-     * formParts = input.getFormDataMap();
-     * 
-     * // FILE UPLOAD SECTION String fileName = ""; //String userID =
-     * identity.getAccount().getId(); String userID = "TestingOnly"; String
-     * uploadDirectory = ATTACHMENT_PATH + userID +
-     * ProjectResource.PATH_SEPARATOR + System.currentTimeMillis() +
-     * ProjectResource.PATH_SEPARATOR; List<InputPart> inPart =
-     * formParts.get("file"); for (InputPart inputPart : inPart) { try {
-     * 
-     * // Retrieve headers, read the Content-Disposition header to obtain the
-     * original name of the file MultivaluedMap<String, String> headers =
-     * inputPart.getHeaders(); fileName = parseFileName(headers);
-     * 
-     * // Handle the body of that part with an InputStream InputStream istream =
-     * inputPart.getBody(InputStream.class,null);
-     * 
-     * fileName = uploadDirectory + fileName; File path = new
-     * File(uploadDirectory); if(!path.exists()) { // if path does not exist
-     * if(path.mkdirs()) { // create directory
-     * System.out.println("Created directory " + uploadDirectory);
-     * if(!path.canWrite() || !path.canRead()) { // if not writable, change
-     * permissions path.setWritable(true); path.setReadable(true); }
-     * saveFile(istream,fileName); } else {
-     * System.err.println("Failed to create directory " + uploadDirectory);
-     * return null; // error occurred } } else { // if directory exists but is
-     * not writable, change permissions if(!path.canWrite() || !path.canRead())
-     * { path.setWritable(true); path.setReadable(true); }
-     * saveFile(istream,fileName); } String uploadResult =
-     * "File saved to server location : " + fileName;
-     * System.out.println(uploadResult);
-     * 
-     * // now create the project attachment entity ProjectAttachment pa =
-     * createProjectAttachment(fileName); attachments.add(pa.getId()); } catch
-     * (IOException e) { e.printStackTrace(); } } return attachments; }
-     */
-
     public Long createAttachmentFromService(String name, String data) {
-        // create project attachment from REST endpoint
-        String uploadDirectory = ATTACHMENT_PATH + System.currentTimeMillis()
-                + "/";
+        String uploadDirectory = ATTACHMENT_PATH + System.currentTimeMillis() + "/";
         File tempFile = new File(uploadDirectory + name);
         try {
             byte[] byteData = Base64.decodeBase64(data);
-            // FileOutputStream fos = new FileOutputStream(uploadDirectory +
-            // name);
-            // fos.write(byteData);
             FileUtils.writeByteArrayToFile(tempFile, byteData);
             Long attachmentId = createAttachmentFromFile(tempFile);
             return attachmentId;
@@ -644,23 +670,41 @@ public class ProjectController {
         return -1L; // failure
     }
 
+    /** 
+     * Create Attachment From a File already on the server,
+     * used with the Java FileUpload servlet to process files into attachments
+     * @param file File stored on server
+     * @return Long attachmentId
+     */
     public Long createAttachmentFromFile(File file) {
         // create a project attachment from an existing file
         ProjectAttachment pa = createProjectAttachment(file.getAbsolutePath());
         return pa.getId();
     }
 
-    private ProjectAttachment createProjectAttachment(String fileName) {
+    /** 
+     * Create ProjectAttachment entity and persist 
+     * @param filePath  path to the file on the server
+     * @return  ProjectAttachment entity   
+     */
+    private ProjectAttachment createProjectAttachment(String filePath) {
         // create project attachment entity
         EntityManager em = entityManager.get();
         ProjectAttachment pa = new ProjectAttachment();
-        pa.setUploadPath(fileName);
+        pa.setUploadPath(filePath);
         pa.setUploadDate(new Date());
 
         em.persist(pa);
         return pa;
     }
 
+    /**
+     * Update Project information: name version and description
+     * Requires READ_WRITE permission
+     * @param id        String id of project
+     * @param update    Project entity containing updated attributes
+     * @return  updated Project
+     */
     @LoggedIn
     public Project updateProject(String id, Project update) {
         EntityManager em = entityManager.get();
@@ -684,6 +728,14 @@ public class ProjectController {
         }
     }
 
+    /**
+     * Change Project Owner
+     * Updates the displayed owner of the project
+     * Requires OWNER access
+     * @param id        String project id
+     * @param username  String username to make the new owner
+     * @return Project
+     */
     @LoggedIn
     public Project changeProjectOwner(String id, String username) {
         // changes the displayed owner of the project
@@ -712,8 +764,14 @@ public class ProjectController {
         return p;
     }
 
+    /**
+     * Delete the entire project by id
+     * Removes all associated ProjectAccess, ProjectResource and Project
+     * @param id    String project id
+     * @return  int status
+     */
     @LoggedIn
-    public int deleteProject(String id) { // Time complexity: O(n^2)
+    public int deleteProject(String id) {
         // Delete the project, and all associated resources.
         EntityManager em = entityManager.get();
         try {
@@ -743,6 +801,12 @@ public class ProjectController {
         return 200; // HTTP OK
     }
 
+    /**
+     * Returns ProjectAccess for the project relating to current logged in user
+     * 
+     * @param id    String project id
+     * @return ProjectAccess
+     */
     @LoggedIn
     public ProjectAccess getProjectAccess(String id) {
         // get the access level for the given project
@@ -765,6 +829,13 @@ public class ProjectController {
         }
     }
 
+    /**
+     * Get the authorisation for a user to access a given project
+     * 
+     * @param projectId     String id of project
+     * @param userId        String id of user
+     * @return ProjectAccess
+     */
     @LoggedIn
     public ProjectAccess getUserAuthorisation(String projectId, String userId) {
         // get the access level for the given project
@@ -790,6 +861,14 @@ public class ProjectController {
         }
     }
 
+    /**
+     * Create authorisation for a user to access a given project
+     * 
+     * @param projectId     String id of project
+     * @param access        ProjectAccess entity containing project, userId and accessLevel
+     * 
+     * @return int status 201 if created
+     */
     @LoggedIn
     public int createUserAuthorisation(String projectId, ProjectAccess access) {
         // create project access for the given project and user
@@ -812,27 +891,26 @@ public class ProjectController {
                 // now create resourceAccess authorisation
                 ResourceAccess.AccessLevel resourceAccess = null;
                 switch (access.getAccessLevel()) {
-                case OWNER:
-                    resourceAccess = ResourceAccess.AccessLevel.OWNER;
-                    break;
-                case READ_WRITE:
-                    resourceAccess = ResourceAccess.AccessLevel.READ_WRITE;
-                    break;
-                case READ:
-                    resourceAccess = ResourceAccess.AccessLevel.READ;
-                    break;
-                default:
-                    // do nothing
+                    case OWNER:
+                        resourceAccess = ResourceAccess.AccessLevel.OWNER;
+                        break;
+                    case READ_WRITE:
+                        resourceAccess = ResourceAccess.AccessLevel.READ_WRITE;
+                        break;
+                    case READ:
+                        resourceAccess = ResourceAccess.AccessLevel.READ;
+                        break;
+                    default:
+                        // do nothing
                 }
                 resourceController.createUserAuthorisationForAll(p,
                         access.getUserId(), resourceAccess); // generate resourceAccess for all Resources
                 return 201; // HTTP Created
             } else {
-                /*
-                 * // resource exists, update it instead int status =
-                 * updateUserAuthorisation(projectId, userId, accessLevel);
-                 * return status;
-                 */
+                // resource exists, update it instead
+                // int status = updateUserAuthorisation(projectId, userId, accessLevel);
+                // return status;
+     
                 return 409; // HTTP Conflict
             }
         } catch (Exception e) {
@@ -841,6 +919,13 @@ public class ProjectController {
         return 404;
     }
 
+    /**
+     * Update the authorisation for a user to access a project
+     * @param projectId String id of project
+     * @param userId    String id of user
+     * @param access    ProjectAccess containing updated information
+     * @return int status 200 if successful
+     */
     @LoggedIn
     public int updateUserAuthorisation(String projectId, String userId,
             ProjectAccess access) {
@@ -895,6 +980,12 @@ public class ProjectController {
         return 404;
     }
 
+    /**
+     * Remove authorisation for user to access a project
+     * @param projectId String project id
+     * @param userId    String user id
+     * @return int status 200 if successful
+     */
     @LoggedIn
     public int removeUserAuthorisation(String projectId, String userId) {
         // update project access for the given project and user
@@ -926,6 +1017,12 @@ public class ProjectController {
         return 404;
     }
 
+    /**
+     * Returns a project zip archive as byte array
+     * 
+     * @param p Project to download
+     * @return byte[]   byte data of project zip file
+     */
     @LoggedIn
     public byte[] fetchProject(Project p) {
         // convert project resources into file, zip and download.
@@ -948,7 +1045,7 @@ public class ProjectController {
                 else
                     resourceToFile(r, projectDir);
         }
-        // TODO zip directory
+        // zip all project files
         try {
             ZipFile zip = new ZipFile(projectDir + "/" + p.getName() + "_"
                     + p.getVersion());
@@ -963,10 +1060,16 @@ public class ProjectController {
         } catch (IOException e) {
             System.err.println("Exception occured: " + e);
         }
-        // if we get to this point, a problem occured.
+        // if we get to this point, a problem occurred.
         return null;
     }
 
+    /**
+     * Process a directory ProjectResource into Files
+     * 
+     * @param parent ProjectResource directory to process
+     * @param parentDirectory Directory on disk to place files   
+     */
     private void directoryToFiles(ProjectResource parent, String parentDirectory) {
         // convert the current directory's resources to files
         String currentDirectory = parentDirectory + "/" + parent.getName();
@@ -982,6 +1085,12 @@ public class ProjectController {
         }
     }
 
+    /**
+     * Process a file ProjectResource into a File on disk
+     * 
+     * @param r ProjectResource file to process
+     * @param directory Directory on disk to place file
+     */
     private void resourceToFile(ProjectResource r, String directory) {
         // convert resource into file
         try {

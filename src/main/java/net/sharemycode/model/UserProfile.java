@@ -18,16 +18,24 @@ import javax.persistence.UniqueConstraint;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 public class UserProfile implements Serializable {
 
+    /** UserId that this profile belongs to */
     @Id
     @Column(name = "id")
-    private String id; // relates to the userId (identity.getAccount().getId();
+    private String id;
 
-    private String displayName; // user's custom display name
+    /**
+     * User's custom display name for profile.
+     * Can be real name, nickname, pseudonym, anything.
+     */
+    private String displayName;
 
+    /** About Information */
     private String aboutContent;
 
+    /** Contact information */
     private String contactContent;
 
+    /** Interests information */
     private String interestsContent;
 
     public void setId(String id) {

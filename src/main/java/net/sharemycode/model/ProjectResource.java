@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 /**
- * Represents a single project resource, such as a source file
+ * Represents a single ProjectResource, such as a source file
  * 
  * @author Shane Bryzak
  */
@@ -18,6 +18,7 @@ public class ProjectResource implements Serializable {
 
     public static final String PATH_SEPARATOR = "/";
 
+    /** Enumerate ResourceType: DIRECTORY or FILE */
     public enum ResourceType {
         DIRECTORY, FILE
     };
@@ -26,14 +27,18 @@ public class ProjectResource implements Serializable {
     @GeneratedValue
     private Long id;
 
+    /** Project this resource belongs to */
     @ManyToOne
     private Project project;
 
+    /** Parent of this resource */
     @ManyToOne
     private ProjectResource parent;
 
+    /** Name of this resource */
     private String name;
 
+    /** ResourceType, directory or file */
     private ResourceType resourceType;
 
     public Long getId() {

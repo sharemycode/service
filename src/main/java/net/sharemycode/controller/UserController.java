@@ -18,7 +18,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.query.IdentityQuery;
 
-/*
+/**
  * Performs persistence operations for users
  *
  * @author Lachlan Archibald
@@ -41,8 +41,14 @@ public class UserController {
     @Inject
     EntityManager em;
 
+    /**
+     * Register new User.
+     * 
+     * @param properties JSON data
+     * 
+     * @return int status code - user/email exists, email/password confirmation failed
+     */
     public int registerUser(Map<String, String> properties) {
-        System.out.println("registerController");
         // First we test if the user entered non-unique username and email
         if (this.lookupUserByUsername(properties.get("username")) != null) {
             System.err.println("Username already exists");
@@ -84,7 +90,13 @@ public class UserController {
         return REGSUCCESS;
     }
 
-    /* Return full list of users */// demonstration only
+    /**
+     * List all users
+     * @deprecated Demonstration of system only
+     * 
+     * @return List of Users
+     */
+    @Deprecated
     @LoggedIn
     public List<User> listAllUsers() {
         System.out.println("ListUsersCONTROLLER");
@@ -92,7 +104,12 @@ public class UserController {
         return q.getResultList();
     }
 
-    /* return specific user by username */
+    /**
+     * Lookup User By Username.
+     * Matches username exactly and returns User entity
+     * @param username String
+     * @return User
+     */
     @LoggedIn
     public User lookupUserByUsername(String username) {
         // returns user information including email, first name and last name
@@ -107,7 +124,12 @@ public class UserController {
         }
     }
 
-    /* Find user by Email */
+    /**
+     * Lookup User By Email.
+     * Matches user email exactly and returns User entity
+     * @param email String
+     * @return User
+     */
     public User lookupUserByEmail(String email) {
         IdentityQuery<User> q = im.createIdentityQuery(User.class);
         q.setParameter(User.EMAIL, email.toLowerCase());
@@ -119,7 +141,13 @@ public class UserController {
         }
     }
 
-    /* Find User Profile by username */
+    /**
+     * Lookup UserProfile by username
+     * 
+     * @param username String
+     * 
+     * @return UserProfile
+     */
     public UserProfile lookupUserProfile(String username) {
         User u = this.lookupUserByUsername(username);
         try {
@@ -130,6 +158,14 @@ public class UserController {
         }
     }
 
+    /**
+     * Create UserProfile and persist
+     * Note: created upon registration.
+     * 
+     * @param id String
+     * @param name String displayName
+     * @return new UserProfile
+     */
     public UserProfile createUserProfile(String id, String name) {
         // profile created on user Registration, default DisplayName is username.
         UserProfile profile = new UserProfile();
@@ -139,7 +175,13 @@ public class UserController {
         return profile;
     }
 
-    /* UPDATE USER PROFILE */
+    /**
+     * Update user profile and persist
+     * 
+     * @param u User the profile belongs to
+     * @param update UserProfile containing new data
+     * @return updated UserProfile
+     */
     @LoggedIn
     public UserProfile updateUserProfile(User u, UserProfile update) {
         if (identity.getAccount().getId().equals(u.getId())) {
@@ -162,7 +204,18 @@ public class UserController {
         return null;
     }
 
-    /* UPDATE USER ACCOUNT */
+    /**
+     * Update user account information
+     * @param u User to edit
+     * @param username new username
+     * @param email new email
+     * @param emailc new email confirmation
+     * @param password new password
+     * @param passwordc new password confirmation
+     * @param firstName new firstName
+     * @param lastName new lastName
+     * @return updated User
+     */
     @LoggedIn
     public User updateUserAccount(User u, String username, String email,
             String emailc, String password, String passwordc, String firstName,
@@ -171,8 +224,7 @@ public class UserController {
             return null;
         if (identity.getAccount().getId().equals(u.getId())) {
             // if current logged in user is editing own user account
-            // possible admin update support
-            // IdentityQuery<User> q = im.createIdentityQuery(User.class);
+            // Possible admin update support, check if user has permission to edit user
             if (!username.isEmpty())
                 u.setUsername(username);
             if (!email.isEmpty() && email.equals(emailc))
@@ -195,7 +247,12 @@ public class UserController {
         return u;
     }
 
-    /* LOGOUT */// Temporary workaround until PicketLink is fixed
+    /**
+     * Logout - temporary endpoint used until PicketLink is fixed.
+     * Note: Discovered that PicketLink does not invalidate the token,
+     * subsequent requests will log the user back in
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public int logout() {
         System.out.println("DEBUG: " + identity.getAccount().getId());

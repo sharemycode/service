@@ -14,35 +14,50 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
 
+/**
+ * Project entity
+ * 
+ * @author Lachlan Archibald
+ */
 @SuppressWarnings("serial")
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "ID"))
 public class Project implements Serializable {
 
+    /** Unique Project id */
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     @Column(name = "ID")
-    private String id; // unique Project ID
+    private String id;
 
+    /**
+     * Unique part of project URL.
+     * eg. sharemycode.net/xZacJk
+     */
     @NotNull
     @Size(min = 6)
     @Column(unique = true)
-    private String url; // unique project URL (generated using generateURL)
+    private String url;
 
+    /** Name of the project */
     @NotNull
     @Size(min = 1, max = 20)
-    private String name; // project name
+    private String name;
 
+    /** Project Description */
     @Size(max = 100)
-    private String description; // project description
+    private String description;
 
-    private String owner_id; // user ID of project owner (referential integrity
-                             // not enforced)
+    /** 
+     * User ID of displayed project owner.
+     * Referential Integrity not enforced
+     */
+    private String owner_id;
 
-    private String version; // version of the project
+    /** Project Version - user-entered */
+    private String version;
 
-    // private String filePath; // path to temporary file on server
 
     public String getId() {
         return id;
@@ -91,11 +106,10 @@ public class Project implements Serializable {
     public String getVersion() {
         return version;
     }
-
-    /*
-     * public String getFilePath() { return filePath; }
-     * 
-     * public void setFilePath(String filePath) { this.filePath = filePath; }
+    
+    /**
+     * Generate a random six character string for URL
+     * @return String
      */
     public static String generateURL() {
         // define URL alphabet - alphanumeric characters minus 0,1,i,l and o

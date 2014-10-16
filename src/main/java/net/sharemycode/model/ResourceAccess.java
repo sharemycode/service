@@ -7,8 +7,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-//import net.sharemycode.security.schema.IdentityType;
-
 /**
  * Defines access level for project resources
  * 
@@ -19,6 +17,7 @@ import javax.persistence.ManyToOne;
 public class ResourceAccess implements Serializable {
     private static final long serialVersionUID = -790604070028430439L;
 
+    /** Enumerate ResourceAccess accessLevel: OWNER, READ, READ_WRITE */
     public enum AccessLevel {
         OWNER, READ, READ_WRITE
     };
@@ -27,11 +26,14 @@ public class ResourceAccess implements Serializable {
     @GeneratedValue
     private Long id;
 
+    /** Resource that this entity relates to */
     @ManyToOne
     private ProjectResource resource;
 
+    /** User to give access to */
     private String userId;
 
+    /** AccessLevel to give, OWNER, READ or READ_WRITE */
     private AccessLevel accessLevel;
 
     public Long getId() {

@@ -21,7 +21,9 @@ import javax.persistence.UniqueConstraint;
         "PROJECT_ID", "userId" }) })
 public class ProjectAccess implements Serializable {
     private static final long serialVersionUID = 6539427720605504095L;
-
+    /** Enumerate accessLevel:
+     * owner, read, read_write or restricted
+     * */
     public enum AccessLevel {
         OWNER, READ, READ_WRITE, RESTRICTED
     };
@@ -30,16 +32,18 @@ public class ProjectAccess implements Serializable {
     @GeneratedValue
     private Long id;
 
+    /** Project that this ProjectAccess relates to */
     @ManyToOne
     @JoinColumn(name = "PROJECT_ID")
     private Project project;
-
+    
+    /** User that this ProjectAccess relates to */
     private String userId;
 
-    // Indicates whether the user currently has this project open
+    /** Indicates whether the user currently has this project open */
     private boolean open;
 
-    // Access level
+    /** Access level for project */
     private AccessLevel accessLevel;
 
     public Long getId() {

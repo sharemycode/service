@@ -3,7 +3,7 @@ package net.sharemycode.model;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
- * 
+ * Project_ Metamodel class
  * @author Shane Bryzak
  * 
  */

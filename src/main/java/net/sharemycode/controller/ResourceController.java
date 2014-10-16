@@ -25,6 +25,10 @@ import net.sharemycode.security.annotations.LoggedIn;
 import org.apache.commons.codec.binary.Base64;
 import org.picketlink.Identity;
 
+/** Performs persistence operations for ProjectResources
+ * 
+ * @author Lachlan Archibald
+ */
 @ApplicationScoped
 public class ResourceController {
 
@@ -37,14 +41,27 @@ public class ResourceController {
     @Inject
     Event<NewResourceEvent> newResourceEvent;
 
+    /** Logged in User's PicketLink identity */
     @Inject
     private Identity identity;
 
+    /**
+     * Lookup ProjectResource by id
+     * 
+     * @param id    Long id of ProjectResource
+     * @return ProjectResource
+     */
     public ProjectResource lookupResource(Long id) {
         EntityManager em = entityManager.get();
         return em.find(ProjectResource.class, id);
     }
 
+    /**
+     * List all resources for all projects
+     * @deprecated this function was only for testing, should not be used.
+     * @return List of ProjectResources
+     */
+    @Deprecated
     public List<ProjectResource> listAllResources() {
         EntityManager em = entityManager.get();
         TypedQuery<ProjectResource> q = em.createQuery(
@@ -52,6 +69,15 @@ public class ResourceController {
         return q.getResultList();
     }
 
+    /**
+     * List all resources of a project,
+     * use root=1 to limit to only root resources (no parent)
+     * @param project   Project to obtain resources for
+     * @param root
+     * if root=1 or non-zero, list only resources with no parent;
+     * if root=0 or undefined, list all resources
+     * @return List of ProjectResources
+     */
     public List<ProjectResource> listResources(Project project, int root) {
         // List ProjectResources associated with a Project
         EntityManager em = entityManager.get();
@@ -60,7 +86,7 @@ public class ResourceController {
                 ProjectResource.class);
         q.setParameter("project", project);
         if (root == 0)  // if not only root directory
-                return q.getResultList();
+            return q.getResultList();
         // if root is non-zero, return only root resources
         List<ProjectResource> queryResult = q.getResultList();
         List<ProjectResource> resources = new ArrayList<ProjectResource>();
@@ -71,6 +97,12 @@ public class ResourceController {
         return resources;
     }
 
+    /**
+     * List ChildResources of a ProjectResource
+     * 
+     * @param parent    ProjectResource parent
+     * @return List of ProjectResources
+     */
     public List<ProjectResource> listChildResources(ProjectResource parent) {
         // List ProjectResources with parent ProjectResource
         EntityManager em = entityManager.get();
@@ -81,6 +113,14 @@ public class ResourceController {
         return q.getResultList();
     }
 
+    /**
+     * Delete a single ProjectResource, and all children resources and associated ResourceAccess.
+     * Handles child ProjectResources recursively.
+     * Does not lookup permissions for Resource yet
+     * 
+     * @param pr    ProjectResource to delete
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public int deleteResource(ProjectResource pr) {
         // Delete individual ProjectResource by id
@@ -105,9 +145,14 @@ public class ResourceController {
         }
     }
 
+    /**
+     * Delete all ProjectResources for a given Project.
+     * Gets all root resources, then handles children recursively
+     * @param p Project
+     * @return int status, 200 if successful
+     */
     public int deleteAllResources(Project p) {
         // Delete ALL resoruces associated with a project
-        EntityManager em = entityManager.get();
         List<ProjectResource> prList = this.listResources(p, 1);
         if (prList.size() == 0)
             return 404; // HTTP 404 resources not found
@@ -119,6 +164,13 @@ public class ResourceController {
         return 200; // HTTP OK
     }
 
+    /**
+     * Delete all ResourceAccess for a ProjectResource
+     * 
+     * @param pr ProjectResource to remove authorisation for
+     * 
+     * @return int status, 200 if successful
+     */
     public int deleteAllResourceAccess(ProjectResource pr) {
         // Delete ALL associated ResourceAccess entities for ProjectResource
         EntityManager em = entityManager.get();
@@ -136,6 +188,12 @@ public class ResourceController {
         return 200; // HTTP OK
     }
 
+    /**
+     * Delete ResourceContent for ProjectResource
+     * 
+     * @param resource ProjectResource to remove content
+     * @return int status, 200 if successful
+     */
     public int deleteResourceContent(ProjectResource resource) {
         EntityManager em = entityManager.get();
         try {
@@ -153,8 +211,13 @@ public class ResourceController {
         }
     }
 
+    /**
+     * Get ResourceContent for ProjectResource
+     * 
+     * @param resource ProjectResource to get content
+     * @return ResourceContent entity
+     */
     public ResourceContent getResourceContent(ProjectResource resource) {
-        // TODO Auto-generated method stub
         EntityManager em = entityManager.get();
         try {
             TypedQuery<ResourceContent> q = em
@@ -170,6 +233,12 @@ public class ResourceController {
         return null;
     }
 
+    /**
+     * Get ResourceAccess for current user
+     * 
+     * @param id Long
+     * @return ResourceAccess
+     */
     @LoggedIn
     public ResourceAccess getResourceAccess(Long id) {
         // get the access level for the given project
@@ -191,7 +260,13 @@ public class ResourceController {
             return null;
         }
     }
-
+    /**
+     * Get UserAuthorisation for ProjectResource
+     * 
+     * @param resourceId Long
+     * @param userId String
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public ResourceAccess getUserAuthorisation(Long resourceId, String userId) {
         // get the access level for the given resource
@@ -216,7 +291,13 @@ public class ResourceController {
             return null;
         }
     }
-
+    /**
+     * Create user authorisation for ProjectResource
+     * 
+     * @param resourceId Long
+     * @param access ResourceAccess
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public int createUserAuthorisation(Long resourceId, ResourceAccess access) {
         // create project access for the given resource and user
@@ -226,11 +307,11 @@ public class ResourceController {
 
             // if current user's access is not owner, fail
             // TODO is there a way to throw PicketLink UNAUTHORISED
-            /*
-             * // Option 1: Owns project Project p = r.getProject();
-             * if(projectController.getProjectAccess(p.getId()).getAccessLevel()
-             * != AccessLevel.OWNER) return null;
-             */
+
+            // Option 1: Owns project Project p = r.getProject();
+            // if(projectController.getProjectAccess(p.getId())
+            //      .getAccessLevel() != AccessLevel.OWNER) return null;
+
             // Option 2: Owns resource
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
@@ -254,6 +335,14 @@ public class ResourceController {
         return 404;
     }
 
+    /**
+     * Update user authorisation for ProjectResource
+     * 
+     * @param resourceId Long
+     * @param userId String
+     * @param access ResourceAccess
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public int updateUserAuthorisation(Long resourceId, String userId,
             ResourceAccess access) {
@@ -263,11 +352,11 @@ public class ResourceController {
             ProjectResource r = em.find(ProjectResource.class, resourceId);
             // if current user's access is not owner, fail
             // TODO is there a way to throw PicketLink UNAUTHORISED
-            /*
-             * // Option 1: Owns project Project p = r.getProject();
-             * if(projectController.getProjectAccess(p.getId()).getAccessLevel()
-             * != AccessLevel.OWNER) return null;
-             */
+
+            // Option 1: Owns project Project p = r.getProject();
+            // if(projectController.getProjectAccess(p.getId())
+            //      .getAccessLevel() != AccessLevel.OWNER) return null;
+
             // Option 2: Owns resource
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
@@ -294,6 +383,13 @@ public class ResourceController {
         return 404;
     }
 
+    /**
+     * Remove user authorisation for ProjectResource
+     * 
+     * @param resourceId Long
+     * @param userId String
+     * @return int status, 200 if successful
+     */
     @LoggedIn
     public int removeUserAuthorisation(Long resourceId, String userId) {
         // update project access for the given project and user
@@ -302,11 +398,11 @@ public class ResourceController {
             ProjectResource r = em.find(ProjectResource.class, resourceId);
             // if current user's access is not owner, fail
             // TODO is there a way to throw PicketLink UNAUTHORISED
-            /*
-             * // Option 1: Owns project Project p = r.getProject();
-             * if(projectController.getProjectAccess(p.getId()).getAccessLevel()
-             * != AccessLevel.OWNER) return null;
-             */
+
+            // Option 1: Owns project Project p = r.getProject();
+            //if(projectController.getProjectAccess(p.getId())
+            //        .getAccessLevel() != AccessLevel.OWNER) return null;
+
             // Option 2: Owns resource
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401; // HTTP Unauthorised
@@ -328,6 +424,14 @@ public class ResourceController {
         return 404; // HTTP NOT FOUND
     }
 
+    /**
+     * Create user authorisation for all resources in a Project
+     * 
+     * @param p Project
+     * @param userId String
+     * @param resourceAccess ResourceAccess.AccessLevel
+     * @return Boolean, true if successful, false if invalid parameters
+     */
     public Boolean createUserAuthorisationForAll(Project p, String userId,
             AccessLevel resourceAccess) {
         if (p == null || userId == null || resourceAccess == null)
@@ -342,7 +446,14 @@ public class ResourceController {
         }
         return true;
     }
-
+    /**
+     * Update user authorisation for all resources in a Project
+     * 
+     * @param p Project
+     * @param userId String
+     * @param resourceAccess ResourceAccess.AccessLevel
+     * @return Boolean, true if successful, false if invalid parameters
+     */
     public Boolean updateUserAuthorisationForAll(Project p, String userId,
             AccessLevel resourceAccess) {
         if (p == null || userId == null || resourceAccess == null)
@@ -359,6 +470,13 @@ public class ResourceController {
 
     }
 
+    /**
+     * Remove user authorisation for all resources in a Project
+     * 
+     * @param p Project
+     * @param userId String
+     * @return Boolean, true if successful, false if invalid parameters
+     */
     public Boolean removeUserAuthorisationForAll(Project p, String userId) {
         if (p == null || userId == null)
             return false;
@@ -370,26 +488,15 @@ public class ResourceController {
 
     }
 
-    /*
-     * // TODO publishResource via path
+    // TODO Publish Resource via path eg. projects/{id}/{resourceName}/{resourceName}
+
+    /**
+     * Lookup ProjectResource by name
      * 
-     * @LoggedIn public ProjectResource publishResource(Project p, String
-     * resourcePath, String data) { if(p == null) return null; //error String[]
-     * parts = resourcePath.split(ProjectResource.PATH_SEPARATOR);
-     * ProjectResource r = null; ProjectResource parent = null; int i; // create
-     * directory resources for(i = 0; i < parts.length -1; i++) { if(i == 0 &&
-     * parts[i].equals(p.getName())) continue; // if first directory is same as
-     * project name, ignore r = lookupResourceByName(p, parent, parts[i]); if(r
-     * == null) { // create directory r = new ProjectResource();
-     * r.setName(parts[i]); r.setParent(parent); r.setProject(p);
-     * r.setResourceType(ResourceType.DIRECTORY); createResource(r); parent = r;
-     * } } // now create file resource r = lookupResourceByName(p, parent,
-     * parts[i]); if(r == null) { // create resource r = new ProjectResource();
-     * r.setName(parts[i]); r.setParent(parent); r.setProject(p);
-     * r.setResourceType(ResourceType.FILE); createResource(r);
-     * 
-     * // create Resource Content try { createResourceContent(r, data); return
-     * r; } catch (IOException e) { e.printStackTrace(); } } return null; }
+     * @param project Project that the resource belongs to
+     * @param parent parent ProjectResource
+     * @param name Name of the ProjectResource
+     * @return ProjectResource
      */
     public ProjectResource lookupResourceByName(Project project,
             ProjectResource parent, String name) {
@@ -410,6 +517,12 @@ public class ResourceController {
         }
     }
 
+    /** 
+     * Persist a new ProjectResource
+     * 
+     * @param resource  ProjectResource to be persisted
+     * @return ProjectResource
+     */
     @LoggedIn
     public ProjectResource createResource(ProjectResource resource) {
         // persist resource
@@ -420,6 +533,13 @@ public class ResourceController {
         return resource;
     }
 
+    /**
+     * Create ResourceContent from Base64Encoded String
+     * @param resource associated ProjectResource
+     * @param data Base64Encoded String data
+     * @return ResourceContent entity
+     * @throws IOException error reading byte data from Base64
+     */
     @LoggedIn
     public ResourceContent createResourceContent(ProjectResource resource,
             String data) throws IOException {
@@ -451,6 +571,14 @@ public class ResourceController {
             return null; // unauthorised
     }
 
+    /**
+     * PublishResource
+     * Create the ProjectResource object from metadata,
+     * Create ResourceAccess for current user and offical project owner
+     * 
+     * @param r ProjectResource
+     * @return ProjectResource
+     */
     @LoggedIn
     public ProjectResource publishResource(ProjectResource r) {
         String userId = identity.getAccount().getId();
@@ -465,6 +593,14 @@ public class ResourceController {
         return r;
     }
 
+    /**
+     * Create ResourceAccess for given user with AccessLevel
+     * 
+     * @param resource ProjectResource
+     * @param userId String
+     * @param accessLevel ResourceAccess.AccessLevel
+     * @return ResourceAccess
+     */
     @LoggedIn
     public ResourceAccess createResourceAccess(ProjectResource resource,
             String userId, ResourceAccess.AccessLevel accessLevel) {
@@ -478,6 +614,13 @@ public class ResourceController {
         return ra;
     }
 
+    /**
+     * Update ProjectResource metadata
+     * 
+     * @param r ProjectResource
+     * @param update ProjectResource containing updated data
+     * @return udpated ProjectResource
+     */
     @LoggedIn
     public ProjectResource updateResourceInfo(ProjectResource r,
             ProjectResource update) {

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <xw:event type="afterRender"><![CDATA[if (identity.isLoggedIn()) { 
+      resourceService.get({pathParams: {resourceId: params.resource.id}});
+      childResources.get({pathParams: {resourceId: params.resource.id}});
+      }]]></xw:event>
+    
+    <xw:restEndpoint id="resourceService" url="#{servicePath}/resources/{resourceId}" decorator="#{requestAuthenticator}"/>
+    <xw:restEndpoint id="childResources" url="#{servicePath}/resources/{resourceId}/children" decorator="#{requestAuthenticator}"/>
+    
+    <xw:eLBinding binding="resource">
+        <xw:event type="onbind"><![CDATA[return params.resource;]]></xw:event>
+    </xw:eLBinding>
+    <xw:restELBinding binding="children" mode="JSON" restEndpoint="#{childResources}">
+        <xw:event type="onresult"><![CDATA[return ShareMyCode.parseProjects(result);]]></xw:event>
+    </xw:restELBinding>
+
+    <div>
+        <xw:fragment rendered="#{!identity.loggedIn}">
+            <p>You are not logged in! Please login above</p>
+        </xw:fragment>
+        <xw:fragment rendered="#{identity.loggedIn}">
+            <div id="resources">
+                <h2>Resource Detail View</h2>
+                <p>Resource id: #{resource.id}<br/>
+                Resource Name: #{resource.name}<br/>
+                Project: <xw:link caption="#{resource.project.name}"><xw:event type="onclick"><![CDATA[xw.open("projectDetail.xw", {id: evaluate("#{resource.project.id}")}, "content")]]></xw:event></xw:link><br />
+                Parent: <xw:link caption="#{resource.parent.name}"><xw:event type="onclick"><![CDATA[xw.open("resourceDetail.xw", {resource: evaluate("#{resource.parent}")}, "content")]]></xw:event></xw:link></p>
+                
+                <h3>Resource Actions</h3>
+                <ul>
+                  <li>
+                    <a id="downloadLink" href="">Download</a>
+                    <xw:event type="afterRender"><![CDATA[document.getElementById("downloadLink").setAttribute("href", "rest/resources/" + params.id)]]></xw:event>
+                  </li>
+                  <li><xw:link caption="Edit Resource Information"></xw:link></li>
+                  <li><xw:link caption="Manage Permissions"></xw:link></li>
+                  <li><xw:link caption="Delete Resource"></xw:link></li>
+                </ul>
+                <h3>Resource Content</h3>
+                <p>Display resource content if image or text</p>
+                <p>If resource is text, may be able to edit from this screen, or open in an editor</p>
+                <p>If resource is a directory, display list or table of child resources</p>
+                <h4>Child Resources</h4>
+                List
+                <ul>
+                    <xw:repeat value="#{children}" var="child">
+                        <li><xw:link caption="#{child.name}"><xw:event type="onclick"><![CDATA[xw.open("resourceDetail.xw", {resource: evaluate("#{child}")}, "content")]]></xw:event></xw:link></li>
+                    </xw:repeat>
+                </ul>
+                Tree
+                <xw:tree id="projectExplorer">
+                  <xw:event type="afterRender"><![CDATA[
+                    ShareMyCode.setProjectExplorer(this);  
+                    ]]></xw:event>
+                  <xw:event type="onDoubleClickNode"><![CDATA[
+                    ShareMyCode.resourceManager.openResource(node.userObject.id);
+                    ]]></xw:event>
+                </xw:tree>
+            </div>
+        </xw:fragment>
+    </div>
+</xw:view>
