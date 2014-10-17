@@ -42,11 +42,11 @@ public class Project implements Serializable {
 
     /** Name of the project */
     @NotNull
-    @Size(min = 1, max = 20)
+    @Size(min = 1, max = 30)
     private String name;
 
     /** Project Description */
-    @Size(max = 100)
+    @Size(max = 200)
     private String description;
 
     /** 

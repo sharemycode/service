@@ -261,7 +261,7 @@ public class ProjectService {
         if (result != null)
             return Response.ok().entity(result).build();
         else
-            return Response.notModified().build();
+            return Response.notModified().entity("Project not modified").build();
     }
 
     @PUT

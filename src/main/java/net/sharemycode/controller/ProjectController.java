@@ -714,9 +714,12 @@ public class ProjectController {
             if (!(pa.getAccessLevel().equals(AccessLevel.OWNER) || pa
                     .getAccessLevel().equals(AccessLevel.READ_WRITE)))
                 return null; // unauthorised to modify project
-            p.setName(update.getName());
-            p.setVersion(update.getVersion());
-            p.setDescription(update.getDescription());
+            if(update.getName() != null)
+                p.setName(update.getName());
+            if(update.getVersion() != null)
+                p.setVersion(update.getVersion());
+            if(update.getDescription() != null)
+                p.setDescription(update.getDescription());
 
             // persist changes
             em.persist(p);

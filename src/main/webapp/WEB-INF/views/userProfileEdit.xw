@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+    <div>
+        <xw:formData id="userProfileParams"/>
+        <h2>Edit User Profile</h2>
+        <p>You can edit your user profile here</p>
+        <xw:form id="userProfileForm">
+            <fieldset>
+              <legend>User Profile Information</legend>
+                <div>
+                    <label for="displayName">Display Name:</label>
+                    <xw:inputText formData="#{userProfileParams}" name="displayName" text=""/>
+                </div>
+                <div>
+                    <label for="about">About Me:</label>
+                    <xw:textArea formData="#{userProfileParams}" name="about" text=""/>
+                </div>
+                <div>
+                    <label for="interests">Interests:</label>
+                    <xw:textArea formData="#{userProfileParams}" name="interests" text=""/>
+                </div>
+                <div>
+                    <label for="contact">Contact Information:</label>
+                    <xw:textArea formData="#{userProfileParams}" name="contact" text=""/>
+                </div>
+            </fieldset>
+        </xw:form>
+        <div>
+            <xw:button id="submit" label="Update">
+                <xw:event type="onclick">
+                    <xw:action type="script">
+                        <![CDATA[ShareMyCode.updateUserProfile(userProfileParams.value);]]>
+                    </xw:action>
+                </xw:event>
+            </xw:button>
+            <xw:button id="cancel" label="Cancel">
+                <xw:event type="onclick">
+                    <xw:action type="script"><![CDATA[userProfileForm.reset();]]></xw:action>
+                </xw:event>
+            </xw:button>
+        </div>
+        <div id="serverResponse">
+            <div id="successResponse">
+                Update successful!
+            </div>
+            <div id="failureResponse">
+                Update unsuccessful..
+                <div id="responseMessage"></div>
+            </div>
+        </div>
+    </div>
+</xw:view>

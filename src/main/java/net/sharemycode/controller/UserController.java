@@ -171,6 +171,9 @@ public class UserController {
         UserProfile profile = new UserProfile();
         profile.setId(id);
         profile.setDisplayName(name);
+        profile.setAbout("");
+        profile.setContact("");
+        profile.setInterests("");
         em.persist(profile);
         return profile;
     }
@@ -189,9 +192,13 @@ public class UserController {
             // possible admin update support
             UserProfile profile = em.find(UserProfile.class, u.getId());
             try {
+                if(update.getDisplayName() != null)
                 profile.setDisplayName(update.getDisplayName());
+                if(update.getAbout() != null)
                 profile.setAbout(update.getAbout());
+                if(update.getContact() != null)
                 profile.setContact(update.getContact());
+                if(update.getInterests() != null)
                 profile.setInterests(update.getInterests());
                 em.persist(profile);
                 return profile;

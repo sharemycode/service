@@ -24,7 +24,7 @@
                 <h3>My Projects</h3>
                 <ul>
                     <xw:repeat value="#{projects}" var="project">
-                        <li><xw:link caption="#{project.name}" hover="View project"><xw:event type="onclick"><![CDATA[xw.open("projectDetail.xw", {id: evaluate("#{project.id}")}, "content")]]></xw:event></xw:link></li>
+                        <li><xw:link caption="#{project.name}"><xw:event type="onclick"><![CDATA[xw.open("projectDetail.xw", {id: evaluate("#{project.id}")}, "content")]]></xw:event></xw:link></li>
                     </xw:repeat>
                 </ul>
                 <table class="simpletablestyle">

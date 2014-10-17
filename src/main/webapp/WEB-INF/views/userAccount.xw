@@ -31,27 +31,6 @@
             	    <xw:inputText formData="#{userAccountParams}" name="lastName" text="#{identity.getLastName()"/>
                 </div>
             </fieldset>
-            <h2>Edit User Profile</h2>
-            <p>You can edit your visible user profile here.</p>
-	        <fieldset>
-              <legend>User Profile Information</legend>
-                <div>
-                    <label for="displayName">Display Name:</label>
-                    <xw:inputText formData="#{userAccountParams}" name="displayName" text=""/>
-                </div>
-                <div>
-                    <label for="about">About Me:</label>
-                    <xw:inputText formData="#{userAccountParams}" name="about" text=""/>
-                </div>
-                <div>
-                    <label for="interests">Interests:</label>
-                    <xw:inputText formData="#{userAccountParams}" name="interests" text=""/>
-                </div>
-                <div>
-                    <label for="contact">Contact Information:</label>
-                    <xw:inputText formData="#{userAccountParams}" name="contact" text=""/>
-                </div>
-            </fieldset>
 	    </xw:form>
 	    <div>
 	        <xw:button id="submit" label="Update">

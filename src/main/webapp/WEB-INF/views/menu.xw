@@ -11,8 +11,9 @@
             <li><xw:link caption="Create Project"><xw:event type="onclick"><![CDATA[xw.open("createProject.xw", null, "content")]]></xw:event></xw:link></li>
             <li><xw:link caption="My Projects"><xw:event type="onclick"><![CDATA[xw.open("projects.xw", null, "content")]]></xw:event></xw:link></li>
             <li><xw:link caption="Projects shared with me"><xw:event type="onclick"><![CDATA[xw.open("sharedProjects.xw", null, "content")]]></xw:event></xw:link></li>
-            <li><xw:link caption="Sample User Profile"><xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Sample User Profile (test)"><xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", {username: "test"}, "content")]]></xw:event></xw:link></li>
             <li><xw:link caption="Edit User Account"><xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event></xw:link></li>
+            <li><xw:link caption="Edit User Profile"><xw:event type="onclick"><![CDATA[xw.open("userProfileEdit.xw", null, "content")]]></xw:event></xw:link></li>
         </ul>
         <h2>RESTful Services</h2>
         <h3>User Services</h3>

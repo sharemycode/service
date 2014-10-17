@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xw:view xmlns="http://www.w3.org/1999/xhtml" xmlns:xw="http://xwidgets.org/core">
+        
+    <xw:restEndpoint id="projectService" url="#{servicePath}/projects/{projectId}" decorator="#{requestAuthenticator}"/>
+    <xw:eLBinding binding="project">
+        <xw:event type="onbind"><![CDATA[
+            console.log(params.project);    
+            return params.project;
+        ]]></xw:event>
+    </xw:eLBinding>
+    <div>
+        <xw:formData id="projectParams"/>
+        <h2>Edit Project Information</h2>
+    	<xw:form id="projectForm">
+		    <fieldset>
+			    <div>
+				    <label for="name">Project Name:</label>
+				    <xw:inputText name="name" formData="#{projectParams}" value="#{project.name}"/>
+			    </div>
+			    <div>
+				    <label for="version">Version:</label>
+				    <xw:inputText name="version" formData="#{projectParams}" value="#{project.version}"/>
+			    </div>
+			    <div>
+                    <label for="description">Description:</label>
+                    <xw:textArea name="description" formData="#{projectParams}" value="#{project.description}"/>
+                </div>
+            </fieldset>
+        </xw:form>
+		<div>
+            <xw:button id="submit" label="Update">
+                <xw:event type="onclick">
+                    <xw:action type="script">
+                        <![CDATA[
+                            var project = params.project;
+                            project.name = projectParams.value['name'];
+                            project.version = projectParams.value['version'];
+                            project.description = projectParams.value['description'];
+                            console.log(project);
+                            var cb = function() {
+                                xw.Popup.close();
+                                xw.open("projectDetail.xw", {id: evaluate("#{project.id}")}, "content");
+                            }
+                        projectService.put({pathParams: {projectId: project.id}, content: JSON.stringify(project), callback: cb});]]>
+                    </xw:action>
+                </xw:event>
+            </xw:button>
+            <xw:button id="cancel" label="Cancel">
+                <xw:event type="onclick">
+                    <xw:action type="script"><![CDATA[xw.Popup.close();]]></xw:action>
+                </xw:event>
+            </xw:button>
+        </div>
+        <div id="serverResponse">
+            <div id="successResponse">
+                Update successful!
+            </div>
+            <div id="failureResponse">
+                Update unsuccessful..
+                <div id="responseMessage"></div>
+            </div>
+        </div>
+    </div>
+</xw:view>

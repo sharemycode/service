@@ -15,7 +15,7 @@
 			    </div>
 			    <div>
 				    <label for="description">Description:</label>
-				    <xw:inputText formData="#{projectParams}" name="description"/>
+				    <xw:textArea formData="#{projectParams}" name="description"/>
 			    </div>
 				<!-- Attach project files -->
             </fieldset>

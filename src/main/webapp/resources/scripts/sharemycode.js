@@ -74,11 +74,23 @@ var ShareMyCode = {
     ShareMyCode.updateResponseStatus(status);
     r.style.display = "block";
   },
+  updateCallback: function(message, response) {
+    var r  = xw.Sys.getObject("serverResponse");
+    var d = xw.Sys.getObject("responseMessage");
+    xw.Sys.clearChildren(d);
+    var m = document.createTextNode(message);
+    d.appendChild(m);
+    ShareMyCode.updateResponseStatus(response.status);
+    r.style.display = "block";
+  },
   updateResponseStatus: function(status) {
     var s = xw.Sys.getObject("successResponse");
     var f = xw.Sys.getObject("failureResponse");
     switch(status) {
       case 200:
+        s.style.display = "block";
+        f.style.display = "none";
+        break;
       case 201:
         s.style.display = "block";
         f.style.display = "none";

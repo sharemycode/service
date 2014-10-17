@@ -37,7 +37,9 @@
             </li>
             <li>
                 <xw:link caption="Profile">
-                    <xw:event type="onclick"><![CDATA[xw.open("userProfile.xw", null, "content")]]></xw:event>
+                    <xw:event type="onclick"><![CDATA[
+                        alert('This PicketLink function is broken at the moment');
+                        xw.open("userProfile.xw", {username: evaluate("#{identity.account.username}")}, "content")]]></xw:event>
                 </xw:link>
             </li>
             <li>
