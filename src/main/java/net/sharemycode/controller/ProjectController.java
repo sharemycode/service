@@ -57,7 +57,8 @@ import org.picketlink.Identity;
  */
 @ApplicationScoped
 public class ProjectController {
-    /** Temporary storage location on disk  - in the directory where the WildFly server is executed */
+    /** Temporary storage location on disk
+     *  in the directory where the WildFly server is executed */
     public static final String TEMP_STORAGE = "projectStorage/";
     public static final String ATTACHMENT_PATH = TEMP_STORAGE + "attachments/";
     public static final String PROJECT_PATH = TEMP_STORAGE + "projects/";
@@ -88,9 +89,9 @@ public class ProjectController {
         EntityManager em = entityManager.get();
         String userId = identity.getAccount().getId();
         TypedQuery<Project> q = em
-                .createQuery(
-                        "select p from Project p, ProjectAccess pa WHERE p = pa.project AND pa.userId = :userId AND pa.accessLevel = :accessLevel",
-                        Project.class);
+                .createQuery("SELECT p FROM Project p, ProjectAccess pa "
+                    + "WHERE p = pa.project AND pa.userId = :userId "
+                    + "AND pa.accessLevel = :accessLevel", Project.class);
         q.setParameter("userId", userId);
         q.setParameter("accessLevel", AccessLevel.OWNER);
         return q.getResultList();
@@ -107,11 +108,10 @@ public class ProjectController {
         EntityManager em = entityManager.get();
         String userId = identity.getAccount().getId();
         TypedQuery<Project> q = em
-                .createQuery(
-                        "select p from Project p, ProjectAccess pa WHERE p = pa.project AND pa.userId = :userId AND "
-                                + ""
-                                + "pa.accessLevel = :read OR pa.accessLevel = :write OR pa.accessLevel = :restricted",
-                        Project.class);
+                .createQuery("SELECT p FROM Project p, ProjectAccess pa "
+                    + "WHERE p = pa.project AND pa.userId = :userId "
+                    + "AND pa.accessLevel = :read OR pa.accessLevel = :write "
+                    + "OR pa.accessLevel = :restricted", Project.class);
         q.setParameter("userId", userId);
         q.setParameter("read", AccessLevel.READ);
         q.setParameter("write", AccessLevel.READ_WRITE);
@@ -234,9 +234,9 @@ public class ProjectController {
         EntityManager em = entityManager.get();
 
         TypedQuery<ProjectResource> q = em
-                .createQuery(
-                        "select r from ProjectResource r where r.project = :project and r.parent = :parent and r.name = :name",
-                        ProjectResource.class);
+                .createQuery("SELECT r FROM ProjectResource r " 
+                    + "WHERE r.project = :project and r.parent = :parent "
+                    + "AND r.name = :name", ProjectResource.class);
         q.setParameter("project", project);
         q.setParameter("parent", parent);
         q.setParameter("name", name);
@@ -592,7 +592,7 @@ public class ProjectController {
             ProjectResource parent) throws IOException {
         // return list of files in directory
         File[] files = new File(currentDir).listFiles();
-        String dataPath = null; // used to give path to file for extracting byte array
+        String dataPath = null; // path to file for extracting byte array
         for (File file : files) {
             String name = file.getName();
             ProjectResource r = lookupResourceByName(project, parent, name);
@@ -785,9 +785,8 @@ public class ProjectController {
                 return 401; // HTTP NOT AUTHORISED
             // Remove all associated ProjectAccess
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                    + "WHERE pa.project = :project", ProjectAccess.class);
             q.setParameter("project", p);
             List<ProjectAccess> paList = q.getResultList();
             for (ProjectAccess pa : paList) {
@@ -819,9 +818,9 @@ public class ProjectController {
             Project p = em.find(Project.class, id);
             String userId = identity.getAccount().getId();
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                        + "WHERE pa.project = :project "
+                        + "AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess projectAccess = q.getSingleResult();
@@ -851,9 +850,9 @@ public class ProjectController {
             if (getProjectAccess(p.getId()) == null)
                 return null;
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                        + "WHERE pa.project = :project "
+                        + "AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess projectAccess = q.getSingleResult();
@@ -868,8 +867,8 @@ public class ProjectController {
     /**
      * Create authorisation for a user to access a given project
      * 
-     * @param projectId     String id of project
-     * @param access        ProjectAccess entity containing project, userId and accessLevel
+     * @param projectId String id of project
+     * @param access ProjectAccess entity containing project, userId and accessLevel
      * 
      * @return int status 201 if created
      */
@@ -884,9 +883,9 @@ public class ProjectController {
             if (getProjectAccess(p.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                    + "WHERE pa.project = :project "
+                    + "AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", access.getUserId());
             if (q.getResultList().size() == 0) {
@@ -907,8 +906,9 @@ public class ProjectController {
                     default:
                         // do nothing
                 }
+                // generate resourceAccess for all Resources
                 resourceController.createUserAuthorisationForAll(p,
-                        access.getUserId(), resourceAccess); // generate resourceAccess for all Resources
+                        access.getUserId(), resourceAccess); 
                 return 201; // HTTP Created
             } else {
                 // resource exists, update it instead
@@ -944,9 +944,9 @@ public class ProjectController {
             // now find the userAuthorisation object for the given userId and
             // projectId
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                        + "WHERE pa.project = :project "
+                        + "AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess pa = q.getSingleResult();
@@ -969,8 +969,9 @@ public class ProjectController {
                 default:
                     // do nothing
                 }
+                // generate resourceAccess for all Resources
                 resourceController.updateUserAuthorisationForAll(p,
-                        access.getUserId(), resourceAccess); // generate resourceAccess for all Resources
+                        access.getUserId(), resourceAccess);
                 return 200;
             } else
                 // otherwise, bad request.
@@ -1003,9 +1004,9 @@ public class ProjectController {
             // now find the userAuthorisation object for the given userId and
             // projectId
             TypedQuery<ProjectAccess> q = em
-                    .createQuery(
-                            "SELECT pa FROM ProjectAccess pa WHERE pa.project = :project AND pa.userId = :userId",
-                            ProjectAccess.class);
+                    .createQuery("SELECT pa FROM ProjectAccess pa "
+                        + "WHERE pa.project = :project "
+                        + "AND pa.userId = :userId", ProjectAccess.class);
             q.setParameter("project", p);
             q.setParameter("userId", userId);
             ProjectAccess pa = q.getSingleResult();
