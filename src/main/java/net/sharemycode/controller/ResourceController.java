@@ -175,9 +175,8 @@ public class ResourceController {
         // Delete ALL associated ResourceAccess entities for ProjectResource
         EntityManager em = entityManager.get();
         TypedQuery<ResourceAccess> qResourceAccess = em
-                .createQuery(
-                        "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource",
-                        ResourceAccess.class);
+                .createQuery("SELECT ra FROM ResourceAccess ra "
+                    +"WHERE ra.resource = :resource", ResourceAccess.class);
         qResourceAccess.setParameter("resource", pr);
         List<ResourceAccess> raList = qResourceAccess.getResultList();
         if (raList.size() == 0)
@@ -198,9 +197,8 @@ public class ResourceController {
         EntityManager em = entityManager.get();
         try {
             TypedQuery<ResourceContent> q = em
-                    .createQuery(
-                            "SELECT rc FROM ResourceContent rc WHERE rc.resource = :resource",
-                            ResourceContent.class);
+                    .createQuery("SELECT rc FROM ResourceContent rc "
+                        + "WHERE rc.resource = :resource", ResourceContent.class);
             q.setParameter("resource", resource);
             ResourceContent content = q.getSingleResult();
             em.remove(content);
@@ -221,9 +219,8 @@ public class ResourceController {
         EntityManager em = entityManager.get();
         try {
             TypedQuery<ResourceContent> q = em
-                    .createQuery(
-                            "SELECT rc FROM ResourceContent rc WHERE rc.resource = :resource",
-                            ResourceContent.class);
+                    .createQuery("SELECT rc FROM ResourceContent rc "
+                        + "WHERE rc.resource = :resource", ResourceContent.class);
             q.setParameter("resource", resource);
             ResourceContent content = q.getSingleResult();
             return content;
@@ -247,9 +244,9 @@ public class ResourceController {
             ProjectResource r = em.find(ProjectResource.class, id);
             String userId = identity.getAccount().getId();
             TypedQuery<ResourceAccess> q = em
-                    .createQuery(
-                            "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId",
-                            ResourceAccess.class);
+                    .createQuery("SELECT ra FROM ResourceAccess ra "
+                    + "WHERE ra.resource = :resource "
+                    + "AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
             q.setParameter("userId", userId);
             ResourceAccess resourceAccess = q.getSingleResult();
@@ -278,9 +275,9 @@ public class ResourceController {
             if (getResourceAccess(r.getId()) == null)
                 return null;
             TypedQuery<ResourceAccess> q = em
-                    .createQuery(
-                            "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId",
-                            ResourceAccess.class);
+                    .createQuery("SELECT ra FROM ResourceAccess ra "
+                    + "WHERE ra.resource = :resource "
+                    + "AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
             q.setParameter("userId", userId);
             ResourceAccess resourceAccess = q.getSingleResult();
@@ -316,9 +313,9 @@ public class ResourceController {
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             TypedQuery<ResourceAccess> q = em
-                    .createQuery(
-                            "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId",
-                            ResourceAccess.class);
+                    .createQuery("SELECT ra FROM ResourceAccess ra "
+                    + "WHERE ra.resource = :resource "
+                    + "AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
             q.setParameter("userId", access.getUserId());
             if (q.getResultList().size() == 0) {
@@ -361,9 +358,9 @@ public class ResourceController {
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401;
             TypedQuery<ResourceAccess> q = em
-                    .createQuery(
-                            "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId",
-                            ResourceAccess.class);
+                    .createQuery("SELECT ra FROM ResourceAccess ra "
+                    + "WHERE ra.resource = :resource "
+                    + "AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
             q.setParameter("userId", userId);
             ResourceAccess ra = q.getSingleResult();
@@ -407,9 +404,9 @@ public class ResourceController {
             if (getResourceAccess(r.getId()).getAccessLevel() != AccessLevel.OWNER)
                 return 401; // HTTP Unauthorised
             TypedQuery<ResourceAccess> q = em
-                    .createQuery(
-                            "SELECT ra FROM ResourceAccess ra WHERE ra.resource = :resource AND ra.userId = :userId",
-                            ResourceAccess.class);
+                    .createQuery("SELECT ra FROM ResourceAccess ra "
+                        + "WHERE ra.resource = :resource "
+                        + "AND ra.userId = :userId", ResourceAccess.class);
             q.setParameter("resource", r);
             q.setParameter("userId", userId);
             ResourceAccess ra = q.getSingleResult();
@@ -503,9 +500,9 @@ public class ResourceController {
         EntityManager em = entityManager.get();
 
         TypedQuery<ProjectResource> q = em
-                .createQuery(
-                        "select r from ProjectResource r where r.project = :project and r.parent = :parent and r.name = :name",
-                        ProjectResource.class);
+                .createQuery("SELECT r FROM ProjectResource r "
+                    + "WHERE r.project = :project AND r.parent = :parent "
+                    + "AND r.name = :name", ProjectResource.class);
         q.setParameter("project", project);
         q.setParameter("parent", parent);
         q.setParameter("name", name);
@@ -554,9 +551,8 @@ public class ResourceController {
             // create Resource Content
             ResourceContent content = null;
             TypedQuery<ResourceContent> q = em
-                    .createQuery(
-                            "SELECT c FROM ResourceContent c WHERE c.resource = :resource",
-                            ResourceContent.class);
+                    .createQuery("SELECT c FROM ResourceContent c "
+                        + "WHERE c.resource = :resource", ResourceContent.class);
             q.setParameter("resource", resource);
             if (q.getResultList().size() == 0) // create if not exists, otherwise update
                 content = new ResourceContent();
