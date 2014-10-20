@@ -33,7 +33,11 @@
                     <a id="downloadLink" href="">Download</a>
                     <xw:event type="afterRender"><![CDATA[document.getElementById("downloadLink").setAttribute("href", "rest/resources/" + params.id)]]></xw:event>
                   </li>
-                  <li><xw:link caption="Edit Resource Information"></xw:link></li>
+                  <li>
+                  	<xw:link caption="Edit Resource Information">
+                  		<xw:event type="onclick"><![CDATA[xw.Popup.open("resourceEdit.xw", {params: {resource: evaluate("#{resource}")}})]]></xw:event>
+                  	</xw:link>
+              	</li>
                   <li><xw:link caption="Manage Permissions"></xw:link></li>
                   <li><xw:link caption="Delete Resource"></xw:link></li>
                 </ul>

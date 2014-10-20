@@ -780,6 +780,7 @@ public class ProjectController {
         try {
             Project p = em.find(Project.class, id);
             // TODO Change permission lookup to within ProjectAccess (maybe)
+            // if not displayed owner of project, deny
             if (!identity.getAccount().getId().equals(p.getOwner()))
                 return 401; // HTTP NOT AUTHORISED
             // Remove all associated ProjectAccess

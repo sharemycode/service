@@ -436,7 +436,7 @@ public class ResourceController {
             AccessLevel resourceAccess) {
         if (p == null || userId == null || resourceAccess == null)
             return false;
-        List<ProjectResource> resources = listResources(p, 1);
+        List<ProjectResource> resources = listResources(p, 0);
         for (ProjectResource r : resources) {
             ResourceAccess access = new ResourceAccess();
             access.setResource(r);
@@ -629,10 +629,12 @@ public class ResourceController {
                 .getAccount().getId());
         if (access.getAccessLevel().equals(AccessLevel.OWNER)
                 || access.getAccessLevel().equals(AccessLevel.READ_WRITE)) {
-            r.setName(update.getName());
-            if (update.getParent().getResourceType()
-                    .equals(ResourceType.DIRECTORY))
-                r.setParent(update.getParent());
+            if(update.getName() != null)
+                r.setName(update.getName());
+            if(update.getParent() != null)
+                if (update.getParent().getResourceType()
+                        .equals(ResourceType.DIRECTORY))
+                    r.setParent(update.getParent());
             em.persist(r);
             return r;
         } else
