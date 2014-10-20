@@ -49,6 +49,10 @@ public class ProjectService {
     @Inject
     ResourceController resourceController;
 
+    /** 
+     * RandomURL. Used only for testing
+     * @return String
+     */
     @GET
     @Path("/randomURL")
     public String returnURL() {
@@ -56,6 +60,10 @@ public class ProjectService {
         return Project.generateURL();
     }
 
+    /**
+     * List Projects
+     * @return List of Projects for the logged in User
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> listAllProjects() {
@@ -63,6 +71,12 @@ public class ProjectService {
         return projectController.listAllProjects();
     }
 
+    /**
+     * UploadProject
+     * @param properties JSON project information and list of attachmentId
+     * @return Response.created() with Project
+     * @throws URISyntaxException if resulting URI is invalid
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -80,6 +94,10 @@ public class ProjectService {
                 .entity(newProject).build();
     }
 
+    /**
+     * List Shared Projects
+     * @return List of Projects that the User has owner permissions
+     */
     @GET
     @Path("/shared")
     @Produces(MediaType.APPLICATION_JSON)
@@ -99,6 +117,12 @@ public class ProjectService {
         return project;
     }
 
+    /**
+     * Fetch Project.
+     * Download the entire project as a .zip
+     * @param id ProjectID to download
+     * @return Response.ok() with application/zip stream
+     */
     @GET
     @Path("/{id:[0-9a-z]*}/download")
     @Produces("application/zip")
@@ -118,6 +142,12 @@ public class ProjectService {
                                 + p.getVersion() + ".zip" + "\"").build();
     }
 
+    /**
+     * List Project Resources
+     * @param projectid ProjectID to get resources
+     * @param root 0: list all, 1: list only top-level resources
+     * @return List of ProjectResource
+     */
     @GET
     @Path("/{projectid:[0-9a-z]*}/resources")
     @Produces(MediaType.APPLICATION_JSON)
@@ -134,6 +164,12 @@ public class ProjectService {
         return resources;
     }
 
+    /**
+     * Add Attachments to Project
+     * @param id Existing ProjectId to add attachments
+     * @param attachments List of String Ids of attachments
+     * @return Response.ok() if successful, or Response.notModifed()
+     */
     @PUT
     @Path("/{id:[0-9a-z]*}/attachments")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -141,7 +177,6 @@ public class ProjectService {
             List<String> attachments) {
         // add attachments to existing project
         Project p = projectController.lookupProject(id);
-        @SuppressWarnings("unchecked")
         Boolean result = projectController.addAttachmentsToProject(p,
                 attachments);
         if (result)
@@ -150,6 +185,12 @@ public class ProjectService {
             return Response.notModified().build();
     }
 
+    /**
+     * Upload Attachment
+     * @param name Filename
+     * @param data Base64EncodedString data
+     * @return Response.ok() with attachmentId if successful
+     */
     @POST
     @Path("/attachments/{filename}")
     public Response uploadAttachment(@PathParam("filename") String name,
@@ -162,6 +203,11 @@ public class ProjectService {
             return Response.noContent().build();
     }
 
+    /**
+     * List Projects with Search ?
+     * @param searchTerm String name of project to search
+     * @return List of own Projects that match search term (not tested)
+     */
     @GET
     @Path("/list{searchTerm:(/[^/]+?)?}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -175,6 +221,11 @@ public class ProjectService {
         return projectController.listProjects(searchTerm);
     }
 
+    /**
+     * Create New Folder ?
+     * @param properties
+     * @return ProjectResource[] ?
+     */
     @POST
     @Path("/newfolder")
     @Consumes("application/json")
@@ -210,6 +261,11 @@ public class ProjectService {
         return resources.toArray(new ProjectResource[resources.size()]);
     }
 
+    /**
+     * Create New Class ?
+     * @param properties
+     * @return ProjectResource
+     */
     @POST
     @Path("/newclass")
     @Consumes("application/json")
@@ -239,6 +295,11 @@ public class ProjectService {
         return r;
     }
 
+    /**
+     * List Projects By Owner. Not tested.
+     * @param username Username to search projects for.
+     * @return List of Project
+     */
     @GET
     @Path("/user/{username:[0-9a-z]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -252,6 +313,12 @@ public class ProjectService {
         return projects;
     }
 
+    /**
+     * Update Project. Requires READ_WRITE permission
+     * @param id ProjectId to update
+     * @param update Project containing updated data
+     * @return Response.ok() with updated Project
+     */
     @PUT
     @Path("/{id:[0-9a-z]*}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -264,6 +331,12 @@ public class ProjectService {
             return Response.notModified().entity("Project not modified").build();
     }
 
+    /**
+     * Change Displayed Project Owner. Requires OWNER permission
+     * @param id ProjectId to update
+     * @param username Username to set as new owner
+     * @return Response.ok()
+     */
     @PUT
     @Path("/{id:[0-9a-z]*}/owner")
     @Produces(MediaType.APPLICATION_JSON)
@@ -277,6 +350,12 @@ public class ProjectService {
                     .build();
     }
 
+    /**
+     * Delete Project. Requires OWNER permission
+     * 
+     * @param id ProjectId to delete
+     * @return Reponse.ok() if successful
+     */
     @DELETE
     @Path("/{id:[0-9a-z]*}")
     public Response deleteProject(@PathParam("id") String id) {
@@ -301,6 +380,11 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Get Project Access
+     * @param id ProjectId
+     * @return ProjectAccess entity for current user
+     */
     @GET
     @Path("/{id:[0-9a-z]*}/access")
     @Produces(MediaType.APPLICATION_JSON)
@@ -312,6 +396,12 @@ public class ProjectService {
             return Response.status(404).build();
     }
 
+    /**
+     * Get UserAuthorisation
+     * @param projectId ProjectId
+     * @param userId User to get ProjectAccess for
+     * @return ProjectAccess for given user
+     */
     @GET
     @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -326,6 +416,13 @@ public class ProjectService {
             return Response.status(404).build();
     }
 
+    /**
+     * Create User Authorisation for Project
+     * @param projectId ProjectId
+     * @param access ProjectAccess
+     * @return Response.created() with URI
+     * @throws URISyntaxException if invalid URI created
+     */
     @POST
     @Path("/{id:[0-9a-z]*}/access/")
     // create resource access for the given user
@@ -356,6 +453,13 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Update User Authorisation for Project
+     * @param projectId ProjectId
+     * @param userId UserId to update authorisation
+     * @param access ProjectAccess
+     * @return Response.ok() if successful
+     */
     @PUT
     @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -379,6 +483,12 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Remove User Authorisation for Project
+     * @param projectId ProjectId
+     * @param userId UserId to de-authorise
+     * @return Response.ok() if successful
+     */
     @DELETE
     @Path("/{id:[0-9a-z]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     public Response removeUserAuthorisation(@PathParam("id") String projectId,

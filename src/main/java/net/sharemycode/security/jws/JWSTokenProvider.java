@@ -17,6 +17,12 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.json.jose.JWSBuilder;
 
+/**
+ * JWS Token Provider
+ * 
+ * @author Shane Bryzak
+ */
+
 @ApplicationScoped
 public class JWSTokenProvider implements Token.Provider<JWSToken> {
     @Inject
