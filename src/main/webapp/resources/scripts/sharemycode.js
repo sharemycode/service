@@ -40,6 +40,7 @@ var ShareMyCode = {
   createProject: function(props) {
     props.attachments = window.attachments;
     var cb = function(message, response) {
+        window.attachments.length = 0;	// clear the global array
         ShareMyCode.registerCallback(message, response.status);
     };
     xw.Sys.getWidget("projectService").post({content: JSON.stringify(props), callback: cb});
@@ -113,7 +114,7 @@ var ShareMyCode = {
       sizeLimit: 10485760,	// 10MB
       onComplete: function(id, filename, responseJSON) {
         if (responseJSON.success) {
-          // add attachment id to array
+          // add attachment id to array (global)
           attachments.push(responseJSON.id);
         }
       }

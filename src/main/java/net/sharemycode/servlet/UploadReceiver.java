@@ -32,8 +32,7 @@ public class UploadReceiver extends HttpServlet {
      * @author Lachlan Archibald
      */
     private static final long serialVersionUID = -275766874651285460L;
-    private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH
-            + ProjectResource.PATH_SEPARATOR + System.currentTimeMillis());
+    private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH);
     private static File TEMP_DIR = new File(ProjectController.TEMP_STORAGE
             + "temp");
 
@@ -79,26 +78,38 @@ public class UploadReceiver extends HttpServlet {
                 writeResponse(resp.getWriter(), attachmentId.toString(), null);
             } else {
                 requestParser = RequestParser.getInstance(req, null);
-                File output = writeToTempFile(req.getInputStream(), new File(
-                        UPLOAD_DIR, requestParser.getFilename()),
+                File attachmentDir = new File(UPLOAD_DIR + "/" + System.currentTimeMillis());
+                if (attachmentDir.mkdirs()) {
+                    
+                    File tempFile = new File(attachmentDir, requestParser.getFilename());
+                    Boolean created = tempFile.createNewFile();
+                    Boolean exists = tempFile.exists();
+                    Boolean canWrite = tempFile.canWrite();
+                    File output = writeToTempFile(req.getInputStream(), tempFile,
                         expectedFileSize);
-                // create new attachment here, then return the id
-                attachmentId = projectController
+                    // create new attachment here, then return the id
+                    attachmentId = projectController
                         .createAttachmentFromFile(output);
-                writeResponse(resp.getWriter(), attachmentId.toString(), null);
+                    writeResponse(resp.getWriter(), attachmentId.toString(), null);
+                } else
+                    System.err.println("Failed to create attachment directory");
             }
             transaction.commit();
         } catch (Exception e) {
             log.error("Problem handling upload request", e);
             writeResponse(resp.getWriter(), null, e.getMessage());
+        } finally {
         }
     }
 
     private File doWriteTempFileForPostRequest(RequestParser requestParser)
             throws Exception {
-        File output = writeToTempFile(requestParser.getUploadItem()
+        File attachmentDir = new File(UPLOAD_DIR + "/" + System.currentTimeMillis());
+        File output = null;
+        if(attachmentDir.mkdirs())
+            output = writeToTempFile(requestParser.getUploadItem()
                 .getInputStream(),
-                new File(UPLOAD_DIR, requestParser.getFilename()), null);
+                new File(attachmentDir, requestParser.getFilename()), null);
         return output;
     }
 
@@ -127,6 +138,7 @@ public class UploadReceiver extends HttpServlet {
 
             return out;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IOException(e);
         } finally {
             IOUtils.closeQuietly(fos);
