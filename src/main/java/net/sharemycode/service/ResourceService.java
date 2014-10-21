@@ -29,8 +29,7 @@ import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 
 /**
- * ResourceService
- * - Defines all RESTful services relating to Resource entities
+ * Defines all RESTful services relating to Resource entities
  * 
  * @author Lachlan Archibald
  * 
@@ -48,7 +47,7 @@ public class ResourceService {
     /**
      * Lists all resources for all projects
      * @deprecated Used only for testing clients
-     * @see net.sharemycode.service.ProjectService#listResources()
+     * @see net.sharemycode.service.ProjectService#listProjectResources(String, int) listProjectResources
      * @return List of ProjectResource
      */
     @GET

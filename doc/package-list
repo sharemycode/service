@@ -1,1 +1,11 @@
 net.sharemycode.controller
+net.sharemycode.events
+net.sharemycode.model
+net.sharemycode.security
+net.sharemycode.security.annotations
+net.sharemycode.security.jws
+net.sharemycode.security.model
+net.sharemycode.security.schema
+net.sharemycode.service
+net.sharemycode.servlet
+net.sharemycode.system
