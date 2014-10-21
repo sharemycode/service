@@ -4,6 +4,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 
+/**
+ * Request Parser
+ * - Based on Valum's File Uploader
+ * @see <a href="https://github.com/Widen/fine-uploader">Fine Uploader</a>
+ * 
+ * @author Lachlan Archibald
+ *
+ */
+
 public class RequestParser {
     private static String FILENAME_PARAM = "qqfile";
 

@@ -29,9 +29,8 @@ import net.sharemycode.model.ResourceAccess;
 import net.sharemycode.model.ResourceContent;
 
 /**
- * sharemycode.net ResourceService
- * 
- * Defines all RESTful services relating to Resource entities
+ * ResourceService
+ * - Defines all RESTful services relating to Resource entities
  * 
  * @author Lachlan Archibald
  * 
@@ -46,6 +45,12 @@ public class ResourceService {
     @Inject
     ResourceController resourceController;
 
+    /**
+     * Lists all resources for all projects
+     * @deprecated Used only for testing clients
+     * @see net.sharemycode.service.ProjectService#listResources()
+     * @return List of ProjectResource
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<ProjectResource> listAllResources() {
@@ -53,7 +58,11 @@ public class ResourceService {
         return resources;
     }
 
-    // TODO Test this function, client library
+    /**
+     * Lists children of the given ProjectResource
+     * @param id Long ProjectResource id
+     * @return List of ProjectResource
+     */
     @GET
     @Path("/{id:[0-9]*}/children")
     @Produces(MediaType.APPLICATION_JSON)
@@ -64,6 +73,11 @@ public class ResourceService {
         return resources;
     }
     
+    /**
+     * Downloads ProjectResource content as byte stream
+     * @param id Long ProjectResource id
+     * @return byte[] stream
+     */
     @GET
     @Path("/{id:[0-9]*}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -89,6 +103,11 @@ public class ResourceService {
                 .build();
     }
 
+    /**
+     * Deletes given ProjectResource, Children, Content and Access
+     * @param id Long ProjectResource id
+     * @return Response.ok() if successful
+     */
     @DELETE
     @Path("/{id:[0-9]*}")
     public Response deleteResource(@PathParam("id") Long id) {
@@ -115,6 +134,11 @@ public class ResourceService {
         }
     }
 
+    /**
+     * Gets current user's ResourceAccess for given ProjectResource
+     * @param id Long ProjectResource id
+     * @return ResourceAccess
+     */
     @GET
     @Path("/{id:[0-9]*}/access")
     @Produces(MediaType.APPLICATION_JSON)
@@ -127,6 +151,12 @@ public class ResourceService {
             return Response.status(404).build();
     }
 
+    /**
+     * Gets ResourceAccess for a given user
+     * @param resourceId Long ProjectResource id
+     * @param userId String userId
+     * @return ResourceAccess
+     */
     @GET
     @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -141,6 +171,13 @@ public class ResourceService {
             return Response.status(404).build();
     }
 
+    /**
+     * Authorises a User to access a ProjectResource
+     * @param resourceId Long ProjectResource id
+     * @param access ResourceAccess with userId and AccessLevel
+     * @return Response.created() with URI
+     * @throws URISyntaxException if created URI is invalid
+     */
     @POST
     @Path("/{id:[0-9]*}/access/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -171,7 +208,14 @@ public class ResourceService {
             return Response.status(500).build();
         }
     }
-
+    /**
+     * Updates authorisation for a User to access a ProjectResource
+     * 
+     * @param resourceId Long ProjectResource id
+     * @param userId String userId
+     * @param access ResourceAccess containing updated AccessLevel
+     * @return Response.ok()
+     */
     @PUT
     @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -194,7 +238,12 @@ public class ResourceService {
             return Response.status(500).build();
         }
     }
-
+    /**
+     * Deauthorises User to access a ProjectResource
+     * @param resourceId Long ProjectResource id
+     * @param userId String userId
+     * @return Response.ok() if successful
+     */
     @DELETE
     @Path("/{id:[0-9]*}/access/{userId:([0-9a-zA-Z]|-)*}")
     public Response removeUserAuthorisation(@PathParam("id") String resourceId,
@@ -216,6 +265,13 @@ public class ResourceService {
         }
     }
 
+    /**
+     * Publishes a new ProjectResource with metadata
+     * 
+     * @param resource ProjectResource containing metadata
+     * @return Response.created() with URI and ProjectResource
+     * @throws URISyntaxException if created URI is invalid
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -226,6 +282,12 @@ public class ResourceService {
                 .build();
     }
 
+    /**
+     * Updates ProjectResource Metadata
+     * @param id Long ProjectResource id
+     * @param update ProjectResource containing updated info
+     * @return Response.ok() with updated ProjectResource
+     */
     @PUT
     @Path("/{id:[0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -242,6 +304,12 @@ public class ResourceService {
 
     }
 
+    /**
+     * Publishes ProjectResource update to content
+     * @param id Long ProjectResource id
+     * @param data Base64Encoded String data
+     * @return Response.ok() if successful, else Response.notModified()
+     */
     @PUT
     @Path("/{id:[0-9]*}/content")
     public Response updateResourceContent(@PathParam("id") Long id, String data) {

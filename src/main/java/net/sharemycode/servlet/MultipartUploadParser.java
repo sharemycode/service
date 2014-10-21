@@ -21,6 +21,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Multipart Upload Parser
+ * - Based on Valum's File Uploader
+ * @see <a href="https://github.com/Widen/fine-uploader">Fine Uploader</a>
+ * 
+ * @author Lachlan Archibald
+ *
+ */
+
 public class MultipartUploadParser {
     final Logger log = LoggerFactory.getLogger(MultipartUploadParser.class);
 

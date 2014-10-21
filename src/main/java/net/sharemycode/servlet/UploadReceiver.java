@@ -24,13 +24,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Upload Resource Servlet
+ * - Based on Valum's File Uploader
+ * @see <a href="https://github.com/Widen/fine-uploader">Fine Uploader</a>
+ * 
+ * @author Lachlan Archibald
+ *
+ */
 @WebServlet(name = "UploadResourceServlet", urlPatterns = "/upload")
 public class UploadReceiver extends HttpServlet {
-    /**
-     * Upload Receiver - Based on Valum's File Uploader
-     * 
-     * @author Lachlan Archibald
-     */
+
     private static final long serialVersionUID = -275766874651285460L;
     private static File UPLOAD_DIR = new File(ProjectController.ATTACHMENT_PATH);
     private static File TEMP_DIR = new File(ProjectController.TEMP_STORAGE
@@ -48,11 +52,16 @@ public class UploadReceiver extends HttpServlet {
     @Inject
     ProjectController projectController;
 
+    /** Create attachment upload directory -- performed once */
     @Override
     public void init() throws ServletException {
         UPLOAD_DIR.mkdirs();
     }
 
+    /** 
+     * Upload file using Java servlet
+     *  - Creates a unique attachment directory for every upload
+     */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -145,6 +154,13 @@ public class UploadReceiver extends HttpServlet {
         }
     }
 
+    /**
+     * Write Response
+     * - JSON data with success and attachmentId
+     * @param writer PrintWriter
+     * @param id String attachmentId
+     * @param failureReason String failure
+     */
     private void writeResponse(PrintWriter writer, String id,
             String failureReason) {
         if (failureReason == null) {

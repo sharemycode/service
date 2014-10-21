@@ -32,8 +32,6 @@ import net.sharemycode.model.ProjectResource;
 import net.sharemycode.model.ProjectResource.ResourceType;
 
 /**
- * sharemycode.net ProjectService
- * 
  * Defines all RESTful services relating to project entities
  * 
  * @author Lachlan Archibald
@@ -50,7 +48,8 @@ public class ProjectService {
     ResourceController resourceController;
 
     /** 
-     * RandomURL. Used only for testing
+     * Generates a random 6 character URL
+     * @deprecated Used only for testing
      * @return String
      */
     @GET
@@ -61,7 +60,7 @@ public class ProjectService {
     }
 
     /**
-     * List Projects
+     * Lists all Project owned by the current User
      * @return List of Projects for the logged in User
      */
     @GET
@@ -72,7 +71,7 @@ public class ProjectService {
     }
 
     /**
-     * UploadProject
+     * Creates a new project with a list of ProjectAttachment ids
      * @param properties JSON project information and list of attachmentId
      * @return Response.created() with Project
      * @throws URISyntaxException if resulting URI is invalid
@@ -95,7 +94,7 @@ public class ProjectService {
     }
 
     /**
-     * List Shared Projects
+     * Lists Shared Projects
      * @return List of Projects that the User has owner permissions
      */
     @GET
@@ -105,6 +104,11 @@ public class ProjectService {
         return projectController.listSharedProjects();
     }
 
+    /**
+     * Returns a Project entity by id
+     * @param id String Project id
+     * @return Project
+     */
     @GET
     @Path("/{id:[0-9a-z]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -118,8 +122,7 @@ public class ProjectService {
     }
 
     /**
-     * Fetch Project.
-     * Download the entire project as a .zip
+     * Downloads the entire project as a .zip
      * @param id ProjectID to download
      * @return Response.ok() with application/zip stream
      */
@@ -143,7 +146,7 @@ public class ProjectService {
     }
 
     /**
-     * List Project Resources
+     * Lists Project Resources
      * @param projectid ProjectID to get resources
      * @param root 0: list all, 1: list only top-level resources
      * @return List of ProjectResource
@@ -165,7 +168,7 @@ public class ProjectService {
     }
 
     /**
-     * Add Attachments to Project
+     * Adds Attachments to Project
      * @param id Existing ProjectId to add attachments
      * @param attachments List of String Ids of attachments
      * @return Response.ok() if successful, or Response.notModifed()
@@ -186,7 +189,7 @@ public class ProjectService {
     }
 
     /**
-     * Upload Attachment
+     * Uploads Attachment using the REST endpoint
      * @param name Filename
      * @param data Base64EncodedString data
      * @return Response.ok() with attachmentId if successful
@@ -204,7 +207,7 @@ public class ProjectService {
     }
 
     /**
-     * List Projects with Search ?
+     * Lists Projects with search ?
      * @param searchTerm String name of project to search
      * @return List of own Projects that match search term (not tested)
      */
@@ -222,7 +225,7 @@ public class ProjectService {
     }
 
     /**
-     * Create New Folder ?
+     * Creates new folder in a Project ?
      * @param properties
      * @return ProjectResource[] ?
      */
@@ -262,7 +265,7 @@ public class ProjectService {
     }
 
     /**
-     * Create New Class ?
+     * Creates new Java class in Project ?
      * @param properties
      * @return ProjectResource
      */
@@ -296,7 +299,7 @@ public class ProjectService {
     }
 
     /**
-     * List Projects By Owner. Not tested.
+     * Lists Projects by owner. Not tested recently
      * @param username Username to search projects for.
      * @return List of Project
      */
@@ -314,7 +317,7 @@ public class ProjectService {
     }
 
     /**
-     * Update Project. Requires READ_WRITE permission
+     * Updates Project information. Requires READ_WRITE permission
      * @param id ProjectId to update
      * @param update Project containing updated data
      * @return Response.ok() with updated Project
@@ -332,7 +335,7 @@ public class ProjectService {
     }
 
     /**
-     * Change Displayed Project Owner. Requires OWNER permission
+     * Changes Displayed Project Owner. Requires OWNER permission
      * @param id ProjectId to update
      * @param username Username to set as new owner
      * @return Response.ok()
@@ -351,7 +354,7 @@ public class ProjectService {
     }
 
     /**
-     * Delete Project. Requires OWNER permission
+     * Deletes Project. Requires OWNER permission
      * 
      * @param id ProjectId to delete
      * @return Reponse.ok() if successful
@@ -381,7 +384,7 @@ public class ProjectService {
     }
 
     /**
-     * Get Project Access
+     * Gets ProjectAccess for current User
      * @param id ProjectId
      * @return ProjectAccess entity for current user
      */
@@ -397,7 +400,7 @@ public class ProjectService {
     }
 
     /**
-     * Get UserAuthorisation
+     * Gets UserAuthorisation for a given User
      * @param projectId ProjectId
      * @param userId User to get ProjectAccess for
      * @return ProjectAccess for given user
@@ -417,7 +420,7 @@ public class ProjectService {
     }
 
     /**
-     * Create User Authorisation for Project
+     * Creates User Authorisation for Project
      * @param projectId ProjectId
      * @param access ProjectAccess
      * @return Response.created() with URI
@@ -454,7 +457,7 @@ public class ProjectService {
     }
 
     /**
-     * Update User Authorisation for Project
+     * Updates User Authorisation for Project
      * @param projectId ProjectId
      * @param userId UserId to update authorisation
      * @param access ProjectAccess
@@ -484,7 +487,7 @@ public class ProjectService {
     }
 
     /**
-     * Remove User Authorisation for Project
+     * Removes User Authorisation for Project
      * @param projectId ProjectId
      * @param userId UserId to de-authorise
      * @return Response.ok() if successful

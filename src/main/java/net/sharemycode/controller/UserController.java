@@ -42,7 +42,7 @@ public class UserController {
     EntityManager em;
 
     /**
-     * Register new User.
+     * Registers new User.
      * 
      * @param properties JSON data
      * 
@@ -91,7 +91,7 @@ public class UserController {
     }
 
     /**
-     * List all users
+     * Lists all users
      * @deprecated Demonstration of system only
      * 
      * @return List of Users
@@ -105,8 +105,8 @@ public class UserController {
     }
 
     /**
-     * Lookup User By Username.
-     * Matches username exactly and returns User entity
+     * Returns a User by username
+     * 
      * @param username String
      * @return User
      */
@@ -125,8 +125,8 @@ public class UserController {
     }
 
     /**
-     * Lookup User By Email.
-     * Matches user email exactly and returns User entity
+     * Returns a User by email
+
      * @param email String
      * @return User
      */
@@ -142,10 +142,9 @@ public class UserController {
     }
 
     /**
-     * Lookup UserProfile by username
+     * Returns UserProfile by username
      * 
      * @param username String
-     * 
      * @return UserProfile
      */
     public UserProfile lookupUserProfile(String username) {
@@ -159,7 +158,7 @@ public class UserController {
     }
 
     /**
-     * Create UserProfile and persist
+     * Creates UserProfile and persists.
      * Note: created upon registration.
      * 
      * @param id String
@@ -179,7 +178,7 @@ public class UserController {
     }
 
     /**
-     * Update user profile and persist
+     * Updates UserProfile and persists
      * 
      * @param u User the profile belongs to
      * @param update UserProfile containing new data
@@ -212,7 +211,7 @@ public class UserController {
     }
 
     /**
-     * Update user account information
+     * Updates User account information
      * @param u User to edit
      * @param username new username
      * @param email new email

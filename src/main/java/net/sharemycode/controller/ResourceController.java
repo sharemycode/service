@@ -46,7 +46,7 @@ public class ResourceController {
     private Identity identity;
 
     /**
-     * Lookup ProjectResource by id
+     * Returns the ProjectResource with given id
      * 
      * @param id    Long id of ProjectResource
      * @return ProjectResource
@@ -57,7 +57,7 @@ public class ResourceController {
     }
 
     /**
-     * List all resources for all projects
+     * Lists all resources for all projects
      * @deprecated this function was only for testing, should not be used.
      * @return List of ProjectResources
      */
@@ -70,12 +70,11 @@ public class ResourceController {
     }
 
     /**
-     * List all resources of a project,
+     * Lists all resources of a project,
      * use root=1 to limit to only root resources (no parent)
-     * @param project   Project to obtain resources for
-     * @param root
-     * if root=1 or non-zero, list only resources with no parent;
-     * if root=0 or undefined, list all resources
+     * @param project Project to obtain resources for
+     * @param root    if root=1 or non-zero, list only resources with no parent;
+     *                if root=0 or undefined, list all resources
      * @return List of ProjectResources
      */
     public List<ProjectResource> listResources(Project project, int root) {
@@ -98,9 +97,9 @@ public class ResourceController {
     }
 
     /**
-     * List ChildResources of a ProjectResource
+     * Lists ChildResources of a ProjectResource
      * 
-     * @param parent    ProjectResource parent
+     * @param parent ProjectResource parent
      * @return List of ProjectResources
      */
     public List<ProjectResource> listChildResources(ProjectResource parent) {
@@ -114,30 +113,31 @@ public class ResourceController {
     }
 
     /**
-     * Delete a single ProjectResource, and all children resources and associated ResourceAccess.
+     * Deletes a single ProjectResource, and all children resources
+     * and associated ResourceAccess.
      * Handles child ProjectResources recursively.
      * Does not lookup permissions for Resource yet
      * 
-     * @param pr    ProjectResource to delete
+     * @param resource ProjectResource to delete
      * @return int status, 200 if successful
      */
     @LoggedIn
-    public int deleteResource(ProjectResource pr) {
+    public int deleteResource(ProjectResource resource) {
         // Delete individual ProjectResource by id
         EntityManager em = entityManager.get();
         try {
             // TODO Lookup permissions
             // Also delete associated ResourceContent and all ResourceAccess
-            if (pr.getResourceType().equals(ResourceType.DIRECTORY)) {
-                List<ProjectResource> children = listChildResources(pr);
+            if (resource.getResourceType().equals(ResourceType.DIRECTORY)) {
+                List<ProjectResource> children = listChildResources(resource);
                 for (ProjectResource r : children)
                     deleteResource(r);
-                deleteAllResourceAccess(pr);
+                deleteAllResourceAccess(resource);
             } else {
-                deleteAllResourceAccess(pr);
-                deleteResourceContent(pr);
+                deleteAllResourceAccess(resource);
+                deleteResourceContent(resource);
             }
-            em.remove(pr); // remove ResourceAccess from datastore
+            em.remove(resource); // remove ResourceAccess from datastore
             return 200; // HTTP OK
         } catch (NoResultException e) {
             System.err.println("Exception occurred: " + e);
@@ -146,7 +146,7 @@ public class ResourceController {
     }
 
     /**
-     * Delete all ProjectResources for a given Project.
+     * Deletes all ProjectResources for a given Project.
      * Gets all root resources, then handles children recursively
      * @param p Project
      * @return int status, 200 if successful
@@ -165,19 +165,18 @@ public class ResourceController {
     }
 
     /**
-     * Delete all ResourceAccess for a ProjectResource
+     * Deletes all ResourceAccess for a ProjectResource
      * 
-     * @param pr ProjectResource to remove authorisation for
-     * 
+     * @param resource ProjectResource to remove authorisation for
      * @return int status, 200 if successful
      */
-    public int deleteAllResourceAccess(ProjectResource pr) {
+    public int deleteAllResourceAccess(ProjectResource resource) {
         // Delete ALL associated ResourceAccess entities for ProjectResource
         EntityManager em = entityManager.get();
         TypedQuery<ResourceAccess> qResourceAccess = em
                 .createQuery("SELECT ra FROM ResourceAccess ra "
                     +"WHERE ra.resource = :resource", ResourceAccess.class);
-        qResourceAccess.setParameter("resource", pr);
+        qResourceAccess.setParameter("resource", resource);
         List<ResourceAccess> raList = qResourceAccess.getResultList();
         if (raList.size() == 0)
             return 404; // HTTP NOT FOUND
@@ -188,7 +187,7 @@ public class ResourceController {
     }
 
     /**
-     * Delete ResourceContent for ProjectResource
+     * Deletes ResourceContent for ProjectResource
      * 
      * @param resource ProjectResource to remove content
      * @return int status, 200 if successful
@@ -210,7 +209,7 @@ public class ResourceController {
     }
 
     /**
-     * Get ResourceContent for ProjectResource
+     * Gets ResourceContent for ProjectResource
      * 
      * @param resource ProjectResource to get content
      * @return ResourceContent entity
@@ -231,7 +230,7 @@ public class ResourceController {
     }
 
     /**
-     * Get ResourceAccess for current user
+     * Gets ResourceAccess for current user
      * 
      * @param id Long
      * @return ResourceAccess
@@ -258,7 +257,7 @@ public class ResourceController {
         }
     }
     /**
-     * Get UserAuthorisation for ProjectResource
+     * Gets UserAuthorisation for ProjectResource
      * 
      * @param resourceId Long
      * @param userId String
@@ -289,7 +288,7 @@ public class ResourceController {
         }
     }
     /**
-     * Create user authorisation for ProjectResource
+     * Creates User authorisation for ProjectResource
      * 
      * @param resourceId Long
      * @param access ResourceAccess
@@ -333,7 +332,7 @@ public class ResourceController {
     }
 
     /**
-     * Update user authorisation for ProjectResource
+     * Updates User authorisation for ProjectResource
      * 
      * @param resourceId Long
      * @param userId String
@@ -381,7 +380,7 @@ public class ResourceController {
     }
 
     /**
-     * Remove user authorisation for ProjectResource
+     * Removes User authorisation for ProjectResource
      * 
      * @param resourceId Long
      * @param userId String
@@ -422,7 +421,7 @@ public class ResourceController {
     }
 
     /**
-     * Create user authorisation for all resources in a Project
+     * Creates User authorisation for all resources in a Project
      * 
      * @param p Project
      * @param userId String
@@ -444,7 +443,7 @@ public class ResourceController {
         return true;
     }
     /**
-     * Update user authorisation for all resources in a Project
+     * Updates User authorisation for all resources in a Project
      * 
      * @param p Project
      * @param userId String
@@ -468,7 +467,7 @@ public class ResourceController {
     }
 
     /**
-     * Remove user authorisation for all resources in a Project
+     * Removes User authorisation for all resources in a Project
      * 
      * @param p Project
      * @param userId String
@@ -488,7 +487,7 @@ public class ResourceController {
     // TODO Publish Resource via path eg. projects/{id}/{resourceName}/{resourceName}
 
     /**
-     * Lookup ProjectResource by name
+     * Return ProjectResource by name
      * 
      * @param project Project that the resource belongs to
      * @param parent parent ProjectResource
@@ -515,7 +514,7 @@ public class ResourceController {
     }
 
     /** 
-     * Persist a new ProjectResource
+     * Persists a new ProjectResource
      * 
      * @param resource  ProjectResource to be persisted
      * @return ProjectResource
@@ -531,7 +530,7 @@ public class ResourceController {
     }
 
     /**
-     * Create ResourceContent from Base64Encoded String
+     * Creates ResourceContent from Base64Encoded String
      * @param resource associated ProjectResource
      * @param data Base64Encoded String data
      * @return ResourceContent entity
@@ -568,9 +567,8 @@ public class ResourceController {
     }
 
     /**
-     * PublishResource
-     * Create the ProjectResource object from metadata,
-     * Create ResourceAccess for current user and offical project owner
+     * Publishes a new ProjectResource object with metadata.
+     * Creates ResourceAccess for current user and official project owner
      * 
      * @param r ProjectResource
      * @return ProjectResource
@@ -590,7 +588,7 @@ public class ResourceController {
     }
 
     /**
-     * Create ResourceAccess for given user with AccessLevel
+     * Creates ResourceAccess for given user with AccessLevel
      * 
      * @param resource ProjectResource
      * @param userId String
@@ -611,7 +609,7 @@ public class ResourceController {
     }
 
     /**
-     * Update ProjectResource metadata
+     * Updates ProjectResource metadata
      * 
      * @param r ProjectResource
      * @param update ProjectResource containing updated data

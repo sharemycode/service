@@ -21,8 +21,6 @@ import net.sharemycode.model.UserProfile;
 import net.sharemycode.security.model.User;
 
 /**
- * sharemycode.net UserService
- * 
  * Defines all RESTful services relating to user entities
  * 
  * @author Lachlan Archibald
@@ -35,6 +33,11 @@ public class UserService {
     @Inject
     UserController userController;
 
+    /**
+     * Logout
+     * - Temporary REST endpoint until PicketLink is fixed
+     * @return Response.ok()
+     */
     @GET
     @Path("/logout")
     @Produces(MediaType.TEXT_PLAIN)
@@ -46,7 +49,11 @@ public class UserService {
             return Response.status(result).build();
     }
 
-    /* Return full list of users */
+    /**
+     * Lists all users in the system
+     * @deprecated used only for testing purposes
+     * @return List of Users
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> listUsers() {
@@ -54,7 +61,11 @@ public class UserService {
         return userController.listAllUsers();
     }
 
-    /* return specific user by username */
+    /**
+     * Lookup User By Username
+     * @param username String username (exact, case-insensitive)
+     * @return User (May need to return only userId)
+     */
     @GET
     @Path("/{username:[a-zA-Z0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +77,12 @@ public class UserService {
         return user;
     }
 
-    /* Find user */
+    /**
+     * Finds user by username or email, depending on query
+     * @param username String username (exact, case-insensitive)
+     * @param email String email (exact, case-insensitive)
+     * @return User (May need to return only userId)
+     */
     @GET
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,6 +104,11 @@ public class UserService {
         return null;
     }
 
+    /**
+     * Gets User Profile
+     * @param username String username (exact, case-insensitive)
+     * @return UserProfile
+     */
     @GET
     @Path("/{username:[a-zA-Z0-9]*}/profile")
     // return user profile
@@ -96,6 +117,13 @@ public class UserService {
         return userController.lookupUserProfile(username);
     }
 
+    /**
+     * Updates User Profile
+     * 
+     * @param username String username (exact, case-insensitive)
+     * @param profile UserProfile with updated information
+     * @return Response.ok() with updated UserProfile
+     */
     @PUT
     @Path("/{username:[a-zA-Z0-9]*}/profile")
     // update user profile
@@ -113,6 +141,13 @@ public class UserService {
             return Response.ok().entity(updated).build();
     }
 
+    /**
+     * Updates User Account
+     * 
+     * @param username String username (exact, case-insensitive)
+     * @param properties JSON object with updated account details
+     * @return Response.ok() with updated User
+     */
     @PUT
     @Path("/{username:[a-zA-Z0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)

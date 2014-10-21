@@ -50,7 +50,8 @@ import org.apache.commons.io.FileUtils;
 
 import org.picketlink.Identity;
 
-/** Performs persistence operations for projects
+/** 
+ * Performs persistence operations for projects
  * 
  * @author Shane Bryzak
  * @author Lachlan Archibald
@@ -80,8 +81,8 @@ public class ProjectController {
     @Inject
     private Identity identity;
 
-    /** List all projects for the logged in user
-     * 
+    /** 
+     * Lists all projects for the logged in user
      * @return List of Projects
      */
     @LoggedIn
@@ -97,8 +98,8 @@ public class ProjectController {
         return q.getResultList();
     }
     
-    /** List all projects shared with the current user
-     * ie. current user has READ, READ_WRITE or RESTRICTED access
+    /** Lists all projects shared with the current user
+     * - that is, current user has READ, READ_WRITE or RESTRICTED access
      * 
      * @return List of Projects
      */
@@ -119,7 +120,8 @@ public class ProjectController {
         return q.getResultList();
     }
 
-    /** Create a new project with unqique URL and persist
+    /** 
+     * Creates a new project with unique URL and persists
      * 
      * @param project Takes the project information from submitProject()
      * and adds server-defined attributes for persistence
@@ -157,7 +159,7 @@ public class ProjectController {
     }
     
     /** 
-     * Persist a new ProjectResource
+     * Persists a new ProjectResource
      * @param resource  ProjectResource to be persisted
      * @return ProjectResource
      */
@@ -172,7 +174,7 @@ public class ProjectController {
     }
 
     /** 
-     * Create a new ResourceAccess object
+     * Creates a new ResourceAccess object and persists
      * @param resource      ProjectResource to be associated
      * @param userId        User to be given access
      * @param accessLevel   Project AccessLevel to use
@@ -192,7 +194,7 @@ public class ProjectController {
     }
 
     /** 
-     * Persist a new ProjectResource
+     * Persists a ResourceContent object
      * @param resource  ProjectResource to be persisted
      * @return ProjectResource
      * @throws IOException
@@ -213,7 +215,7 @@ public class ProjectController {
     }
 
     /**
-     * Lookup Project By Id
+     * Returns a Project with given id
      * @param id String id
      * @return Project
      */
@@ -223,7 +225,7 @@ public class ProjectController {
     }
 
     /**
-     * Lookup ProjectResource By Name
+     * Returns a ProjectResource by name
      * @param project   assocaiated project
      * @param parent    parentResource
      * @param name      name of the resource
@@ -248,7 +250,7 @@ public class ProjectController {
         }
     }
     /**
-     * List projects from a search
+     * Lists projects from a search
      * Relates to current user
      * @param searchTerm String
      * @return List of Projects
@@ -284,7 +286,7 @@ public class ProjectController {
     }
 
     /**
-     * Create directory resources, files may not have existing data
+     * Creates directory resources, files may not have existing data
      * @author Shane Bryzak
      * @param project Project to create directories for
      * @param directory Path to process
@@ -331,7 +333,7 @@ public class ProjectController {
     }
 
     /**
-     * Submit a new project JSON with attachments for creation
+     * Submits a new project JSON with attachments for creation
      * @author Lachlan Archibald
      * @param properties JSON Object data: name, version, description, attachments[]
      * @return Project
@@ -360,7 +362,7 @@ public class ProjectController {
     }
 
     /**
-     * Add attachments to existing project, generate ProjectResources
+     * Adds attachments to existing project, generate ProjectResources
      * @param p Project to add attachments to
      * @param attachments List of attachmentId Strings
      * @return Boolean, if an error occurred
@@ -379,7 +381,7 @@ public class ProjectController {
     }
 
     /** 
-     * Parse Content-Disposition header to get the original file name 
+     * Parses Content-Disposition header to get the original file name 
      * Used in old multipart file upload
      * @deprecated
      * @param headers
@@ -402,7 +404,7 @@ public class ProjectController {
     }
 
     /** 
-     * Save uploaded file to a defined location on the server
+     * Saves uploaded file to a defined location on the server
      * @deprecated Used in old multipart file upload
      * @param uploadedInputStream
      * @param serverLocation
@@ -427,7 +429,7 @@ public class ProjectController {
     }
 
     /**
-     * Extract project files into temporary project directory
+     * Extracts project files into temporary project directory
      * @author Lachlan Archibald
      * @param sourcePath    path to the zip file to be extracted
      * @param destPath      path to the destination folder to extract
@@ -459,7 +461,8 @@ public class ProjectController {
     }
 
     /**
-     * Create resources from EXISTING project (ie. Already has byte data)
+     * Creates resources from EXISTING project.
+     * That is, already has byte data.
      * Removes temporary files from disk after operations
      * @author Lachlan Archibald
      * @param project       Project to create resources for
@@ -510,7 +513,7 @@ public class ProjectController {
     }
 
     /**
-     * Process an individual file, convert from file to ProjectResource
+     * Processes an individual file, convert from file to ProjectResource
      * @param project   Project the resource belongs to
      * @param path      Path to the File
      * @param parent    ProjectResource parent
@@ -541,7 +544,7 @@ public class ProjectController {
     }
 
     /**
-     * Create ResourceAccess permissions for resource,
+     * Creates ResourceAccess permissions for resource,
      * for all users with ProjectAccess.
      * AccessLevel is determined by project accessLevel
      * @param project   Project to create permissions for
@@ -581,7 +584,7 @@ public class ProjectController {
     }
 
     /** 
-     * Process the directory into ProjectResources
+     * Processes a directory into ProjectResources
      * @param project       Project to generate ProjectResources for
      * @param currentDir    Current directory we are processing
      * @param parent        ProjectResource of parent directory
@@ -634,7 +637,7 @@ public class ProjectController {
     }
 
     /**
-     * Return projects owned by a given username
+     * Returns projects owned by a given username
      * Uses the project owner attribute
      * @param username String
      * @return List of Projects
@@ -651,7 +654,7 @@ public class ProjectController {
     }
 
     /** 
-     * Create attachment from REST endpoint method
+     * Creates attachment from REST endpoint method
      * @param name  name of the resource file to create
      * @param data  Base64encoded String data
      * @return Long attachmentId
@@ -671,7 +674,7 @@ public class ProjectController {
     }
 
     /** 
-     * Create Attachment From a File already on the server,
+     * Creates Attachment From a File already on the server,
      * used with the Java FileUpload servlet to process files into attachments
      * @param file File stored on server
      * @return Long attachmentId
@@ -683,7 +686,7 @@ public class ProjectController {
     }
 
     /** 
-     * Create ProjectAttachment entity and persist 
+     * Creates ProjectAttachment entity and persist 
      * @param filePath  path to the file on the server
      * @return  ProjectAttachment entity   
      */
@@ -699,7 +702,7 @@ public class ProjectController {
     }
 
     /**
-     * Update Project information: name version and description
+     * Updates Project information: name version and description.
      * Requires READ_WRITE permission
      * @param id        String id of project
      * @param update    Project entity containing updated attributes
@@ -732,8 +735,7 @@ public class ProjectController {
     }
 
     /**
-     * Change Project Owner
-     * Updates the displayed owner of the project
+     * Updates the displayed owner of the project.
      * Requires OWNER access
      * @param id        String project id
      * @param username  String username to make the new owner
@@ -768,7 +770,7 @@ public class ProjectController {
     }
 
     /**
-     * Delete the entire project by id
+     * Deletes the entire project by id.
      * Removes all associated ProjectAccess, ProjectResource and Project
      * @param id    String project id
      * @return  int status
@@ -833,7 +835,7 @@ public class ProjectController {
     }
 
     /**
-     * Get the authorisation for a user to access a given project
+     * Gets the authorisation for a user to access a given project
      * 
      * @param projectId     String id of project
      * @param userId        String id of user
@@ -865,7 +867,7 @@ public class ProjectController {
     }
 
     /**
-     * Create authorisation for a user to access a given project
+     * Creates authorisation for a user to access a given project
      * 
      * @param projectId String id of project
      * @param access ProjectAccess entity containing project, userId and accessLevel
@@ -924,7 +926,7 @@ public class ProjectController {
     }
 
     /**
-     * Update the authorisation for a user to access a project
+     * Updates the authorisation for a user to access a project
      * @param projectId String id of project
      * @param userId    String id of user
      * @param access    ProjectAccess containing updated information
@@ -986,7 +988,7 @@ public class ProjectController {
     }
 
     /**
-     * Remove authorisation for user to access a project
+     * Removes authorisation for user to access a project
      * @param projectId String project id
      * @param userId    String user id
      * @return int status 200 if successful
@@ -1070,7 +1072,7 @@ public class ProjectController {
     }
 
     /**
-     * Process a directory ProjectResource into Files
+     * Processes a directory ProjectResource into Files
      * 
      * @param parent ProjectResource directory to process
      * @param parentDirectory Directory on disk to place files   
@@ -1091,7 +1093,7 @@ public class ProjectController {
     }
 
     /**
-     * Process a file ProjectResource into a File on disk
+     * Processes a file ProjectResource into a File on disk
      * 
      * @param r ProjectResource file to process
      * @param directory Directory on disk to place file

@@ -12,10 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * sharemycode REST SystemService
+ * REST endpoints exposed for testing client connections.
  * 
- * @author Lachlan Archibald Description: Intended mostly for testing client
- *         connections
+ * @author Lachlan Archibald
  */
 
 @Path("/system")
