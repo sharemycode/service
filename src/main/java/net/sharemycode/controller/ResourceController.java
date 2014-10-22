@@ -494,17 +494,26 @@ public class ResourceController {
      * @param name Name of the ProjectResource
      * @return ProjectResource
      */
+    // this is a duplicate method, same as ProjectController#lookupResourceByName()
     public ProjectResource lookupResourceByName(Project project,
             ProjectResource parent, String name) {
         EntityManager em = entityManager.get();
-
-        TypedQuery<ProjectResource> q = em
-                .createQuery("SELECT r FROM ProjectResource r "
-                    + "WHERE r.project = :project AND r.parent = :parent "
-                    + "AND r.name = :name", ProjectResource.class);
-        q.setParameter("project", project);
-        q.setParameter("parent", parent);
-        q.setParameter("name", name);
+        TypedQuery<ProjectResource> q = null;
+        // if parent is null, search for IS_NULL property in database
+        if (parent == null) { 
+            q = em.createQuery("SELECT r FROM ProjectResource r " 
+                        + "WHERE r.project = :project AND r.parent IS NULL "
+                        + "AND r.name = :name", ProjectResource.class);
+            q.setParameter("project", project);
+            q.setParameter("name", name);
+        } else {    // otherwise perform query as normal
+            q = em.createQuery("SELECT r FROM ProjectResource r " 
+                        + "WHERE r.project = :project AND r.parent = :parent "
+                        + "AND r.name = :name", ProjectResource.class);
+            q.setParameter("project", project);
+            q.setParameter("parent", parent);
+            q.setParameter("name", name);
+        }
 
         try {
             return q.getSingleResult();

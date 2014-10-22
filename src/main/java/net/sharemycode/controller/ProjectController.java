@@ -226,7 +226,7 @@ public class ProjectController {
 
     /**
      * Returns a ProjectResource by name
-     * @param project   assocaiated project
+     * @param project   associated project
      * @param parent    parentResource
      * @param name      name of the resource
      * @return          ProjectResource
@@ -234,14 +234,22 @@ public class ProjectController {
     public ProjectResource lookupResourceByName(Project project,
             ProjectResource parent, String name) {
         EntityManager em = entityManager.get();
-
-        TypedQuery<ProjectResource> q = em
-                .createQuery("SELECT r FROM ProjectResource r " 
-                    + "WHERE r.project = :project and r.parent = :parent "
-                    + "AND r.name = :name", ProjectResource.class);
-        q.setParameter("project", project);
-        q.setParameter("parent", parent);
-        q.setParameter("name", name);
+        TypedQuery<ProjectResource> q = null;
+        // if parent is null, search for IS_NULL property in database
+        if (parent == null) { 
+            q = em.createQuery("SELECT r FROM ProjectResource r " 
+                        + "WHERE r.project = :project AND r.parent IS NULL "
+                        + "AND r.name = :name", ProjectResource.class);
+            q.setParameter("project", project);
+            q.setParameter("name", name);
+        } else {    // otherwise perform query as normal
+            q = em.createQuery("SELECT r FROM ProjectResource r " 
+                        + "WHERE r.project = :project AND r.parent = :parent "
+                        + "AND r.name = :name", ProjectResource.class);
+            q.setParameter("project", project);
+            q.setParameter("parent", parent);
+            q.setParameter("name", name);
+        }
 
         try {
             return q.getSingleResult();
@@ -249,6 +257,7 @@ public class ProjectController {
             return null;
         }
     }
+    
     /**
      * Lists projects from a search
      * Relates to current user
@@ -468,7 +477,7 @@ public class ProjectController {
      * @param project       Project to create resources for
      * @param attachments   List<String> of attachments (Long, encoded as String)
      * @param parent        parent ProjectResource to create resources under
-     * @return Boolean, returns false if error occured
+     * @return Boolean, returns false if error occurred
      * @throws IOException
      */
     @LoggedIn
@@ -494,7 +503,17 @@ public class ProjectController {
                             + zipFile.getName() + " to project directory.");
                     return false;
                 }
-                if (!processDirectory(project, tempProjectPath, parent))
+                // now process the directory to create resources
+                String startDirectory = tempProjectPath;
+                File[] files = new File(startDirectory).listFiles();
+                // if the only file in the root directory
+                // is a directory with the same name as the project
+                if(files.length == 1 && files[0].isDirectory()
+                        && files[0].getName().equals(project.getName()) ) {
+                    // skip this directory, start from the child
+                    startDirectory = files[0].getAbsolutePath();
+                }
+                if (!processDirectory(project, startDirectory, parent))
                     return false;
             } else {
                 // treat as a normal file
@@ -512,6 +531,59 @@ public class ProjectController {
         return true;
     }
 
+    /** 
+     * Processes a directory into ProjectResources
+     * @param project       Project to generate ProjectResources for
+     * @param currentDir    Current directory we are processing
+     * @param parent        ProjectResource of parent directory
+     * @return Boolean      true if successfully processed directory
+     * @throws IOException
+     */
+    private Boolean processDirectory(Project project, String currentDir,
+            ProjectResource parent) throws IOException {
+        // return list of files in directory
+        File[] files = new File(currentDir).listFiles();
+        String dataPath = null; // path to file for extracting byte array
+        for (File file : files) {
+            String name = file.getName();
+            ProjectResource r = lookupResourceByName(project, parent, name);
+            if (r == null) { // if current resource does not exist, create it
+                r = new ProjectResource();
+                r.setProject(project);
+                r.setName(name);
+                r.setParent(parent);
+                if (file.isDirectory()) { // if current file is a directory
+                    r.setResourceType(ResourceType.DIRECTORY);
+                    // create resource
+                    createResource(r);
+
+                    // For each user with access to the project, create
+                    // ResourceAccess
+                    createResourceAccessForAll(project, r);
+
+                    // Also create resource from children files
+                    String childDir = currentDir
+                            + ProjectResource.PATH_SEPARATOR + name;
+                    if (!processDirectory(project, childDir, r))
+                        System.err.println("Error processing files in "
+                                + childDir);
+                } else {
+                    r.setResourceType(ResourceType.FILE);
+                    // create resource
+                    createResource(r);
+
+                    // For each user with access to the project, create
+                    // ResourceAccess
+                    createResourceAccessForAll(project, r);
+                    // create resource content
+                    dataPath = file.getAbsolutePath();
+                    createResourceContent(r, dataPath);
+                }
+            }
+        }
+        return true;
+    }
+    
     /**
      * Processes an individual file, convert from file to ProjectResource
      * @param project   Project the resource belongs to
@@ -581,59 +653,6 @@ public class ProjectController {
             }
         }
 
-    }
-
-    /** 
-     * Processes a directory into ProjectResources
-     * @param project       Project to generate ProjectResources for
-     * @param currentDir    Current directory we are processing
-     * @param parent        ProjectResource of parent directory
-     * @return Boolean      true if successfully processed directory
-     * @throws IOException
-     */
-    private Boolean processDirectory(Project project, String currentDir,
-            ProjectResource parent) throws IOException {
-        // return list of files in directory
-        File[] files = new File(currentDir).listFiles();
-        String dataPath = null; // path to file for extracting byte array
-        for (File file : files) {
-            String name = file.getName();
-            ProjectResource r = lookupResourceByName(project, parent, name);
-            if (r == null) { // if current resource does not exist, create it
-                r = new ProjectResource();
-                r.setProject(project);
-                r.setName(name);
-                r.setParent(parent);
-                if (file.isDirectory()) { // if current file is a directory
-                    r.setResourceType(ResourceType.DIRECTORY);
-                    // create resource
-                    createResource(r);
-
-                    // For each user with access to the project, create
-                    // ResourceAccess
-                    createResourceAccessForAll(project, r);
-
-                    // Also create resource from children files
-                    String childDir = currentDir
-                            + ProjectResource.PATH_SEPARATOR + name;
-                    if (!processDirectory(project, childDir, r))
-                        System.err.println("Error processing files in "
-                                + childDir);
-                } else {
-                    r.setResourceType(ResourceType.FILE);
-                    // create resource
-                    createResource(r);
-
-                    // For each user with access to the project, create
-                    // ResourceAccess
-                    createResourceAccessForAll(project, r);
-                    // create resource content
-                    dataPath = file.getAbsolutePath();
-                    createResourceContent(r, dataPath);
-                }
-            }
-        }
-        return true;
     }
 
     /**
