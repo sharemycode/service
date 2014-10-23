@@ -40,8 +40,11 @@ var ShareMyCode = {
   createProject: function(props) {
     props.attachments = window.attachments;
     var cb = function(message, response) {
-        window.attachments.length = 0;	// clear the global array
+        
         ShareMyCode.registerCallback(message, response.status);
+        if(response.status == 201) { // iff successful creation
+          window.attachments.length = 0;  // clear the global array
+        }
     };
     xw.Sys.getWidget("projectService").post({content: JSON.stringify(props), callback: cb});
   },

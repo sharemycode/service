@@ -38,18 +38,22 @@
             <li>
                 <xw:link caption="Profile">
                     <xw:event type="onclick"><![CDATA[
-                        alert('This PicketLink function is broken at the moment');
+                        alert('PicketLink function #{identity.account.username} is broken at the moment');
                         xw.open("userProfile.xw", {username: evaluate("#{identity.account.username}")}, "content")]]></xw:event>
                 </xw:link>
             </li>
             <li>
                 <xw:link caption="Account">
-                    <xw:event type="onclick"><![CDATA[xw.open("userAccount.xw", null, "content")]]></xw:event>
+                    <xw:event type="onclick"><![CDATA[
+                        alert('PicketLink function #{identity.account.id} is broken at the moment');
+                        xw.open("userAccount.xw", null, "content")]]></xw:event>
                 </xw:link>
             </li>
             <li>
                 <xw:link caption="Logout">
-                    <xw:event type="onclick"><xw:action type="script"><![CDATA[identity.logout();]]></xw:action></xw:event>
+                    <xw:event type="onclick"><xw:action type="script"><![CDATA[
+                        alert('PicketLink function #{identity.logout} is broken at the moment');
+                        identity.logout();]]></xw:action></xw:event>
                 </xw:link>
             </li>
           </xw:fragment>        

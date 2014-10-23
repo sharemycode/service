@@ -40,7 +40,10 @@
             </xw:button>
             <xw:button id="cancel" label="Cancel">
                 <xw:event type="onclick">
-                    <xw:action type="script"><![CDATA[projectForm.reset();]]></xw:action>
+                    <xw:action type="script"><![CDATA[
+                            projectForm.reset();
+                            xw.open("menu.xw", null, "content");]]>
+                    </xw:action>
                 </xw:event>
             </xw:button>
         </div>
@@ -54,5 +57,8 @@
             </div>
         </div>
     </div>
-    <xw:event type="afterRender"><![CDATA[ShareMyCode.createUploader();]]></xw:event>
+    <xw:event type="afterRender"><![CDATA[
+            window.attachments.length = 0;  // clear the attachments variable
+            ShareMyCode.createUploader();]]>
+    </xw:event>
 </xw:view>
