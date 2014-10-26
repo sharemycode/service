@@ -88,7 +88,6 @@ public class ProjectService {
             return Response.status(400).entity("Failed to create project")
                     .build();
         }
-        // String output = newProject.getUrl();
         return Response.created(new URI("/projects/" + newProject.getId()))
                 .entity(newProject).build();
     }
@@ -437,8 +436,7 @@ public class ProjectService {
         switch (status) {
         case 201:
             return Response
-                    .created(
-                            new URI("/projects/" + projectId + "/access/"
+                    .created(new URI("/projects/" + projectId + "/access/"
                                     + access.getUserId())).entity("Success")
                     .build();
         case 400:

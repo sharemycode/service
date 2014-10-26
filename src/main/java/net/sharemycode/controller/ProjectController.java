@@ -348,7 +348,6 @@ public class ProjectController {
      * @return Project
      */
     public Project submitProject(Map<String, Object> properties) {
-        // First we test if the user entered non-unique username and email
         Project p = new Project();
         p.setName((String) properties.get("name"));
         p.setVersion((String) properties.get("version"));
@@ -485,9 +484,7 @@ public class ProjectController {
             List<String> attachments, ProjectResource parent)
             throws IOException {
         EntityManager em = entityManager.get();
-        // new method
         String userId = identity.getAccount().getId();
-        // String userId = "TestingOnly";
         String tempProjectPath = PROJECT_PATH + userId
                 + ProjectResource.PATH_SEPARATOR + project.getName();
         for (String attachment : attachments) {
@@ -1054,8 +1051,8 @@ public class ProjectController {
         // convert project resources into file, zip and download.
         ProjectAccess access = getProjectAccess(p.getId());
         if (!(access.getAccessLevel().equals(AccessLevel.OWNER)
-                || access.getAccessLevel().equals(AccessLevel.READ_WRITE) || access
-                .getAccessLevel().equals(AccessLevel.READ)))
+                || access.getAccessLevel().equals(AccessLevel.READ_WRITE)
+                || access.getAccessLevel().equals(AccessLevel.READ)))
             return null; // unauthorised
         List<ProjectResource> resources = resourceController.listResources(p, 1);
         // create temp directory
